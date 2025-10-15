@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thai Gala - Fight Card</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- header removed -->
+
+  <main class="fight-main">
+    <div class="logo-wrap"><img id="logoImage" src="loyalty_fights.png" alt="Loyalty Fights"></div>
+  <h2 class="section-title">Fight Card</h2>
+    <div class="now-strip">
+      <div>Nu:</div>
+      <div id="nowDisplay" class="now-match">—</div>
+    </div>
+  <section id="fightList" class="cards fight-cards" aria-live="polite"></section>
+
+    
+  </main>
+
+  <section class="loyalty-footer">
+    <p>Vill du veta mer om Loyalty Muay Thai?<br>
+    Besök vår hemsida: <a href="https://www.loyaltymuaythai.se" target="_blank">www.loyaltymuaythai.se</a></p>
+    <p>eller följ oss på Instagram: <a href="https://instagram.com/loyaltymuaythaiofficiell" target="_blank">@loyaltymuaythaiofficiell</a></p>
+  </section>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="year"></span> Loyalty Fights #1</p>
+  </footer>
+
+  <!-- QR modal removed -->
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <!-- SheetJS for .xlsx/.xls parsing -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="fightcard.js"></script>
+</body>
+</html>

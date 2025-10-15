@@ -1,0 +1,232 @@
+// Simple fight card controller (no backend)
+const fights = [
+  {id:1, a:"Leon Ländin", b:"Axel Toll", weight:"44 kg", klass:"JR-D Herr"},
+  {id:2, a:"Saga Lundström", b:"Sava Kader", weight:"51 kg", klass:"C Dam", winner: 'a'},
+  {id:3, a:"Elof Stålhane", b:"Baris Yildiz", weight:"67 kg", klass:"JR-D Herr"},
+  {id:4, a:"Daniel Chikowski Bredenberg", b:"Texas Sjöden", weight:"71 kg", klass:"JR-C Herr"},
+  {id:5, a:"Dennis Sjögren Reis", b:"Freddy Hellman", weight:"67 kg", klass:"C Herr"},
+  {id:6, a:"Tora Grant", b:"Samina Burgaj", weight:"62 kg", klass:"C Dam"},
+  {id:7, a:"Vilmer Albinsson", b:"Gustav Fernsund", weight:"67 kg", klass:"JR-C Herr"}
+];
+
+// small map of fighter affiliations/gyms to show under names
+const fighterAffils = {
+  'Leon Ländin': 'Combat Academy',
+  'Axel Toll': 'Loyalty Muay Thai',
+  'Saga Lundström': 'Loyalty Muay Thai',
+  'Sava Kader': 'South side Muay Thai',
+  'Elof Stålhane': 'South Side Muay Thai',
+  'Baris Yildiz': 'South Side Muay Thai',
+  'Daniel Chikowski Bredenberg': 'Salem Muay Thai',
+  'Texas Sjöden': 'Loyalty Muay Thai',
+  'Dennis Sjögren Reis': 'South side Muay Thai',
+  'Freddy Hellman': 'Kosta Kampakademi IF',
+  'Tora Grant': 'Loyalty Muay Thai',
+  'Samina Burgaj': 'South Side Muay Thai',
+  'Vilmer Albinsson': 'Loyalty Muay Thai',
+  'Gustav Fernsund': 'Combat Academy'
+};
+
+let current = 0;
+
+function renderList(){
+  const list = document.getElementById('fightList');
+  list.innerHTML = '';
+  fights.forEach((f, i)=>{
+    const el = document.createElement('article');
+    el.className='card fight-card';
+    el.dataset.index = i;
+    el.innerHTML = `
+      <div class="match">
+        ${f.klass ? `<div class="fight-klass">${f.klass}</div>` : ''}
+  <div class="weight-label">${f.weight}</div>
+  <div class="fight-row">
+          <div class="fighter-box ${f.winner==='a' ? 'winner' : ''}" data-side="a">
+            <div class="fighter-name">${f.a}</div>
+            <div class="fighter-meta">${fighterAffils[f.a] || ''}</div>
+          </div>
+          <div class="vs-col"><span class="vs-label">vs</span></div>
+          <div class="fighter-box ${f.winner==='b' ? 'winner' : ''}" data-side="b">
+            <div class="fighter-name">${f.b}</div>
+            <div class="fighter-meta">${fighterAffils[f.b] || ''}</div>
+          </div>
+        </div>
+      </div>`;
+    if (i===current) el.classList.add('live');
+    list.appendChild(el);
+
+    // no winner/loser controls — simplified card
+  })
+  updateNow();
+}
+
+// helper to set winner for a fight and re-render
+function setWinner(matchIndex, side){
+  if (matchIndex<0 || matchIndex>=fights.length) return;
+  const f = fights[matchIndex];
+  if (side!=='a' && side!=='b') return;
+  f.winner = side;
+  renderList();
+}
+
+// for demo: mark Axel Toll as winner (find his match)
+const axelMatch = fights.findIndex(f=> f.a === 'Axel Toll' || f.b === 'Axel Toll');
+if (axelMatch !== -1){
+  const f = fights[axelMatch];
+  if (f.b === 'Axel Toll') f.winner = 'b';
+  else if (f.a === 'Axel Toll') f.winner = 'a';
+}
+
+function updateNow(){
+  const now = document.getElementById('nowDisplay');
+  const f = fights[current];
+  now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
+  // highlight live
+  document.querySelectorAll('.fight-card').forEach(el=>el.classList.remove('live'));
+  const live = document.querySelector(`.fight-card[data-index="${current}"]`);
+  if (live) live.classList.add('live');
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('year').textContent = new Date().getFullYear();
+  renderList();
+
+  document.getElementById('next').addEventListener('click', ()=>{ current = Math.min(fights.length-1, current+1); updateNow(); });
+  document.getElementById('prev').addEventListener('click', ()=>{ current = Math.max(0, current-1); updateNow(); });
+
+  // Admin quick toggle: long-press admin to show simple input
+  const adminToggle = document.getElementById('adminToggle');
+  adminToggle.addEventListener('click', ()=>{
+    const idx = prompt('Set live match index (1-'+fights.length+')', (current+1));
+    if (!idx) return;
+    const n = parseInt(idx,10)-1;
+    if (Number.isInteger(n) && n>=0 && n<fights.length){ current = n; updateNow(); } else alert('Invalid index');
+  });
+
+  // QR button (safe: modal may have been removed)
+  const qrBtn = document.getElementById('qrBtn');
+  if (qrBtn){
+    qrBtn.addEventListener('click', ()=>{
+      alert('QR functionality is not available in this build.');
+    });
+  }
+
+  // Upload XLSX/CSV
+  const uploadBtn = document.getElementById('uploadBtn');
+  const fileInput = document.getElementById('fileInput');
+  if (uploadBtn && fileInput){
+    uploadBtn.addEventListener('click', ()=> fileInput.click());
+    fileInput.addEventListener('change', async (ev)=>{
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      const name = file.name.toLowerCase();
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        let rows = [];
+        if (name.endsWith('.csv')){
+          const text = new TextDecoder('utf-8').decode(arrayBuffer);
+          rows = csvToRows(text);
+        } else {
+          // try to use XLSX (SheetJS) if available
+          if (window.XLSX){
+            const wb = window.XLSX.read(arrayBuffer, {type:'array'});
+            const first = wb.SheetNames[0];
+            rows = window.XLSX.utils.sheet_to_json(wb.Sheets[first], {header:1});
+          } else {
+            alert('XLSX parsing requires the SheetJS library. Please include it or upload CSV.');
+            return;
+          }
+        }
+
+        // Expect rows like: [ ['A','B','Weight'], ... ] or headerless rows
+        const parsed = rowsToFights(rows);
+        if (parsed.length===0){ alert('No valid fights found in file'); return; }
+        // replace fights
+        fights.length = 0;
+        parsed.forEach((f,i)=> fights.push({id:i+1, a:f.a, b:f.b, weight:f.weight||''}));
+        current = 0;
+        renderList();
+      } catch (e){
+        console.error(e);
+        alert('Error reading file: '+e.message);
+      } finally {
+        fileInput.value = '';
+      }
+    });
+  }
+
+  function csvToRows(text){
+    // very small CSV parser: split lines, split by comma, trim quotes
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    return lines.map(line=> line.split(/,\s*/).map(cell=> cell.replace(/^"|"$/g,'').trim()));
+  }
+
+  function rowsToFights(rows){
+    // try to detect header row
+    if (!rows || rows.length===0) return [];
+    let start = 0;
+    // if first row contains non-names like 'A' or 'fighter' or 'name', treat as header
+    const first = rows[0].map(c=> (c||'').toString().toLowerCase());
+    if (first.some(c=> /name|fighter|a|b|weight|vs/.test(c))) start = 1;
+    const out = [];
+    for (let i=start;i<rows.length;i++){
+      const r = rows[i];
+      if (!r || r.length<2) continue;
+      const a = (r[0]||'').toString().trim();
+      const b = (r[1]||'').toString().trim();
+      const weight = (r[2]||'').toString().trim();
+      if (a || b) out.push({a,b,weight});
+    }
+    return out;
+  }
+
+});
+
+// expose for console testing
+window._fights = fights;
+
+// Try to auto-load an Excel/CSV file placed in the site root named like 'loyalty fights 1'
+;(async function tryAutoLoad(){
+  const baseNames = [
+    'loyalty fights 1.xlsx',
+    'loyalty fights 1.xls',
+    'loyalty fights 1.csv'
+  ];
+  for (const name of baseNames){
+    try {
+      const res = await fetch(encodeURI('./'+name));
+      if (!res.ok) continue;
+      const lower = name.toLowerCase();
+      if (lower.endsWith('.csv')){
+        const text = await res.text();
+        const rows = csvToRows(text);
+        const parsed = rowsToFights(rows);
+        if (parsed.length) {
+          fights.length = 0; parsed.forEach((f,i)=> fights.push({id:i+1,a:f.a,b:f.b,weight:f.weight||''}));
+          current = 0; renderList();
+          console.log('Loaded fights from', name);
+          return;
+        }
+      } else {
+        // binary
+        const ab = await res.arrayBuffer();
+        if (window.XLSX){
+          const wb = window.XLSX.read(ab, {type:'array'});
+          const first = wb.SheetNames[0];
+          const rows = window.XLSX.utils.sheet_to_json(wb.Sheets[first], {header:1});
+          const parsed = rowsToFights(rows);
+          if (parsed.length){
+            fights.length = 0; parsed.forEach((f,i)=> fights.push({id:i+1,a:f.a,b:f.b,weight:f.weight||''}));
+            current = 0; renderList();
+            console.log('Loaded fights from', name);
+            return;
+          }
+        } else {
+          console.warn('SheetJS (XLSX) not available to parse', name);
+        }
+      }
+    } catch (e){
+      // ignore and try next
+    }
+  }
+})();
