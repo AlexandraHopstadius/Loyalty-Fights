@@ -83,6 +83,36 @@
           }
         }catch(e){console.warn('ws parse',e)}
       });
+
+      // Poll the repository's raw fights.json as a fallback so GitHub Pages
+      // viewers update when the server commits changes to the repo.
+      // This allows the live site to reflect admin commits quickly without
+      // requiring a public WebSocket server.
+      const rawFightsUrl = 'https://raw.githubusercontent.com/AlexandraHopstadius/Loyalty-Fights/main/fights.json';
+      let __lastRaw = null;
+      async function pollRawFights(){
+        try{
+          const r = await fetch(rawFightsUrl, { cache: 'no-store' });
+          if(!r.ok) return;
+          const txt = await r.text();
+          if(txt && txt !== __lastRaw){
+            __lastRaw = txt;
+            try{
+              const j = JSON.parse(txt);
+              // repo may contain either { fights, current } or an array
+              const fightsArr = Array.isArray(j) ? j : (Array.isArray(j.fights) ? j.fights : null);
+              if(fightsArr){
+                window._fights.length = 0; fightsArr.forEach(f=> window._fights.push(f));
+              }
+              if(j && typeof j.current === 'number') current = j.current;
+              renderList(); updateNow();
+            }catch(e){ console.warn('parse raw fights', e); }
+          }
+        }catch(e){ /* ignore network errors */ }
+      }
+      // poll every 5s; you can increase/decrease as desired
+      setInterval(pollRawFights, 5000);
+      pollRawFights();
     })();
   </script>
 </body>
