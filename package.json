@@ -1,0 +1,25 @@
+{
+  "name": "thai_gala_mobile_site",
+  "version": "1.0.0",
+  "description": "Thai Gala - Mobile-first demo",
+  "main": "fightcard.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexandraHopstadius/Loyalty-Fights.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexandraHopstadius/Loyalty-Fights/issues"
+  },
+  "homepage": "https://github.com/AlexandraHopstadius/Loyalty-Fights#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "ws": "^8.18.3"
+  }
+}

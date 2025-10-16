@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - Loyalty Fights</title>
+  <style>
+    :root{--bg:#0f1112;--accent:#ff6b4a;--muted:#9aa0a6}
+    body{font-family:Segoe UI,Arial;margin:1rem;background:var(--bg);color:#fff}
+    .row{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}
+    button{padding:.5rem .9rem;border-radius:8px;border:0;background:var(--accent);color:#111;font-weight:700;cursor:pointer}
+    input,select{padding:.45rem .6rem;border-radius:6px;border:1px solid #222;background:#111;color:#fff}
+    #status{font-weight:700;color:#f0f0f0}
+    .muted{color:var(--muted);font-size:.95rem}
+    .big{font-size:1.1rem}
+    .pill{background:#111;padding:.4rem .6rem;border-radius:999px;border:1px solid #222}
+    .feedback{margin-top:.6rem;color:#cfe7d8}
+  </style>
+</head>
+<body>
+
+  <h2 style="margin:0 0 .5rem">Admin Controls</h2>
+  <div class="muted">Open this page with ?token=YOURTOKEN or paste token below</div>
+
+  <div class="row">
+    <label class="muted">Token:</label>
+    <input id="tokenInput" placeholder="admin token">
+    <button id="connectBtn">Connect</button>
+    <div class="pill muted">Status: <span id="status">disconnected</span></div>
+  </div>
+
+  <div class="row">
+    <div class="muted">Live index</div>
+    <input id="idx" type="number" min="0" value="0">
+    <button id="prev">◀ Prev</button>
+    <button id="next">Next ▶</button>
+    <button id="setCurrent">Set Current</button>
+    <div class="muted pill">Current: <span id="currentDisplay">-</span> / <span id="totalDisplay">-</span></div>
+  </div>
+
+  <div class="row">
+    <div class="muted">Winner</div>
+    <select id="side"><option value="a">A</option><option value="b">B</option></select>
+    <button id="setWinner">Set Winner</button>
+    <button id="clearWinner">Clear Winner</button>
+  </div>
+
+  <div class="feedback" id="feedback" aria-live="polite"></div>
+
+  <script>
+  // simplified admin UI with explicit connect and clear feedback
+  const urlToken = new URLSearchParams(location.search).get('token') || '';
+  const tokenInput = document.getElementById('tokenInput');
+  const statusEl = document.getElementById('status');
+  const feedback = document.getElementById('feedback');
+  const currentDisplay = document.getElementById('currentDisplay');
+  const totalDisplay = document.getElementById('totalDisplay');
+  const idxEl = document.getElementById('idx');
+
+  tokenInput.value = urlToken;
+
+  let ws = null;
+  let state = null;
+
+  function setStatus(s){ statusEl.textContent = s; }
+  function showFeedback(msg, ok=true){ feedback.textContent = msg; feedback.style.color = ok? '#cfe7d8':'#f6b3b3'; }
+
+  function connect(){
+    const token = tokenInput.value.trim();
+    if(!token){ showFeedback('Please enter a token first', false); return; }
+    if(ws){ ws.close(); ws = null; }
+    // use SERVER_ORIGIN when deployed; fall back to current host
+    const origin = window.SERVER_ORIGIN || (location.protocol + '//' + location.host);
+    const scheme = origin.startsWith('https:')? 'wss':'ws';
+    const wsTarget = scheme + '://' + origin.replace(/^https?:\/\//, '');
+    ws = new WebSocket(wsTarget);
+    ws.addEventListener('open', ()=> setStatus('connected (ws)') );
+    ws.addEventListener('close', ()=> setStatus('disconnected') );
+    ws.addEventListener('error', ()=> setStatus('error') );
+    ws.addEventListener('message', (ev)=>{
+      try{ const msg = JSON.parse(ev.data); if(msg.type === 'state'){ state = msg.state; updateUIFromState(); } }
+      catch(e){}
+    });
+    showFeedback('Connecting...');
+  }
+
+  function updateUIFromState(){
+    if(!state) return;
+    idxEl.value = (state.current!=null)? state.current : 0;
+    currentDisplay.textContent = (state.current!=null)? state.current : '-';
+    totalDisplay.textContent = (Array.isArray(state.fights)? state.fights.length : '-');
+    showFeedback('State updated', true);
+  }
+
+  async function sendAction(payload){
+    const token = tokenInput.value.trim();
+    if(!token){ showFeedback('Missing token', false); return; }
+    // try websocket admin wrapper
+    try{
+      if(ws && ws.readyState === WebSocket.OPEN){
+        ws.send(JSON.stringify({ type:'admin', token, payload }));
+      }
+    }catch(e){ /* ignore ws send errors */ }
+    // always POST for immediate feedback and server-side validation
+    try{
+      const target = (window.SERVER_ORIGIN || '') + '/admin/action?token=' + encodeURIComponent(token);
+      const res = await fetch(target, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) });
+      if(res.ok){ const j = await res.json(); showFeedback('OK: '+ (j.ok? 'action applied':'response received'), true); return j; }
+      else { const text = await res.text(); showFeedback('Server error: '+res.status+' '+text, false); return null; }
+    }catch(e){ showFeedback('Network error: '+e.message, false); return null; }
+  }
+
+  document.getElementById('connectBtn').addEventListener('click', ()=> connect());
+
+  document.getElementById('setCurrent').addEventListener('click', ()=>{
+    const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'setCurrent', index });
+  });
+  document.getElementById('prev').addEventListener('click', ()=>{
+    const val = Math.max(0, (parseInt(idxEl.value||'0',10)-1)); idxEl.value = val; sendAction({ type:'setCurrent', index:val });
+  });
+  document.getElementById('next').addEventListener('click', ()=>{
+    const val = (parseInt(idxEl.value||'0',10)+1); idxEl.value = val; sendAction({ type:'setCurrent', index:val });
+  });
+
+  document.getElementById('setWinner').addEventListener('click', ()=>{
+    const index = parseInt(idxEl.value||'0',10) || 0; const side = document.getElementById('side').value; sendAction({ type:'setWinner', index, side });
+  });
+  document.getElementById('clearWinner').addEventListener('click', ()=>{
+    const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'clearWinner', index });
+  });
+
+  // auto-connect if token provided in URL
+  if(tokenInput.value) connect();
+
+  // fetch initial state so the page shows accurate values even before ws connects
+  (async ()=>{
+    try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(e){}
+  })();
+
+  </script>
+
+</body>
+</html>

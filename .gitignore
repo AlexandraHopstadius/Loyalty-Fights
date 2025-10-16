@@ -1,1 +1,23 @@
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Installer / archives
+*.msi
+*.zip
+
+# Java JDK folder (very large)
+openJdk-25/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+
 openJdk-25/

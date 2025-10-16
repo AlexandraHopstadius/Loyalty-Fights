@@ -37,5 +37,45 @@
   <!-- SheetJS for .xlsx/.xls parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script src="fightcard.js"></script>
+  <script>
+    // Viewer websocket client: listens for server state and admin broadcasts
+    (function(){
+      // SERVER_ORIGIN can be set by a hosting deploy to point clients at the public server
+      // Example: <script>window.SERVER_ORIGIN='https://loyalty-fights.onrender.com'</script>
+      const origin = window.SERVER_ORIGIN || (location.protocol + '//' + location.host);
+      const proto = origin.startsWith('https') ? 'wss' : 'ws';
+      // For ws we need the host/port part without https://
+      const wsTarget = proto + '://' + origin.replace(/^https?:\/\//, '');
+      const ws = new WebSocket(wsTarget);
+      ws.addEventListener('open', ()=> console.log('ws open'));
+      ws.addEventListener('message', (ev)=>{
+        try{
+          const msg = JSON.parse(ev.data);
+          if (msg.type === 'state' && msg.state){
+            // initialize fights and current if provided
+            if (Array.isArray(msg.state.fights) && msg.state.fights.length){
+              // overwrite local fights array safely
+              window._fights.length = 0;
+              msg.state.fights.forEach(f=> window._fights.push(f));
+            }
+            if (typeof msg.state.current === 'number') {
+              current = msg.state.current;
+            }
+            renderList(); updateNow();
+          }
+          // admin messages mirror the action payloads
+          if (msg.type === 'setCurrent'){
+            current = msg.index; renderList(); updateNow();
+          }
+          if (msg.type === 'setWinner'){
+            const f = window._fights[msg.index]; if (f) f.winner = msg.side; renderList();
+          }
+          if (msg.type === 'clearWinner'){
+            const f = window._fights[msg.index]; if (f) delete f.winner; renderList();
+          }
+        }catch(e){console.warn('ws parse',e)}
+      });
+    })();
+  </script>
 </body>
 </html>

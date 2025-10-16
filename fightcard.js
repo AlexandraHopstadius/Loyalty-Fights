@@ -1,7 +1,7 @@
 // Simple fight card controller (no backend)
 const fights = [
   {id:1, a:"Leon Ländin", b:"Axel Toll", weight:"44 kg", klass:"JR-D Herr"},
-  {id:2, a:"Saga Lundström", b:"Sava Kader", weight:"51 kg", klass:"C Dam", winner: 'a'},
+  {id:2, a:"Saga Lundström", b:"Sava Kader", weight:"51 kg", klass:"C Dam"},
   {id:3, a:"Elof Stålhane", b:"Baris Yildiz", weight:"67 kg", klass:"JR-D Herr"},
   {id:4, a:"Daniel Chikowski Bredenberg", b:"Texas Sjöden", weight:"71 kg", klass:"JR-C Herr"},
   {id:5, a:"Dennis Sjögren Reis", b:"Freddy Hellman", weight:"67 kg", klass:"C Herr"},
@@ -82,14 +82,37 @@ function updateNow(){
   const f = fights[current];
   now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
   // highlight live
-  document.querySelectorAll('.fight-card').forEach(el=>el.classList.remove('live'));
+  // remove live/red-frame from all cards first
+  document.querySelectorAll('.fight-card').forEach(el=>el.classList.remove('live','red-frame'));
   const live = document.querySelector(`.fight-card[data-index="${current}"]`);
-  if (live) live.classList.add('live');
+  if (live) {
+    live.classList.add('live','red-frame');
+  }
+  // ensure the now strip shows a red frame while a match is live
+  const nowStrip = document.querySelector('.now-strip');
+  if (nowStrip){
+    nowStrip.classList.add('red-frame');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('year').textContent = new Date().getFullYear();
   renderList();
+
+  // try to fetch server state (persisted) so viewer shows admin-updated fights/current immediately
+  (async function(){
+    try{
+      const res = await fetch('/state');
+      if (res.ok){ const j = await res.json(); if (j){
+        if (Array.isArray(j.fights) && j.fights.length){
+          // replace fights array while preserving reference
+          fights.length = 0; j.fights.forEach(f=> fights.push(f));
+        }
+        if (typeof j.current === 'number') current = j.current;
+        renderList(); updateNow();
+      }}
+    }catch(e){ /* ignore */ }
+  })();
 
   document.getElementById('next').addEventListener('click', ()=>{ current = Math.min(fights.length-1, current+1); updateNow(); });
   document.getElementById('prev').addEventListener('click', ()=>{ current = Math.max(0, current-1); updateNow(); });
@@ -181,6 +204,23 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 
 });
+
+// helper: add or remove red-frame on a fight card by fighter names
+function highlightFightByNames(nameA, nameB, add = true){
+  const cards = document.querySelectorAll('.fight-card');
+  for (const c of cards){
+    const a = c.querySelector('.fighter-box[data-side="a"] .fighter-name');
+    const b = c.querySelector('.fighter-box[data-side="b"] .fighter-name');
+    if (!a || !b) continue;
+    const an = a.textContent.trim();
+    const bn = b.textContent.trim();
+    if ((an === nameA && bn === nameB) || (an === nameB && bn === nameA)){
+      if (add) c.classList.add('red-frame'); else c.classList.remove('red-frame');
+    }
+  }
+}
+
+// No automatic highlights on load. Use highlightFightByNames(nameA,nameB,true/false) from the console to toggle.
 
 // expose for console testing
 window._fights = fights;
