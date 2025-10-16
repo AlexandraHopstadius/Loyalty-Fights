@@ -8,6 +8,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const fs = require('fs');
 const STATE_FILE = path.join(__dirname, 'fights.json');
+const { exec } = require('child_process');
 
 // Simple in-memory state
 const state = {
@@ -31,7 +32,64 @@ function loadState(){
 function saveState(){
   try{
     fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current }, null, 2), 'utf8');
+    // attempt to push the updated state back to GitHub (optional)
+    commitStateToGitHub().catch(err=>{
+      // non-fatal: log and continue
+      console.warn('GitHub commit failed:', err && err.message ? err.message : err);
+      // Try pushing with local git as a fallback (uses your configured git credentials)
+      commitStateWithLocalGit();
+    });
   }catch(e){ console.warn('Failed to save state file', e.message); }
+}
+
+// If you want admin changes to update the GitHub Pages source, set these environment vars on the server:
+// GITHUB_TOKEN = a personal access token with 'repo' permission (keep secret)
+// GITHUB_REPO = 'owner/repo', e.g. 'AlexandraHopstadius/Loyalty-Fights'
+async function commitStateToGitHub(){
+  try{
+    const token = process.env.GITHUB_TOKEN;
+    const repo = process.env.GITHUB_REPO;
+    if (!token || !repo) return; // not configured
+    const path = 'fights.json';
+    const apiBase = 'https://api.github.com';
+    const headers = { 'Authorization': `token ${token}`, 'User-Agent':'loyalty-fights', 'Accept':'application/vnd.github.v3+json' };
+
+    // get existing file to obtain SHA if present
+    let sha;
+    const getUrl = `${apiBase}/repos/${repo}/contents/${encodeURIComponent(path)}`;
+    const getRes = await fetch(getUrl, { headers });
+    if (getRes.status === 200){ const j = await getRes.json(); sha = j.sha; }
+
+    const content = Buffer.from(JSON.stringify({ fights: state.fights, current: state.current }, null, 2)).toString('base64');
+    const body = { message: 'Update fights.json (admin)', content, committer: { name: 'Loyalty Fights', email: 'noreply@local' } };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(getUrl, { method: 'PUT', headers: {...headers, 'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (!putRes.ok){ const txt = await putRes.text(); throw new Error('GitHub commit failed: '+putRes.status+' '+txt); }
+    console.log('Committed fights.json to GitHub');
+  }catch(e){
+    // bubble up the error
+    throw e;
+  }
+}
+
+function commitStateWithLocalGit(){
+  // This attempts to commit and push fights.json using the local git CLI and credentials.
+  // It is a fallback for users who have working git push access from this machine.
+  const cmd = `git add "${STATE_FILE}" && git commit -m "Update fights.json (admin)" || echo "no-changes" && git push origin main`;
+  exec(cmd, { cwd: __dirname }, (err, stdout, stderr) => {
+    if (err) {
+      console.warn('Local git push failed:', err.message);
+      if (stderr) console.warn(stderr.toString());
+      return;
+    }
+    const out = stdout.toString();
+    if (out.includes('no-changes')){
+      console.log('Local git: no changes to commit');
+    } else {
+      console.log('Local git push output:', out.trim());
+    }
+  });
 }
 
 loadState();
@@ -99,3 +157,9 @@ wss.on('connection', (ws, req)=>{
 // Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, ()=> console.log('Server running on', PORT));
+// show GitHub commit status at startup for clarity
+if (process.env.GITHUB_TOKEN && process.env.GITHUB_REPO){
+  console.log('GitHub auto-commit enabled for', process.env.GITHUB_REPO);
+} else {
+  console.log('GitHub auto-commit not configured (set GITHUB_TOKEN and GITHUB_REPO to enable)');
+}
