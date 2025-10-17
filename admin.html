@@ -15,6 +15,12 @@
     .big{font-size:1.1rem}
     .pill{background:#111;padding:.4rem .6rem;border-radius:999px;border:1px solid #222}
     .feedback{margin-top:.6rem;color:#cfe7d8}
+    .layout{display:flex;gap:1rem}
+    .sidebar{width:320px;max-height:70vh;overflow:auto;background:#0b0c0d;padding:.6rem;border-radius:10px;border:1px solid #202224}
+    .fightItem{padding:.5rem;border-radius:8px;margin:.25rem 0;background:#0e0f10;border:1px solid #151617;cursor:pointer}
+    .fightItem:hover{background:#141516}
+    .fightButtons{display:flex;gap:.4rem;margin-top:.4rem}
+    .smallBtn{padding:.3rem .5rem;border-radius:6px;font-weight:700}
   </style>
   <!--
     Set `window.SERVER_ORIGIN` here to point admin clients at your deployed admin server.
@@ -36,20 +42,31 @@
     <div class="pill muted">Status: <span id="status">disconnected</span></div>
   </div>
 
-  <div class="row">
-    <div class="muted">Live index</div>
-    <input id="idx" type="number" min="0" value="0">
-    <button id="prev">◀ Prev</button>
-    <button id="next">Next ▶</button>
-    <button id="setCurrent">Set Current</button>
-    <div class="muted pill">Current: <span id="currentDisplay">-</span> / <span id="totalDisplay">-</span></div>
-  </div>
+  <div class="layout">
+    <div class="sidebar" id="fightList">
+      <div class="muted">Fights (click to set current)</div>
+      <!-- Fight items will be injected here -->
+    </div>
 
-  <div class="row">
-    <div class="muted">Winner</div>
-    <select id="side"><option value="a">A</option><option value="b">B</option></select>
-    <button id="setWinner">Set Winner</button>
-    <button id="clearWinner">Clear Winner</button>
+    <div style="flex:1">
+      <div class="row">
+        <div class="muted">Live index</div>
+        <input id="idx" type="number" min="0" value="0">
+        <button id="prev">◀ Prev</button>
+        <button id="next">Next ▶</button>
+        <button id="setCurrent">Set Current</button>
+        <div class="muted pill">Current: <span id="currentDisplay">-</span> / <span id="totalDisplay">-</span></div>
+      </div>
+
+      <div class="row">
+        <div class="muted">Winner</div>
+        <select id="side"><option value="a">A</option><option value="b">B</option></select>
+        <button id="setWinner">Set Winner</button>
+        <button id="clearWinner">Clear Winner</button>
+      </div>
+
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+    </div>
   </div>
 
   <div class="feedback" id="feedback" aria-live="polite"></div>
@@ -81,6 +98,9 @@
     const scheme = origin.startsWith('https:')? 'wss':'ws';
     const wsTarget = scheme + '://' + origin.replace(/^https?:\/\//, '');
     ws = new WebSocket(wsTarget);
+  // expose for debugging
+  window.__adminWs = ws;
+  console.log('admin: connecting websocket to', wsTarget);
     ws.addEventListener('open', ()=> setStatus('connected (ws)') );
     ws.addEventListener('close', ()=> setStatus('disconnected') );
     ws.addEventListener('error', ()=> setStatus('error') );
@@ -97,7 +117,31 @@
     currentDisplay.textContent = (state.current!=null)? state.current : '-';
     totalDisplay.textContent = (Array.isArray(state.fights)? state.fights.length : '-');
     showFeedback('State updated', true);
+    renderFightList();
   }
+
+  function renderFightList(){
+    const container = document.getElementById('fightList');
+    // remove old items except the header line
+    container.querySelectorAll('.fightItem').forEach(n=>n.remove());
+    if(!state || !Array.isArray(state.fights)) return;
+    state.fights.forEach((f, i)=>{
+      const div = document.createElement('div'); div.className = 'fightItem';
+      const title = document.createElement('div'); title.innerHTML = `<strong>#${i+1}</strong> ${escapeHtml(f.a)} vs ${escapeHtml(f.b)} <span class="muted">(${escapeHtml(f.klass||'')})</span>`;
+      div.appendChild(title);
+      const btns = document.createElement('div'); btns.className = 'fightButtons';
+      const aBtn = document.createElement('button'); aBtn.textContent = 'A'; aBtn.className='smallBtn'; aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
+      const bBtn = document.createElement('button'); bBtn.textContent = 'B'; bBtn.className='smallBtn'; bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
+      const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'clearWinner', index:i}); });
+      const focus = document.createElement('button'); focus.textContent='Show'; focus.className='smallBtn'; focus.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setCurrent', index:i}); });
+      btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(clr); btns.appendChild(focus);
+      div.appendChild(btns);
+      div.addEventListener('click', ()=>{ idxEl.value = i; sendAction({type:'setCurrent', index:i}); });
+      container.appendChild(div);
+    });
+  }
+
+  function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
   async function sendAction(payload){
     const token = tokenInput.value.trim();

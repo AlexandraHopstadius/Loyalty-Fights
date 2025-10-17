@@ -92,7 +92,9 @@
       let __lastRaw = null;
       async function pollRawFights(){
         try{
-          const r = await fetch(rawFightsUrl, { cache: 'no-store' });
+          // append a timestamp to bypass aggressive CDN caching
+          const url = rawFightsUrl + '?t=' + Date.now();
+          const r = await fetch(url, { cache: 'no-store' });
           if(!r.ok) return;
           const txt = await r.text();
           if(txt && txt !== __lastRaw){
@@ -106,6 +108,8 @@
               }
               if(j && typeof j.current === 'number') current = j.current;
               renderList(); updateNow();
+              // expose last successful poll time for debugging
+              window.__lastPoll = Date.now();
             }catch(e){ console.warn('parse raw fights', e); }
           }
         }catch(e){ /* ignore network errors */ }
@@ -113,6 +117,32 @@
       // poll every 5s; you can increase/decrease as desired
       setInterval(pollRawFights, 5000);
       pollRawFights();
+      // expose for debugging and allow manual force-sync from the console or a button
+      window.pollRawFights = pollRawFights;
+      window.__lastRaw = __lastRaw;
+    })();
+  </script>
+
+  <style>
+    /* small debug button visible in the corner for admins */
+    #debugSyncBtn{position:fixed;right:12px;bottom:12px;background:#ff6b4a;color:#111;border:none;padding:8px 10px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.4);cursor:pointer;z-index:9999}
+    #debugSyncInfo{position:fixed;right:12px;bottom:56px;max-width:360px;background:rgba(0,0,0,.8);color:#ddd;padding:8px;border-radius:8px;font-size:12px;z-index:9999;display:none}
+  </style>
+  <div id="debugSyncInfo" aria-hidden="true"></div>
+  <button id="debugSyncBtn" title="Force poll raw fights">Force sync</button>
+  <script>
+    (function(){
+      const btn = document.getElementById('debugSyncBtn');
+      const info = document.getElementById('debugSyncInfo');
+      if(!btn) return;
+      btn.addEventListener('click', async ()=>{
+        info.style.display='block'; info.textContent = 'Fetching raw fights...';
+        try{
+          await (window.pollRawFights ? window.pollRawFights() : Promise.reject(new Error('pollRawFights not available')));
+          info.textContent = 'Fetch complete. Last raw length: ' + (window.__lastRaw ? window.__lastRaw.length : 0);
+        }catch(e){ info.textContent = 'Fetch failed: '+ (e && e.message ? e.message : e); }
+        setTimeout(()=> info.style.display='none', 5000);
+      });
     })();
   </script>
 </body>

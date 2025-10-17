@@ -80,7 +80,7 @@ if (axelMatch !== -1){
 function updateNow(){
   const now = document.getElementById('nowDisplay');
   const f = fights[current];
-  now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
+  if (now && f) now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
   // highlight live
   // remove live/red-frame from all cards first
   document.querySelectorAll('.fight-card').forEach(el=>el.classList.remove('live','red-frame'));
@@ -96,7 +96,7 @@ function updateNow(){
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('year').textContent = new Date().getFullYear();
+  const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
   renderList();
 
   // try to fetch server state (persisted) so viewer shows admin-updated fights/current immediately
@@ -114,12 +114,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }catch(e){ /* ignore */ }
   })();
 
-  document.getElementById('next').addEventListener('click', ()=>{ current = Math.min(fights.length-1, current+1); updateNow(); });
-  document.getElementById('prev').addEventListener('click', ()=>{ current = Math.max(0, current-1); updateNow(); });
+  const nextBtn = document.getElementById('next'); if (nextBtn) nextBtn.addEventListener('click', ()=>{ current = Math.min(fights.length-1, current+1); updateNow(); });
+  const prevBtn = document.getElementById('prev'); if (prevBtn) prevBtn.addEventListener('click', ()=>{ current = Math.max(0, current-1); updateNow(); });
 
   // Admin quick toggle: long-press admin to show simple input
   const adminToggle = document.getElementById('adminToggle');
-  adminToggle.addEventListener('click', ()=>{
+  if (adminToggle) adminToggle.addEventListener('click', ()=>{
     const idx = prompt('Set live match index (1-'+fights.length+')', (current+1));
     if (!idx) return;
     const n = parseInt(idx,10)-1;
@@ -128,11 +128,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   // QR button (safe: modal may have been removed)
   const qrBtn = document.getElementById('qrBtn');
-  if (qrBtn){
-    qrBtn.addEventListener('click', ()=>{
-      alert('QR functionality is not available in this build.');
-    });
-  }
+  if (qrBtn){ qrBtn.addEventListener('click', ()=>{ alert('QR functionality is not available in this build.'); }); }
 
   // Upload XLSX/CSV
   const uploadBtn = document.getElementById('uploadBtn');
