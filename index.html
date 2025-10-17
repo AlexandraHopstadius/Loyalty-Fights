@@ -54,11 +54,21 @@
       const proto = origin.startsWith('https') ? 'wss' : 'ws';
       // For ws we need the host/port part without https://
       const wsTarget = proto + '://' + origin.replace(/^https?:\/\//, '');
-      const ws = new WebSocket(wsTarget);
+  const ws = new WebSocket(wsTarget);
       ws.addEventListener('open', ()=> console.log('ws open'));
       ws.addEventListener('message', (ev)=>{
         try{
           const msg = JSON.parse(ev.data);
+          function normalizeIndex(raw, len){
+            if (typeof raw !== 'number') return raw;
+            // if raw fits 0-based index, use it
+            if (raw >= 0 && raw < len) return raw;
+            // if raw looks like 1-based (1..len), convert to 0-based
+            if (raw >= 1 && raw <= len) return raw - 1;
+            // otherwise clamp
+            return Math.max(0, Math.min(len-1, raw));
+          }
+
           if (msg.type === 'state' && msg.state){
             // initialize fights and current if provided
             if (Array.isArray(msg.state.fights) && msg.state.fights.length){
@@ -67,13 +77,13 @@
               msg.state.fights.forEach(f=> window._fights.push(f));
             }
             if (typeof msg.state.current === 'number') {
-              current = msg.state.current;
+              current = normalizeIndex(msg.state.current, window._fights.length);
             }
             renderList(); updateNow();
           }
           // admin messages mirror the action payloads
           if (msg.type === 'setCurrent'){
-            current = msg.index; renderList(); updateNow();
+            current = normalizeIndex(msg.index, window._fights.length); renderList(); updateNow();
           }
           if (msg.type === 'setWinner'){
             const f = window._fights[msg.index]; if (f) f.winner = msg.side; renderList();
