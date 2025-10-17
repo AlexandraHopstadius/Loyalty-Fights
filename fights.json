@@ -34,7 +34,8 @@
       "a": "Dennis Sjögren Reis",
       "b": "Freddy Hellman",
       "weight": "67 kg",
-      "klass": "C Herr"
+      "klass": "C Herr",
+      "winner": "b"
     },
     {
       "id": 6,
