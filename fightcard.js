@@ -27,7 +27,10 @@ const fighterAffils = {
   'Gustav Fernsund': 'Combat Academy'
 };
 
-let current = 0;
+// make `current` a global (attached to window) so other scripts can update it
+// index.html's polling and WS code assign to `current` without declaring it,
+// so use `var` and initialize from `window.current` when available.
+var current = window.current || 0;
 
 function renderList(){
   const list = document.getElementById('fightList');
