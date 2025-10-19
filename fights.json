@@ -5,7 +5,8 @@
       "a": "Leon Ländin",
       "b": "Axel Toll",
       "weight": "44 kg",
-      "klass": "JR-D Herr"
+      "klass": "JR-D Herr",
+      "winner": "a"
     },
     {
       "id": 2,
