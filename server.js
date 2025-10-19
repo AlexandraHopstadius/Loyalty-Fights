@@ -16,6 +16,13 @@ const state = {
   fights: [] // will be initialized from fights.json if present
 };
 
+// Broadcast tracking: incrementing id and ack map
+let lastBroadcastId = 0;
+const broadcastAcks = new Map(); // id -> Set of clientIds that acked
+
+// Assign simple incremental IDs to connected clients so we can track acks
+let nextClientId = 1;
+
 // try to load initial fights from file
 function loadState(){
   try{
@@ -48,7 +55,10 @@ async function saveState(){
 
     // After persisting, broadcast the full state to all connected clients so viewers can update immediately
     try{
-      broadcast({ type: 'state', state });
+      const bid = ++lastBroadcastId;
+      broadcastAcks.set(bid, new Set());
+      broadcast({ type: 'state', state, broadcastId: bid });
+      console.log(`Saved fights.json; broadcastId=${bid}; clients=${wss.clients.size}`);
     }catch(e){ console.warn('Broadcast after save failed', e && e.message ? e.message : e); }
 
   }catch(e){ console.warn('Failed to save state file', e && e.message ? e.message : e); }
@@ -154,10 +164,19 @@ function broadcast(obj){
 }
 
 wss.on('connection', (ws, req)=>{
+  // assign a small id for tracking
+  const clientId = nextClientId++;
+  ws._clientId = clientId;
   // send current state on connect
   ws.send(JSON.stringify({ type:'state', state }));
   ws.on('message', async (m)=>{
     try{ const msg = JSON.parse(m.toString());
+      // handle ack messages from clients
+      if (msg && msg.type === 'ack' && typeof msg.broadcastId === 'number'){
+        const s = broadcastAcks.get(msg.broadcastId);
+        if (s) s.add(ws._clientId);
+        return;
+      }
       // allow admin via ws if token present in query
       if (msg && msg.type === 'admin' && msg.token === ADMIN_TOKEN){
         // forward admin command
@@ -170,6 +189,13 @@ wss.on('connection', (ws, req)=>{
       }
     }catch(e){/* ignore */}
   });
+});
+
+// health endpoint: number of clients, last broadcast id and ack counts
+app.get('/health', (req, res)=>{
+  const clients = wss.clients.size;
+  const pending = lastBroadcastId ? (Array.from(broadcastAcks.values()).pop() || new Set()).size : 0;
+  res.json({ ok: true, clients, lastBroadcastId, pendingAcks: pending });
 });
 
 // Start server
