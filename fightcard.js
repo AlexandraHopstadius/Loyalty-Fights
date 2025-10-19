@@ -1,5 +1,14 @@
 // Simple fight card controller (no backend)
-const fights = [
+// Guard: if this file is accidentally loaded by Node (server-side) we must not
+// reference `window` or browser APIs. When running in Node, export a harmless
+// empty module so require() won't crash the process.
+const isBrowser = (typeof window !== 'undefined');
+if (!isBrowser) {
+  // export a stub for server-side environments
+  try { module.exports = {}; } catch (e) { /* ignore */ }
+  // stop executing client-only code
+} else {
+  const fights = [
   {id:1, a:"Leon Ländin", b:"Axel Toll", weight:"44 kg", klass:"JR-D Herr"},
   {id:2, a:"Saga Lundström", b:"Sava Kader", weight:"51 kg", klass:"C Dam"},
   {id:3, a:"Elof Stålhane", b:"Baris Yildiz", weight:"67 kg", klass:"JR-D Herr"},
@@ -269,3 +278,5 @@ window._fights = fights;
     }
   }
 })();
+
+} // end browser-only block
