@@ -155,8 +155,30 @@ wss.on('connection', (ws, req)=>{
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, ()=> console.log('Server running on', PORT));
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const HOST = '0.0.0.0';
+
+// process-level error handlers to improve log output in hosting environments
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err && err.stack ? err.stack : err);
+  // allow the process to exit with failure so Render will mark deploy failed
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason && reason.stack ? reason.stack : reason);
+  process.exit(1);
+});
+
+server.on('error', (err) => {
+  console.error('HTTP server error:', err && err.stack ? err.stack : err);
+  process.exit(1);
+});
+
+wss.on('error', (err) => {
+  console.error('WebSocket server error:', err && err.stack ? err.stack : err);
+});
+
+server.listen(PORT, HOST, () => console.log('Server running on', PORT, 'host', HOST));
 // show GitHub commit status at startup for clarity
 if (process.env.GITHUB_TOKEN && process.env.GITHUB_REPO){
   console.log('GitHub auto-commit enabled for', process.env.GITHUB_REPO);
