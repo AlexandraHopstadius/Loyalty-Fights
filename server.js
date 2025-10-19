@@ -29,17 +29,29 @@ function loadState(){
   }catch(e){ console.warn('Failed to load state file', e.message); }
 }
 
-function saveState(){
+async function saveState(){
   try{
     fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current }, null, 2), 'utf8');
     // attempt to push the updated state back to GitHub (optional)
-    commitStateToGitHub().catch(err=>{
+    try{
+      await commitStateToGitHub();
+    }catch(err){
       // non-fatal: log and continue
       console.warn('GitHub commit failed:', err && err.message ? err.message : err);
       // Try pushing with local git as a fallback (uses your configured git credentials)
-      commitStateWithLocalGit();
-    });
-  }catch(e){ console.warn('Failed to save state file', e.message); }
+      try{
+        await commitStateWithLocalGit();
+      }catch(e){
+        console.warn('Local git push also failed:', e && e.message ? e.message : e);
+      }
+    }
+
+    // After persisting, broadcast the full state to all connected clients so viewers can update immediately
+    try{
+      broadcast({ type: 'state', state });
+    }catch(e){ console.warn('Broadcast after save failed', e && e.message ? e.message : e); }
+
+  }catch(e){ console.warn('Failed to save state file', e && e.message ? e.message : e); }
 }
 
 // If you want admin changes to update the GitHub Pages source, set these environment vars on the server:
@@ -74,21 +86,26 @@ async function commitStateToGitHub(){
 }
 
 function commitStateWithLocalGit(){
-  // This attempts to commit and push fights.json using the local git CLI and credentials.
-  // It is a fallback for users who have working git push access from this machine.
-  const cmd = `git add "${STATE_FILE}" && git commit -m "Update fights.json (admin)" || echo "no-changes" && git push origin main`;
-  exec(cmd, { cwd: __dirname }, (err, stdout, stderr) => {
-    if (err) {
-      console.warn('Local git push failed:', err.message);
-      if (stderr) console.warn(stderr.toString());
-      return;
-    }
-    const out = stdout.toString();
-    if (out.includes('no-changes')){
-      console.log('Local git: no changes to commit');
-    } else {
-      console.log('Local git push output:', out.trim());
-    }
+  // Return a Promise so callers can await the attempt
+  return new Promise((resolve, reject) => {
+    // This attempts to commit and push fights.json using the local git CLI and credentials.
+    // It is a fallback for users who have working git push access from this machine.
+    const cmd = `git add "${STATE_FILE}" && git commit -m "Update fights.json (admin)" || echo "no-changes" && git push origin main`;
+    exec(cmd, { cwd: __dirname }, (err, stdout, stderr) => {
+      if (err) {
+        console.warn('Local git push failed:', err.message);
+        if (stderr) console.warn(stderr.toString());
+        return reject(err);
+      }
+      const out = stdout.toString();
+      if (out.includes('no-changes')){
+        console.log('Local git: no changes to commit');
+        return resolve(out.trim());
+      } else {
+        console.log('Local git push output:', out.trim());
+        return resolve(out.trim());
+      }
+    });
   });
 }
 
@@ -113,17 +130,18 @@ const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'letmein';
 
 // endpoint for admin to post actions (ws handles broadcasts too)
 app.use(express.json());
-app.post('/admin/action', (req, res) => {
+app.post('/admin/action', async (req, res) => {
   const token = req.query.token;
   if (token !== ADMIN_TOKEN) return res.status(401).json({ error: 'unauthorized' });
   const msg = req.body;
+  // broadcast the incoming command immediately (so connected admin clients see it)
   broadcast(msg);
   // update server state for current/winner messages
   if (msg.type === 'setCurrent') state.current = msg.index;
   if (msg.type === 'setWinner'){ const f = state.fights[msg.index]; if (f) f.winner = msg.side; }
   if (msg.type === 'clearWinner'){ const f = state.fights[msg.index]; if (f) delete f.winner; }
-  // persist
-  saveState();
+  // persist and ensure the full state is broadcast after save
+  await saveState();
   return res.json({ ok:true });
 });
 
@@ -138,7 +156,7 @@ function broadcast(obj){
 wss.on('connection', (ws, req)=>{
   // send current state on connect
   ws.send(JSON.stringify({ type:'state', state }));
-  ws.on('message', (m)=>{
+  ws.on('message', async (m)=>{
     try{ const msg = JSON.parse(m.toString());
       // allow admin via ws if token present in query
       if (msg && msg.type === 'admin' && msg.token === ADMIN_TOKEN){
@@ -147,8 +165,8 @@ wss.on('connection', (ws, req)=>{
         if (msg.payload.type === 'setCurrent') state.current = msg.payload.index;
         if (msg.payload.type === 'setWinner'){ const f = state.fights[msg.payload.index]; if (f) f.winner = msg.payload.side; }
         if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) delete f.winner; }
-        // persist
-        saveState();
+        // persist and broadcast-full-state after save
+        await saveState();
       }
     }catch(e){/* ignore */}
   });
