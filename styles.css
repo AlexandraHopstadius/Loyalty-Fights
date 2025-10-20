@@ -79,6 +79,9 @@ body{
 .fighter-box.winner{background:linear-gradient(180deg,#dff6e6,#c9f0d1);border-color:#7ad08a}
 .fighter-box.winner .fighter-name{color:#063b14}
 .fighter-box.winner .fighter-meta{color:#0a4f22}
+.fighter-box.draw{border:2px solid #000;background:linear-gradient(180deg,#f7f7f7,#f1f1f1)}
+.fighter-box.draw .fighter-name{color:#000}
+.vs-draw{font-size:0.75rem;color:#000;margin-top:4px;font-weight:700;text-transform:lowercase}
 .vs-col{display:flex;align-items:center;justify-content:center;width:44px}
 .vs-label{font-weight:700;color:var(--muted);font-size:0.95rem}
 .weight-label{margin-top:10px;text-align:center;color:var(--muted);font-weight:600}

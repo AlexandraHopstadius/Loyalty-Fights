@@ -57,12 +57,12 @@ function renderList(){
         ${f.klass ? `<div class="fight-klass">${f.klass}</div>` : ''}
   <div class="weight-label">${f.weight}</div>
   <div class="fight-row">
-          <div class="fighter-box ${f.winner==='a' ? 'winner' : ''}" data-side="a">
+          <div class="fighter-box ${f.winner==='a' ? 'winner' : (f.winner==='draw' ? 'draw' : '')}" data-side="a">
             <div class="fighter-name">${f.a}</div>
             <div class="fighter-meta">${fighterAffils[f.a] || ''}</div>
           </div>
-          <div class="vs-col"><span class="vs-label">vs</span></div>
-          <div class="fighter-box ${f.winner==='b' ? 'winner' : ''}" data-side="b">
+          <div class="vs-col"><span class="vs-label">vs</span>${f.winner==='draw' ? '<div class="vs-draw">draw</div>' : ''}</div>
+          <div class="fighter-box ${f.winner==='b' ? 'winner' : (f.winner==='draw' ? 'draw' : '')}" data-side="b">
             <div class="fighter-name">${f.b}</div>
             <div class="fighter-meta">${fighterAffils[f.b] || ''}</div>
           </div>

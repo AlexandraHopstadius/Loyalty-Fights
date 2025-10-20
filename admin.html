@@ -64,6 +64,7 @@
         <div class="muted">Winner</div>
         <select id="side"><option value="a">A</option><option value="b">B</option></select>
         <button id="setWinner">Set Winner</button>
+        <button id="setDraw">Draw</button>
         <button id="clearWinner">Clear Winner</button>
       </div>
 
@@ -134,9 +135,10 @@
       const btns = document.createElement('div'); btns.className = 'fightButtons';
       const aBtn = document.createElement('button'); aBtn.textContent = 'A'; aBtn.className='smallBtn'; aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
       const bBtn = document.createElement('button'); bBtn.textContent = 'B'; bBtn.className='smallBtn'; bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
+  const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
       const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'clearWinner', index:i}); });
       const focus = document.createElement('button'); focus.textContent='Show'; focus.className='smallBtn'; focus.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setCurrent', index:i}); });
-      btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(clr); btns.appendChild(focus);
+  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr); btns.appendChild(focus);
       div.appendChild(btns);
       div.addEventListener('click', ()=>{ idxEl.value = i; sendAction({type:'setCurrent', index:i}); });
       container.appendChild(div);
@@ -177,6 +179,9 @@
 
   document.getElementById('setWinner').addEventListener('click', ()=>{
     const index = parseInt(idxEl.value||'0',10) || 0; const side = document.getElementById('side').value; sendAction({ type:'setWinner', index, side });
+  });
+  document.getElementById('setDraw').addEventListener('click', ()=>{
+    const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'setWinner', index, side:'draw' });
   });
   document.getElementById('clearWinner').addEventListener('click', ()=>{
     const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'clearWinner', index });
