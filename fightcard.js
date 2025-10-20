@@ -81,13 +81,7 @@ function setWinner(matchIndex, side){
   renderList();
 }
 
-// for demo: mark Axel Toll as winner (find his match)
-const axelMatch = fights.findIndex(f=> f.a === 'Axel Toll' || f.b === 'Axel Toll');
-if (axelMatch !== -1){
-  const f = fights[axelMatch];
-  if (f.b === 'Axel Toll') f.winner = 'b';
-  else if (f.a === 'Axel Toll') f.winner = 'a';
-}
+// No demo winners by default — viewers should start with no winners.
 
 function updateNow(){
   const now = document.getElementById('nowDisplay');
