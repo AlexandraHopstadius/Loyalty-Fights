@@ -8,7 +8,7 @@ if (!isBrowser) {
   try { module.exports = {}; } catch (e) { /* ignore */ }
   // stop executing client-only code
 } else {
-  const fights = [
+  const DEFAULT_FIGHTS = [
   {id:1, a:"Leon Ländin", b:"Axel Toll", weight:"44 kg", klass:"JR-D Herr"},
   {id:2, a:"Saga Lundström", b:"Sava Kader", weight:"51 kg", klass:"C Dam"},
   {id:3, a:"Elof Stålhane", b:"Baris Yildiz", weight:"67 kg", klass:"JR-D Herr"},
@@ -17,6 +17,9 @@ if (!isBrowser) {
   {id:6, a:"Tora Grant", b:"Samina Burgaj", weight:"62 kg", klass:"C Dam"},
   {id:7, a:"Vilmer Albinsson", b:"Gustav Fernsund", weight:"67 kg", klass:"JR-C Herr"}
 ];
+
+  // Initialize fights from the default set so the page always has content to render.
+  let fights = DEFAULT_FIGHTS.slice();
 
 // small map of fighter affiliations/gyms to show under names
 const fighterAffils = {
@@ -37,9 +40,10 @@ const fighterAffils = {
 };
 
 // make `current` a global (attached to window) so other scripts can update it
-// index.html's polling and WS code assign to `current` without declaring it,
-// so use `var` and initialize from `window.current` when available.
-var current = window.current || 0;
+// initialize from `window.current` when available, otherwise default to 0
+var current = (typeof window.current === 'number') ? window.current : 0;
+// ensure window.current is in sync so external scripts can read it
+window.current = current;
 
 function renderList(){
   const list = document.getElementById('fightList');
