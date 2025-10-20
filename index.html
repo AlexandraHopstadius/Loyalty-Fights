@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Thai Gala - Fight Card</title>
   <link rel="stylesheet" href="styles.css">
-  <!-- Hide any raw source blocks accidentally injected into the DOM -->
-  <style>
-    pre, code, .source-block { display:none !important; }
-  </style>
   <!--
     If you deploy the static site to GitHub Pages and run the admin server elsewhere,
     set the server origin here so clients connect to the deployed server for
@@ -49,80 +45,6 @@
   <!-- SheetJS for .xlsx/.xls parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script src="fightcard.js"></script>
-  <script>
-    // Viewer websocket client: listens for server state and admin broadcasts
-    (function(){
-      // SERVER_ORIGIN can be set by a hosting deploy to point clients at the public server
-      // Example: <script>window.SERVER_ORIGIN='https://loyalty-fights.onrender.com'</script>
-      const origin = window.SERVER_ORIGIN || (location.protocol + '//' + location.host);
-      const proto = origin.startsWith('https') ? 'wss' : 'ws';
-      // For ws we need the host/port part without https://
-      const wsTarget = proto + '://' + origin.replace(/^https?:\/\//, '');
-  const ws = new WebSocket(wsTarget);
-      ws.addEventListener('open', ()=> console.log('ws open'));
-      ws.addEventListener('message', (ev)=>{
-        try{
-          const msg = JSON.parse(ev.data);
-          function normalizeIndex(raw, len){
-            if (typeof raw !== 'number') return raw;
-            // if raw fits 0-based index, use it
-            if (raw >= 0 && raw < len) return raw;
-            // if raw looks like 1-based (1..len), convert to 0-based
-            if (raw >= 1 && raw <= len) return raw - 1;
-            // otherwise clamp
-            return Math.max(0, Math.min(len-1, raw));
-          }
-
-          if (msg.type === 'state' && msg.state){
-            // initialize fights and current if provided
-            if (Array.isArray(msg.state.fights) && msg.state.fights.length){
-              // overwrite local fights array safely
-              window._fights.length = 0;
-              msg.state.fights.forEach(f=> window._fights.push(f));
-            }
-            if (typeof msg.state.current === 'number') {
-              current = normalizeIndex(msg.state.current, window._fights.length);
-            }
-            renderList(); updateNow();
-            // send ack for this broadcast so server can track which clients applied it
-            try{ if (typeof msg.broadcastId === 'number') ws.send(JSON.stringify({ type: 'ack', broadcastId: msg.broadcastId })); }catch(e){}
-          }
-          // admin messages mirror the action payloads
-          if (msg.type === 'setCurrent'){
-            current = normalizeIndex(msg.index, window._fights.length); renderList(); updateNow();
-          }
-          if (msg.type === 'setWinner'){
-            const f = window._fights[msg.index]; if (f) f.winner = msg.side; renderList();
-          }
-          if (msg.type === 'clearWinner'){
-            const f = window._fights[msg.index]; if (f) delete f.winner; renderList();
-          }
-        }catch(e){console.warn('ws parse',e)}
-      });
-
-      // No polling fallback: viewers rely on WebSocket broadcasts from the Render server.
-  })();
-  </script>
-
-  
-  <script>
-    // If any raw JS source was accidentally injected into the page (seen in some builds),
-    // remove those nodes at runtime. We look for a distinctive snippet and delete
-    // any elements that contain it.
-    document.addEventListener('DOMContentLoaded', function(){
-      try{
-        const needle = 'const origin = window.SERVER_ORIGIN';
-        const candidates = Array.from(document.querySelectorAll('pre, code, .source-block, body *'));
-        for (const el of candidates){
-          try{
-            if (!el || !el.textContent) continue;
-            if (el.textContent.indexOf(needle) !== -1){
-              el.remove();
-            }
-          }catch(e){}
-        }
-      }catch(e){}
-    });
-  </script>
+  <!-- Viewer WebSocket client removed. The page now relies on initial /state fetch and admin server updates. -->
 </body>
 </html>
