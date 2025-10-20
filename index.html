@@ -80,6 +80,8 @@
               current = normalizeIndex(msg.state.current, window._fights.length);
             }
             renderList(); updateNow();
+            // send ack for this broadcast so server can track which clients applied it
+            try{ if (typeof msg.broadcastId === 'number') ws.send(JSON.stringify({ type: 'ack', broadcastId: msg.broadcastId })); }catch(e){}
           }
           // admin messages mirror the action payloads
           if (msg.type === 'setCurrent'){
