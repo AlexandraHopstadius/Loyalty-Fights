@@ -48,6 +48,8 @@
   <!-- SheetJS for .xlsx/.xls parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script src="fightcard.js"></script>
-  <!-- Viewer WebSocket client removed. The page now relies on initial /state fetch and admin server updates. -->
+  <!-- Viewer WebSocket client: lightweight external file that listens for {type:'state'} broadcasts
+       and applies them to the renderer (preserves compact HTML). -->
+  <script src="ws-client.js"></script>
 </body>
 </html>
