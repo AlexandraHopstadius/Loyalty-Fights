@@ -111,10 +111,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
       const res = await fetch('/state');
       if (res.ok){ const j = await res.json(); if (j){
         if (Array.isArray(j.fights) && j.fights.length){
-          // replace fights array while preserving reference
-          fights.length = 0; j.fights.forEach(f=> fights.push(f));
-        }
-        if (typeof j.current === 'number') current = j.current;
+            // replace fights array while preserving reference
+            // IMPORTANT: do not apply persisted "winner" flags automatically
+            // for viewers that may be offline. Strip winner before applying.
+            fights.length = 0;
+            j.fights.forEach(f=>{
+              const copy = Object.assign({}, f);
+              if (copy.hasOwnProperty('winner')) delete copy.winner;
+              fights.push(copy);
+            });
+          }
+          // set current if provided, otherwise default to 0 so index 0 is live
+          if (typeof j.current === 'number') current = j.current; else current = 0;
         renderList(); updateNow();
       }}
     }catch(e){ /* ignore */ }
