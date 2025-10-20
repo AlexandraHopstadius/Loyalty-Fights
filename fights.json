@@ -5,24 +5,21 @@
       "a": "Leon Ländin",
       "b": "Axel Toll",
       "weight": "44 kg",
-      "klass": "JR-D Herr",
-      "winner": "b"
+      "klass": "JR-D Herr"
     },
     {
       "id": 2,
       "a": "Saga Lundström",
       "b": "Sava Kader",
       "weight": "51 kg",
-      "klass": "C Dam",
-      "winner": "b"
+      "klass": "C Dam"
     },
     {
       "id": 3,
       "a": "Elof Stålhane",
       "b": "Baris Yildiz",
       "weight": "67 kg",
-      "klass": "JR-D Herr",
-      "winner": "a"
+      "klass": "JR-D Herr"
     },
     {
       "id": 4,
@@ -30,7 +27,6 @@
       "b": "Texas Sjöden",
       "weight": "71 kg",
       "klass": "JR-C Herr",
-      "winner": "a"
     },
     {
       "id": 5,
