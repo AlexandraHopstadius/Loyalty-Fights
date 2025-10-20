@@ -82,8 +82,8 @@ body{
 .fighter-box.draw{border:2px solid #000;background:linear-gradient(180deg,#f7f7f7,#f1f1f1)}
 .fighter-box.draw .fighter-name{color:#000}
 .vs-draw{font-size:0.75rem;color:#000;margin-top:4px;font-weight:700;text-transform:lowercase}
-.vs-col{display:flex;align-items:center;justify-content:center;width:44px}
-.vs-label{font-weight:700;color:var(--muted);font-size:0.95rem}
+.vs-col{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;gap:4px}
+.vs-label{font-weight:700;color:var(--muted);font-size:0.95rem;margin-bottom:2px}
 .weight-label{margin-top:10px;text-align:center;color:var(--muted);font-weight:600}
 .now-strip{display:flex;gap:.6rem;align-items:center;justify-content:center;padding:.5rem 0.6rem;background:#fff7f2;border-top:1px solid rgba(0,0,0,0.03)}
   .controls button{flex:1;padding:.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--card)}
