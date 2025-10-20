@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Thai Gala - Fight Card</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Hide any raw source blocks accidentally injected into the DOM -->
+  <style>
+    pre, code, .source-block { display:none !important; }
+  </style>
   <!--
     If you deploy the static site to GitHub Pages and run the admin server elsewhere,
     set the server origin here so clients connect to the deployed server for
@@ -101,5 +105,24 @@
   </script>
 
   
+  <script>
+    // If any raw JS source was accidentally injected into the page (seen in some builds),
+    // remove those nodes at runtime. We look for a distinctive snippet and delete
+    // any elements that contain it.
+    document.addEventListener('DOMContentLoaded', function(){
+      try{
+        const needle = 'const origin = window.SERVER_ORIGIN';
+        const candidates = Array.from(document.querySelectorAll('pre, code, .source-block, body *'));
+        for (const el of candidates){
+          try{
+            if (!el || !el.textContent) continue;
+            if (el.textContent.indexOf(needle) !== -1){
+              el.remove();
+            }
+          }catch(e){}
+        }
+      }catch(e){}
+    });
+  </script>
 </body>
 </html>
