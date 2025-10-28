@@ -23,15 +23,15 @@ if (!isBrowser) {
 
 // small map of fighter affiliations/gyms to show under names
 const fighterAffils = {
-  'Leon Ländin': 'Loyalty Muay Thai',
-  'Axel Toll': 'Combat Academy',
+  'Leon Ländin': 'Combat Academy',
+  'Axel Toll': 'Loyalty Muay Thai',
   'Saga Lundström': 'Loyalty Muay Thai',
   'Sava Kader': 'Southside Muay Thai',
   'Elof Stålhane': 'South Side Muay Thai',
   'Baris Yildiz': 'South Side Muay Thai',
   'Daniel Chikowski Bredenberg': 'Salem Muay Thai',
   'Texas Sjöden': 'Loyalty Muay Thai',
-  'Dennis Sjögren Reis': 'Kosta Kampsport',
+  'Dennis Sjögren Reis': 'Kosta Kampsport IF',
   'Freddy Hellman': 'Southside Muay Thai',
   'Tora Grant': 'Loyalty Muay Thai',
   'Samina Burgaj': 'Southside Muay Thai',

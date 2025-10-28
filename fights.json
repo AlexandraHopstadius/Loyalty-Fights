@@ -4,56 +4,56 @@
       "id": 1,
       "a": "Axel Toll",
       "b": "Leon Ländin",
-      "weight": "44 kg",
+      "weight": "-44 kg",
       "klass": "JR-D Herr"
     },
     {
       "id": 2,
       "a": "Viktor Papay",
       "b": "Emil Söderlund",
-      "weight": "54 kg",
-      "klass": "JR-D"
+      "weight": "-54 kg",
+      "klass": "JR-D Herr"
     },
     {
       "id": 3,
       "a": "Saga Lundström",
       "b": "Sava Kader",
-      "weight": "51 kg",
+      "weight": "-51 kg",
       "klass": "C Dam"
     },
     {
       "id": 4,
       "a": "Erica Englin",
       "b": "Mandana Yousifi",
-      "weight": "54 kg",
+      "weight": "-54 kg",
       "klass": "C Dam"
     },
     {
       "id": 5,
       "a": "Texas Sjöden",
       "b": "Daniel Chikowski Bredenberg",
-      "weight": "71 kg",
+      "weight": "-71 kg",
       "klass": "JR-C Herr"
     },
     {
       "id": 6,
       "a": "Tora Grant",
       "b": "Samina Burgaj",
-      "weight": "62 kg",
+      "weight": "-62 kg",
       "klass": "C Dam"
     },
     {
       "id": 7,
       "a": "Vilmer Albinsson",
       "b": "William Nyberg",
-      "weight": "67 kg",
+      "weight": "-67 kg",
       "klass": "JR-C Herr"
     },
     {
       "id": 8,
-      "a": "Dennis Sjögren Reis",
-      "b": "Freddy Hellman",
-      "weight": "67 kg",
+      "a": "Freddy Hellman",
+      "b": "Dennis Sjögren Reis",
+      "weight": "-67 kg",
       "klass": "C Herr"
     }
   ],
