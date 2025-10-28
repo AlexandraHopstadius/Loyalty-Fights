@@ -26,15 +26,15 @@ const fighterAffils = {
   'Leon Ländin': 'Loyalty Muay Thai',
   'Axel Toll': 'Combat Academy',
   'Saga Lundström': 'Loyalty Muay Thai',
-  'Sava Kader': 'South side Muay Thai',
+  'Sava Kader': 'Southside Muay Thai',
   'Elof Stålhane': 'South Side Muay Thai',
   'Baris Yildiz': 'South Side Muay Thai',
   'Daniel Chikowski Bredenberg': 'Loyalty Muay Thai',
   'Texas Sjöden': 'Salem Muay Thai',
-  'Dennis Sjögren Reis': 'South side Muay Thai',
-  'Freddy Hellman': 'Kosta Kampakademi IF',
+  'Dennis Sjögren Reis': 'Kosta Kampsport',
+  'Freddy Hellman': 'Southside Muay Thai',
   'Tora Grant': 'Loyalty Muay Thai',
-  'Samina Burgaj': 'South Side Muay Thai',
+  'Samina Burgaj': 'Southside Muay Thai',
   'Vilmer Albinsson': 'Loyalty Muay Thai',
   'Gustav Fernsund': 'Combat Academy'
 };
@@ -43,7 +43,8 @@ const fighterAffils = {
 fighterAffils['Viktor Papay'] = 'Loyalty Muay Thai';
 fighterAffils['Emil Söderlund'] = 'Salem Muay Thai';
 fighterAffils['Erica Englin'] = 'Tullinge Muay Thai';
-fighterAffils['Mandana Yousifi'] = 'South Side Muay Thai';
+fighterAffils['Mandana Yousifi'] = 'Southside Muay Thai';
+fighterAffils['William Nyberg'] = 'Tullinge Muay Thai';
 
 // make `current` a global (attached to window) so other scripts can update it
 // initialize from `window.current` when available, otherwise default to 0

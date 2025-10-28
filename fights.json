@@ -9,52 +9,52 @@
     },
     {
       "id": 2,
+      "a": "Viktor Papay",
+      "b": "Emil Söderlund",
+      "weight": "54 kg",
+      "klass": "JRD-Herr"
+    },
+    {
+      "id": 3,
       "a": "Saga Lundström",
       "b": "Sava Kader",
       "weight": "51 kg",
       "klass": "C Dam"
     },
     {
-      "id": 3,
+      "id": 4,
       "a": "Erica Englin",
       "b": "Mandana Yousifi",
       "weight": "54 kg",
       "klass": "C Dam"
     },
     {
-      "id": 4,
+      "id": 5,
       "a": "Texas Sjöden",
       "b": "Daniel Chikowski Bredenberg",
       "weight": "71 kg",
       "klass": "JR-C Herr"
     },
     {
-      "id": 5,
+      "id": 6,
       "a": "Tora Grant",
       "b": "Samina Burgaj",
       "weight": "62 kg",
       "klass": "C Dam"
     },
     {
-      "id": 6,
+      "id": 7,
       "a": "Dennis Sjögren Reis",
       "b": "Freddy Hellman",
       "weight": "67 kg",
       "klass": "C Herr"
     },
     {
-      "id": 7,
+      "id": 8,
       "a": "Vilmer Albinsson",
-      "b": "Gustav Fernsund",
+      "b": "William Nyberg",
       "weight": "67 kg",
       "klass": "JR-C Herr"
-    },
-    {
-      "id": 8,
-      "a": "Viktor Papay",
-      "b": "Emil Söderlund",
-      "weight": "54 kg",
-      "klass": "JRD-Herr"
     }
   ],
   "current": 4
