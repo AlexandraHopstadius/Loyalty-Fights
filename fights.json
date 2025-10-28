@@ -12,7 +12,7 @@
       "a": "Viktor Papay",
       "b": "Emil Söderlund",
       "weight": "54 kg",
-      "klass": "JRD-Herr"
+      "klass": "JR-D"
     },
     {
       "id": 3,
@@ -44,17 +44,17 @@
     },
     {
       "id": 7,
-      "a": "Dennis Sjögren Reis",
-      "b": "Freddy Hellman",
-      "weight": "67 kg",
-      "klass": "C Herr"
-    },
-    {
-      "id": 8,
       "a": "Vilmer Albinsson",
       "b": "William Nyberg",
       "weight": "67 kg",
       "klass": "JR-C Herr"
+    },
+    {
+      "id": 8,
+      "a": "Dennis Sjögren Reis",
+      "b": "Freddy Hellman",
+      "weight": "67 kg",
+      "klass": "C Herr"
     }
   ],
   "current": 4
