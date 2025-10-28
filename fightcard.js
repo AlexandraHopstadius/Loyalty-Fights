@@ -23,14 +23,14 @@ if (!isBrowser) {
 
 // small map of fighter affiliations/gyms to show under names
 const fighterAffils = {
-  'Leon Ländin': 'Combat Academy',
-  'Axel Toll': 'Loyalty Muay Thai',
+  'Leon Ländin': 'Loyalty Muay Thai',
+  'Axel Toll': 'Combat Academy',
   'Saga Lundström': 'Loyalty Muay Thai',
   'Sava Kader': 'South side Muay Thai',
   'Elof Stålhane': 'South Side Muay Thai',
   'Baris Yildiz': 'South Side Muay Thai',
-  'Daniel Chikowski Bredenberg': 'Salem Muay Thai',
-  'Texas Sjöden': 'Loyalty Muay Thai',
+  'Daniel Chikowski Bredenberg': 'Loyalty Muay Thai',
+  'Texas Sjöden': 'Salem Muay Thai',
   'Dennis Sjögren Reis': 'South side Muay Thai',
   'Freddy Hellman': 'Kosta Kampakademi IF',
   'Tora Grant': 'Loyalty Muay Thai',
@@ -38,6 +38,12 @@ const fighterAffils = {
   'Vilmer Albinsson': 'Loyalty Muay Thai',
   'Gustav Fernsund': 'Combat Academy'
 };
+
+// add mappings for newly added fighters
+fighterAffils['Viktor Papay'] = 'Loyalty Muay Thai';
+fighterAffils['Emil Söderlund'] = 'Salem Muay Thai';
+fighterAffils['Erica Englin'] = 'Tullinge Muay Thai';
+fighterAffils['Mandana Yousifi'] = 'South Side Muay Thai';
 
 // make `current` a global (attached to window) so other scripts can update it
 // initialize from `window.current` when available, otherwise default to 0
