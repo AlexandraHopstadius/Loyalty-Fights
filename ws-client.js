@@ -41,6 +41,10 @@
       if (typeof payload.standby === 'boolean'){
         try{ window.standby = !!payload.standby; }catch(e){ /* ignore */ }
       }
+      // set infoVisible flag (optional)
+      if (typeof payload.infoVisible === 'boolean'){
+        try{ window.infoVisible = !!payload.infoVisible; }catch(e){ /* ignore */ }
+      }
 
       // call renderer helpers if available
       if (typeof renderList === 'function') try{ renderList(); }catch(e){}

@@ -17,6 +17,8 @@ const state = {
 };
 // allow a standby flag to pause the now-strip on clients
 state.standby = false;
+// infoVisible controls whether the event info block is shown
+state.infoVisible = true;
 
 // Broadcast tracking: incrementing id and ack map
 let lastBroadcastId = 0;
@@ -34,6 +36,7 @@ function loadState(){
       if (Array.isArray(j.fights)) state.fights = j.fights;
       if (typeof j.current === 'number') state.current = j.current;
       if (typeof j.standby === 'boolean') state.standby = j.standby;
+  if (typeof j.infoVisible === 'boolean') state.infoVisible = j.infoVisible;
       console.log('Loaded fights from', STATE_FILE);
     }
   }catch(e){ console.warn('Failed to load state file', e.message); }
@@ -41,7 +44,7 @@ function loadState(){
 
 async function saveState(){
   try{
-  fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current, standby: !!state.standby }, null, 2), 'utf8');
+  fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current, standby: !!state.standby, infoVisible: !!state.infoVisible }, null, 2), 'utf8');
     // attempt to push the updated state back to GitHub (optional)
     try{
       await commitStateToGitHub();
@@ -160,6 +163,7 @@ app.post('/admin/action', async (req, res) => {
   if (msg.type === 'setWinner'){ const f = state.fights[msg.index]; if (f) f.winner = msg.side; }
   if (msg.type === 'clearWinner'){ const f = state.fights[msg.index]; if (f) delete f.winner; }
   if (msg.type === 'setStandby') state.standby = !!msg.on;
+  if (msg.type === 'setInfoVisible') state.infoVisible = !!msg.on;
   // persist and ensure the full state is broadcast after save
   await saveState();
   return res.json({ ok:true });
@@ -196,6 +200,7 @@ wss.on('connection', (ws, req)=>{
           // clear standby on explicit live selection via WS-admin
           state.standby = false;
         }
+        if (msg.payload.type === 'setInfoVisible') state.infoVisible = !!msg.payload.on;
         if (msg.payload.type === 'setWinner'){ const f = state.fights[msg.payload.index]; if (f) f.winner = msg.payload.side; }
         if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) delete f.winner; }
         if (msg.payload.type === 'setStandby') state.standby = !!msg.payload.on;

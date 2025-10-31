@@ -68,6 +68,8 @@
         <button id="clearWinner">Clear Winner</button>
         <button id="setStandby">Stand by</button>
         <button id="clearStandby">Resume</button>
+        <button id="showInfo">Show info</button>
+        <button id="clearInfo">Clear info</button>
       </div>
 
       <div class="feedback" id="feedback" aria-live="polite"></div>
@@ -193,6 +195,12 @@
   });
   document.getElementById('clearStandby').addEventListener('click', ()=>{
     sendAction({ type:'setStandby', on:false });
+  });
+  document.getElementById('showInfo').addEventListener('click', ()=>{
+    sendAction({ type:'setInfoVisible', on:true });
+  });
+  document.getElementById('clearInfo').addEventListener('click', ()=>{
+    sendAction({ type:'setInfoVisible', on:false });
   });
 
   // auto-connect if token provided in URL

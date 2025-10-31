@@ -120,6 +120,12 @@ function updateNow(){
   if (live && !isStandby) {
     live.classList.add('live','red-frame');
   }
+  // Show/Hide event info based on window.infoVisible (default true)
+  try{
+    const infoEl = document.querySelector('.event-info');
+    const visible = (typeof window.infoVisible === 'boolean') ? window.infoVisible : true;
+    if (infoEl) infoEl.style.display = visible ? '' : 'none';
+  }catch(e){ /* ignore in non-browser env */ }
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
