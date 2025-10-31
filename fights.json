@@ -30,31 +30,31 @@
     },
     {
       "id": 5,
+      "a": "Freddy Hellman",
+      "b": "Dennis Sjögren Reis",
+      "weight": "-67 kg",
+      "klass": "C Herr"
+    },
+    {
+      "id": 6,
       "a": "Texas Sjöden",
       "b": "Daniel Chikowski Bredenberg",
       "weight": "-71 kg",
       "klass": "JR-C Herr"
     },
     {
-      "id": 6,
+      "id": 7,
       "a": "Tora Grant",
       "b": "Samina Burgaj",
       "weight": "-62 kg",
       "klass": "C Dam"
     },
     {
-      "id": 7,
+      "id": 8,
       "a": "Vilmer Albinsson",
       "b": "William Nyberg",
       "weight": "-67 kg",
       "klass": "JR-C Herr"
-    },
-    {
-      "id": 8,
-      "a": "Freddy Hellman",
-      "b": "Dennis Sjögren Reis",
-      "weight": "-67 kg",
-      "klass": "C Herr"
     }
   ],
   "current": 4
