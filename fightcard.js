@@ -111,21 +111,22 @@ function updateNow(){
     }
   }
   // highlight live
-  // remove live/red-frame from all cards first
+  // remove live/red-frame from all cards first, then add back to the live card
+  const isStandby = !!window.standby;
   document.querySelectorAll('.fight-card').forEach(el=>el.classList.remove('live','red-frame'));
   const live = document.querySelector(`.fight-card[data-index="${current}"]`);
-  if (live) {
+  if (live && !isStandby) {
     live.classList.add('live','red-frame');
   }
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
-    // If admin set standby, hide the whole now-strip so the red box with "Nu:" and
-    // the match text/weight do not appear. Otherwise show/hide label based on index.
+    // If admin set standby, hide the whole now-strip (so the red box with "Nu:" and
+    // the match text/weight do not appear) and ensure cards aren't highlighted.
     const label = nowStrip.firstElementChild;
-    const isStandby = !!window.standby;
     if (isStandby){
       nowStrip.style.display = 'none';
+      nowStrip.classList.remove('red-frame');
     } else {
       nowStrip.style.display = '';
       if (label) label.style.display = (current === 8) ? 'none' : '';
