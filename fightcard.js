@@ -102,7 +102,14 @@ function updateNow(){
 
   const now = document.getElementById('nowDisplay');
   const f = fights[current];
-  if (now && f) now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
+  // If the live index is exactly 8, hide the now-strip text (user request).
+  if (now && f) {
+    if (current === 8) {
+      now.textContent = '';
+    } else {
+      now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
+    }
+  }
   // highlight live
   // remove live/red-frame from all cards first
   document.querySelectorAll('.fight-card').forEach(el=>el.classList.remove('live','red-frame'));
@@ -113,9 +120,9 @@ function updateNow(){
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
-    // Show the "Nu:" label only for indexes 0–7 (user requested it disappear on index 8)
+    // Hide the "Nu:" label only when the live index is exactly 8 (keep it visible otherwise)
     const label = nowStrip.firstElementChild;
-    if (label) label.style.display = (typeof current === 'number' && current >= 0 && current <= 7) ? '' : 'none';
+    if (label) label.style.display = (current === 8) ? 'none' : '';
     nowStrip.classList.add('red-frame');
   }
 }
