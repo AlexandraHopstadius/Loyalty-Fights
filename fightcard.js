@@ -95,6 +95,11 @@ function setWinner(matchIndex, side){
 // No demo winners by default — viewers should start with no winners.
 
 function updateNow(){
+  // Sync local `current` with `window.current` in case an external script (ws-client)
+  // updated the global value. This ensures updateNow applies the live index sent
+  // over WebSocket and that the "Nu:" label logic below uses the correct index.
+  if (typeof window.current === 'number') current = window.current;
+
   const now = document.getElementById('nowDisplay');
   const f = fights[current];
   if (now && f) now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
