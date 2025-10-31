@@ -16,6 +16,9 @@
   const MAX_BACKOFF = 30000;
   let reconnectTimer = null;
 
+  // Start in standby until we confirm a live connection
+  try{ window.standby = true; }catch(e){ /* ignore */ }
+
   function safeApplyState(msg){
     // Support either: msg = {type:'state', state:{fights:[], current:0}, broadcastId}
     // or legacy: msg = { fights:[], current:0 }
@@ -60,6 +63,10 @@
       console.log('ws-client: connected to', wsUrl);
       backoff = 1000; // reset backoff
       if (reconnectTimer){ clearTimeout(reconnectTimer); reconnectTimer = null; }
+      // Clear local offline standby on successful connection; server may
+      // immediately broadcast its authoritative standby flag which will
+      // override this if needed.
+      try{ window.standby = false; if (typeof updateNow === 'function') updateNow(); }catch(e){}
     });
 
     ws.addEventListener('message', (ev)=>{
@@ -80,6 +87,8 @@
 
     ws.addEventListener('close', (evt)=>{
       console.warn('ws-client: connection closed', evt && evt.code);
+      // When the connection closes, enter standby so the UI hides live frames
+      try{ window.standby = true; if (typeof updateNow === 'function') updateNow(); }catch(e){}
       scheduleReconnect();
     });
 
