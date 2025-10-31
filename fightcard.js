@@ -108,6 +108,9 @@ function updateNow(){
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
+    // Show the "Nu:" label only for indexes 0–7 (user requested it disappear on index 8)
+    const label = nowStrip.firstElementChild;
+    if (label) label.style.display = (typeof current === 'number' && current >= 0 && current <= 7) ? '' : 'none';
     nowStrip.classList.add('red-frame');
   }
 }
