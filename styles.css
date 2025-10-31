@@ -103,6 +103,16 @@ body{
 .controls button{flex:1;padding:.6rem;border-radius:8px;border:1px solid #eee;background:white}
 .small{padding:.35rem .6rem;font-size:.9rem}
 
+/* When admin sets standby, suppress the red-frame visuals entirely */
+body.standby .fight-card.live,
+body.standby .fight-card.red-frame {
+  box-shadow: none !important;
+  border: none !important;
+}
+body.standby .now-strip {
+  display: none !important;
+}
+
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center}
 .modal-content{background:white;padding:1rem;border-radius:12px;max-width:360px;width:90%;text-align:center}

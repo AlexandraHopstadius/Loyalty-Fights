@@ -113,6 +113,8 @@ function updateNow(){
   // highlight live
   // remove live/red-frame from all cards first, then add back to the live card
   const isStandby = !!window.standby;
+  // Reflect standby on the body element so CSS can suppress visual frames cleanly
+  try{ document.body.classList.toggle('standby', isStandby); }catch(e){ /* ignore server-side or test env without body */ }
   document.querySelectorAll('.fight-card').forEach(el=>el.classList.remove('live','red-frame'));
   const live = document.querySelector(`.fight-card[data-index="${current}"]`);
   if (live && !isStandby) {
