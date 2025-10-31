@@ -150,7 +150,13 @@ app.post('/admin/action', async (req, res) => {
   // broadcast the incoming command immediately (so connected admin clients see it)
   broadcast(msg);
   // update server state for current/winner messages
-  if (msg.type === 'setCurrent') state.current = msg.index;
+  if (msg.type === 'setCurrent') {
+    state.current = msg.index;
+    // Clearing standby when admin explicitly sets a live index makes the
+    // now-strip reappear for viewers (admin expectation: selecting a live
+    // match should resume live display).
+    state.standby = false;
+  }
   if (msg.type === 'setWinner'){ const f = state.fights[msg.index]; if (f) f.winner = msg.side; }
   if (msg.type === 'clearWinner'){ const f = state.fights[msg.index]; if (f) delete f.winner; }
   if (msg.type === 'setStandby') state.standby = !!msg.on;
@@ -185,7 +191,11 @@ wss.on('connection', (ws, req)=>{
       if (msg && msg.type === 'admin' && msg.token === ADMIN_TOKEN){
         // forward admin command
         broadcast(msg.payload);
-        if (msg.payload.type === 'setCurrent') state.current = msg.payload.index;
+        if (msg.payload.type === 'setCurrent') {
+          state.current = msg.payload.index;
+          // clear standby on explicit live selection via WS-admin
+          state.standby = false;
+        }
         if (msg.payload.type === 'setWinner'){ const f = state.fights[msg.payload.index]; if (f) f.winner = msg.payload.side; }
         if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) delete f.winner; }
         if (msg.payload.type === 'setStandby') state.standby = !!msg.payload.on;
