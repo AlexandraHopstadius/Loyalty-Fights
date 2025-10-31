@@ -66,6 +66,8 @@
         <button id="setWinner">Set Winner</button>
         <button id="setDraw">Draw</button>
         <button id="clearWinner">Clear Winner</button>
+        <button id="setStandby">Stand by</button>
+        <button id="clearStandby">Resume</button>
       </div>
 
       <div class="feedback" id="feedback" aria-live="polite"></div>
@@ -185,6 +187,12 @@
   });
   document.getElementById('clearWinner').addEventListener('click', ()=>{
     const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'clearWinner', index });
+  });
+  document.getElementById('setStandby').addEventListener('click', ()=>{
+    sendAction({ type:'setStandby', on:true });
+  });
+  document.getElementById('clearStandby').addEventListener('click', ()=>{
+    sendAction({ type:'setStandby', on:false });
   });
 
   // auto-connect if token provided in URL

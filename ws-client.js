@@ -37,6 +37,10 @@
       if (typeof payload.current === 'number'){
         try{ window.current = payload.current; }catch(e){ /* ignore */ }
       }
+      // set standby flag (optional)
+      if (typeof payload.standby === 'boolean'){
+        try{ window.standby = !!payload.standby; }catch(e){ /* ignore */ }
+      }
 
       // call renderer helpers if available
       if (typeof renderList === 'function') try{ renderList(); }catch(e){}

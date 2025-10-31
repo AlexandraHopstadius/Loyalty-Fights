@@ -15,6 +15,8 @@ const state = {
   current: 0,
   fights: [] // will be initialized from fights.json if present
 };
+// allow a standby flag to pause the now-strip on clients
+state.standby = false;
 
 // Broadcast tracking: incrementing id and ack map
 let lastBroadcastId = 0;
@@ -31,6 +33,7 @@ function loadState(){
       const j = JSON.parse(raw);
       if (Array.isArray(j.fights)) state.fights = j.fights;
       if (typeof j.current === 'number') state.current = j.current;
+      if (typeof j.standby === 'boolean') state.standby = j.standby;
       console.log('Loaded fights from', STATE_FILE);
     }
   }catch(e){ console.warn('Failed to load state file', e.message); }
@@ -38,7 +41,7 @@ function loadState(){
 
 async function saveState(){
   try{
-    fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current }, null, 2), 'utf8');
+  fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current, standby: !!state.standby }, null, 2), 'utf8');
     // attempt to push the updated state back to GitHub (optional)
     try{
       await commitStateToGitHub();
@@ -150,6 +153,7 @@ app.post('/admin/action', async (req, res) => {
   if (msg.type === 'setCurrent') state.current = msg.index;
   if (msg.type === 'setWinner'){ const f = state.fights[msg.index]; if (f) f.winner = msg.side; }
   if (msg.type === 'clearWinner'){ const f = state.fights[msg.index]; if (f) delete f.winner; }
+  if (msg.type === 'setStandby') state.standby = !!msg.on;
   // persist and ensure the full state is broadcast after save
   await saveState();
   return res.json({ ok:true });
@@ -184,6 +188,7 @@ wss.on('connection', (ws, req)=>{
         if (msg.payload.type === 'setCurrent') state.current = msg.payload.index;
         if (msg.payload.type === 'setWinner'){ const f = state.fights[msg.payload.index]; if (f) f.winner = msg.payload.side; }
         if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) delete f.winner; }
+        if (msg.payload.type === 'setStandby') state.standby = !!msg.payload.on;
         // persist and broadcast-full-state after save
         await saveState();
       }

@@ -120,10 +120,17 @@ function updateNow(){
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
-    // Hide the "Nu:" label only when the live index is exactly 8 (keep it visible otherwise)
+    // If admin set standby, hide the whole now-strip so the red box with "Nu:" and
+    // the match text/weight do not appear. Otherwise show/hide label based on index.
     const label = nowStrip.firstElementChild;
-    if (label) label.style.display = (current === 8) ? 'none' : '';
-    nowStrip.classList.add('red-frame');
+    const isStandby = !!window.standby;
+    if (isStandby){
+      nowStrip.style.display = 'none';
+    } else {
+      nowStrip.style.display = '';
+      if (label) label.style.display = (current === 8) ? 'none' : '';
+      nowStrip.classList.add('red-frame');
+    }
   }
 }
 
