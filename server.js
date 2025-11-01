@@ -26,6 +26,8 @@ const broadcastAcks = new Map(); // id -> Set of clientIds that acked
 
 // Assign simple incremental IDs to connected clients so we can track acks
 let nextClientId = 1;
+// track number of connected admin clients so we can enable standby when none remain
+let adminCount = 0;
 
 // try to load initial fights from file
 function loadState(){
@@ -181,6 +183,7 @@ wss.on('connection', (ws, req)=>{
   // assign a small id for tracking
   const clientId = nextClientId++;
   ws._clientId = clientId;
+  ws._isAdmin = false;
   // send current state on connect
   ws.send(JSON.stringify({ type:'state', state }));
   ws.on('message', async (m)=>{
@@ -193,6 +196,8 @@ wss.on('connection', (ws, req)=>{
       }
       // allow admin via ws if token present in query
       if (msg && msg.type === 'admin' && msg.token === ADMIN_TOKEN){
+        // mark this ws as an admin connection (so we can detect admin disconnects)
+        if (!ws._isAdmin){ ws._isAdmin = true; adminCount++; }
         // forward admin command
         broadcast(msg.payload);
         if (msg.payload.type === 'setCurrent') {
@@ -208,6 +213,16 @@ wss.on('connection', (ws, req)=>{
         await saveState();
       }
     }catch(e){/* ignore */}
+  });
+  ws.on('close', ()=>{
+    try{
+      if (ws._isAdmin){ ws._isAdmin = false; adminCount = Math.max(0, adminCount-1); }
+      if (adminCount === 0){
+        // enable standby when no admin clients remain
+        state.standby = true;
+        (async ()=>{ try{ await saveState(); }catch(e){} })();
+      }
+    }catch(e){ /* ignore */ }
   });
 });
 
