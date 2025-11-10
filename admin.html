@@ -163,8 +163,9 @@
       const bBtn = document.createElement('button'); bBtn.textContent = 'B'; bBtn.className='smallBtn'; bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
   const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
       const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'clearWinner', index:i}); });
-      const focus = document.createElement('button'); focus.textContent='Show'; focus.className='smallBtn'; focus.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setCurrent', index:i}); });
-  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr); btns.appendChild(focus);
+    const focus = document.createElement('button'); focus.textContent='Show'; focus.className='smallBtn'; focus.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setCurrent', index:i}); });
+    const remove = document.createElement('button'); remove.textContent='Remove'; remove.className='smallBtn'; remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){} } }});
+  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr); btns.appendChild(focus); btns.appendChild(remove);
       div.appendChild(btns);
       div.addEventListener('click', ()=>{ idxEl.value = i; sendAction({type:'setCurrent', index:i}); });
       container.appendChild(div);

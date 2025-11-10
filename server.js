@@ -14,6 +14,11 @@ const { exec } = require('child_process');
 const processedCreateIds = new Set();
 const MAX_CREATE_IDS = 200;
 
+function fightsEqual(a, b){
+  if (!a || !b) return false;
+  return (a.a||'')=== (b.a||'') && (a.b||'')===(b.b||'') && (a.weight||'')===(b.weight||'') && (a.klass||'')===(b.klass||'') && (a.aGym||'')===(b.aGym||'') && (a.bGym||'')===(b.bGym||'');
+}
+
 // Simple in-memory state
 const state = {
   current: 0,
@@ -213,7 +218,13 @@ app.post('/admin/action', async (req, res) => {
     if (!a || !b) { return res.status(400).json({ error:'missing fighter names' }); }
     const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
     newFight = { id: nextId, a, b, weight, klass, aGym, bGym };
-    state.fights.push(newFight);
+    // extra content-based dedup safeguard
+    const exists = state.fights.some(f=> fightsEqual(f, newFight));
+    if (!exists){
+      state.fights.push(newFight);
+    } else {
+      newFight = state.fights.find(f=> fightsEqual(f, newFight));
+    }
     if (rid){
       processedCreateIds.add(rid);
       // prune
@@ -222,6 +233,13 @@ app.post('/admin/action', async (req, res) => {
         const first = processedCreateIds.values().next().value;
         if (first) processedCreateIds.delete(first);
       }
+    }
+  }
+  if (msg.type === 'deleteFight'){
+    const idx = Number.isInteger(msg.index) ? msg.index : -1;
+    if (idx>=0 && idx < state.fights.length){
+      state.fights.splice(idx,1);
+      if (state.current >= state.fights.length){ state.current = Math.max(0, state.fights.length-1); }
     }
   }
   // persist and ensure the full state is broadcast after save
@@ -280,13 +298,21 @@ wss.on('connection', (ws, req)=>{
           const aGym = (data.aGym||'').trim();
           const bGym = (data.bGym||'').trim();
           const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
-          state.fights.push({ id: nextId, a, b, weight, klass, aGym, bGym });
+          const f = { id: nextId, a, b, weight, klass, aGym, bGym };
+          if (!state.fights.some(x=> fightsEqual(x, f))) state.fights.push(f);
           if (rid){
             processedCreateIds.add(rid);
             if (processedCreateIds.size > MAX_CREATE_IDS){
               const first = processedCreateIds.values().next().value;
               if (first) processedCreateIds.delete(first);
             }
+          }
+        }
+        if (msg.payload.type === 'deleteFight'){
+          const idx = Number.isInteger(msg.payload.index) ? msg.payload.index : -1;
+          if (idx>=0 && idx < state.fights.length){
+            state.fights.splice(idx,1);
+            if (state.current >= state.fights.length){ state.current = Math.max(0, state.fights.length-1); }
           }
         }
         // persist and broadcast-full-state after save
