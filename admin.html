@@ -268,9 +268,17 @@
         const fd = new FormData(form);
         const data = Object.fromEntries(fd.entries());
         if(!data.a || !data.b){ showFeedback('Enter both fighter names', false); return; }
-        await sendAction({ type:'createFight', data });
+        const resp = await sendAction({ type:'createFight', data });
         closeFightModal();
-        try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(_){}
+        if (resp && resp.fight){
+          // optimistic local update so it appears instantly
+          if (!state) state = { fights: [], current: 0 };
+          state.fights.push(resp.fight);
+          updateUIFromState();
+        } else {
+          // fallback to full state fetch if response didn't include fight
+          try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(_){ }
+        }
       });
     }
     function closeFightModal(){ const m = document.getElementById('fightModal'); if(m) m.remove(); }

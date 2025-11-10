@@ -180,6 +180,7 @@ app.post('/admin/action', async (req, res) => {
   const msg = req.body;
   // broadcast the incoming command immediately (so connected admin clients see it)
   broadcast(msg);
+  let newFight = null;
   // update server state for current/winner messages
   if (msg.type === 'setCurrent') {
     state.current = msg.index;
@@ -202,11 +203,12 @@ app.post('/admin/action', async (req, res) => {
     const bGym = (data.bGym||'').trim();
     if (!a || !b) { return res.status(400).json({ error:'missing fighter names' }); }
     const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
-    state.fights.push({ id: nextId, a, b, weight, klass, aGym, bGym });
+    newFight = { id: nextId, a, b, weight, klass, aGym, bGym };
+    state.fights.push(newFight);
   }
   // persist and ensure the full state is broadcast after save
   await saveState();
-  return res.json({ ok:true });
+  return res.json({ ok:true, fight: newFight });
 });
 
 // give clients the current state
