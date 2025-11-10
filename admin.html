@@ -75,6 +75,10 @@
         <button id="setCurrent">Set Current</button>
         <div class="pill muted" style="margin-left:auto">Current: <span id="currentDisplay">-</span> / <span id="totalDisplay">-</span></div>
       </div>
+      <div class="action-block" aria-labelledby="newFightControls">
+        <h3 id="newFightControls">Card Management</h3>
+        <button id="newFightBtn" style="background:#222;color:#fff" title="Create new fight card">- New fight card</button>
+      </div>
       <div class="action-block" aria-labelledby="winnerControls">
         <h3 id="winnerControls">Winner / Info</h3>
         <select id="side" style="max-width:110px" aria-label="Winner side"><option value="a">Red (A)</option><option value="b">Blue (B)</option></select>
@@ -220,6 +224,57 @@
   document.getElementById('clearInfo').addEventListener('click', ()=>{
     sendAction({ type:'setInfoVisible', on:false });
   });
+
+    // New fight modal logic
+    const modalHtml = `
+      <div id="fightModal" style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;font-size:16px">
+        <div style="background:#111;padding:1rem 1.1rem;border-radius:16px;width:clamp(300px,90%,480px);border:1px solid #222;max-height:90vh;overflow:auto;font-family:Segoe UI,Arial,sans-serif">
+          <h3 style="margin:.2rem 0 1rem;font-size:1.05rem">Create New Fight</h3>
+          <form id="fightForm" style="display:flex;flex-direction:column;gap:.75rem">
+            <div style="display:flex;flex-direction:column;gap:.35rem">
+              <label class="muted">Division / Klass</label>
+              <input name="klass" placeholder="e.g. Junior C" autocomplete="off">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.35rem">
+              <label class="muted">Weight class</label>
+              <input name="weight" placeholder="e.g. 67 kg" autocomplete="off">
+            </div>
+            <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
+              <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter A</legend>
+              <input name="a" placeholder="Name" required autocomplete="off">
+              <input name="aGym" placeholder="Gym / Club" autocomplete="off">
+            </fieldset>
+            <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
+              <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter B</legend>
+              <input name="b" placeholder="Name" required autocomplete="off">
+              <input name="bGym" placeholder="Gym / Club" autocomplete="off">
+            </fieldset>
+            <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.4rem">
+              <button type="button" id="cancelFight" style="background:#222;color:#eee">Cancel</button>
+              <button type="submit" id="createFightBtn">Create fight</button>
+            </div>
+          </form>
+        </div>
+      </div>`;
+    function openFightModal(){
+      if(document.getElementById('fightModal')) return; // already open
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const modal = document.getElementById('fightModal');
+      const form = document.getElementById('fightForm');
+      modal.addEventListener('click', e=>{ if(e.target === modal) closeFightModal(); });
+      document.getElementById('cancelFight').addEventListener('click', ()=> closeFightModal());
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const fd = new FormData(form);
+        const data = Object.fromEntries(fd.entries());
+        if(!data.a || !data.b){ showFeedback('Enter both fighter names', false); return; }
+        await sendAction({ type:'createFight', data });
+        closeFightModal();
+        try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(_){}
+      });
+    }
+    function closeFightModal(){ const m = document.getElementById('fightModal'); if(m) m.remove(); }
+    document.getElementById('newFightBtn').addEventListener('click', openFightModal);
 
   // auto-connect if token provided in URL
   if(tokenInput.value) connect();

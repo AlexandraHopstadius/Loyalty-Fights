@@ -192,6 +192,18 @@ app.post('/admin/action', async (req, res) => {
   if (msg.type === 'clearWinner'){ const f = state.fights[msg.index]; if (f) delete f.winner; }
   if (msg.type === 'setStandby') state.standby = !!msg.on;
   if (msg.type === 'setInfoVisible') state.infoVisible = !!msg.on;
+  if (msg.type === 'createFight') {
+    const data = msg.data || {};
+    const a = (data.a||'').trim();
+    const b = (data.b||'').trim();
+    const weight = (data.weight||'').trim();
+    const klass = (data.klass||'').trim();
+    const aGym = (data.aGym||'').trim();
+    const bGym = (data.bGym||'').trim();
+    if (!a || !b) { return res.status(400).json({ error:'missing fighter names' }); }
+    const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
+    state.fights.push({ id: nextId, a, b, weight, klass, aGym, bGym });
+  }
   // persist and ensure the full state is broadcast after save
   await saveState();
   return res.json({ ok:true });
@@ -235,6 +247,18 @@ wss.on('connection', (ws, req)=>{
         if (msg.payload.type === 'setWinner'){ const f = state.fights[msg.payload.index]; if (f) f.winner = msg.payload.side; }
         if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) delete f.winner; }
         if (msg.payload.type === 'setStandby') state.standby = !!msg.payload.on;
+        if (msg.payload.type === 'createFight') {
+          const data = msg.payload.data || {};
+          const a = (data.a||'').trim();
+          const b = (data.b||'').trim();
+          if (!a || !b) return; // ignore invalid
+          const weight = (data.weight||'').trim();
+          const klass = (data.klass||'').trim();
+          const aGym = (data.aGym||'').trim();
+          const bGym = (data.bGym||'').trim();
+          const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
+          state.fights.push({ id: nextId, a, b, weight, klass, aGym, bGym });
+        }
         // persist and broadcast-full-state after save
         await saveState();
       }

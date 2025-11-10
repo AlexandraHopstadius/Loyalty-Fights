@@ -66,12 +66,12 @@ function renderList(){
   <div class="fight-row">
           <div class="fighter-box ${f.winner==='a' ? 'winner' : (f.winner==='draw' ? 'draw' : '')}" data-side="a">
             <div class="fighter-name">${f.a}</div>
-            <div class="fighter-meta">${fighterAffils[f.a] || ''}</div>
+            <div class="fighter-meta">${(f.aGym || fighterAffils[f.a] || '')}</div>
           </div>
           <div class="vs-col"><span class="vs-label">vs</span>${f.winner==='draw' ? '<div class="vs-draw">draw</div>' : ''}</div>
           <div class="fighter-box ${f.winner==='b' ? 'winner' : (f.winner==='draw' ? 'draw' : '')}" data-side="b">
             <div class="fighter-name">${f.b}</div>
-            <div class="fighter-meta">${fighterAffils[f.b] || ''}</div>
+            <div class="fighter-meta">${(f.bGym || fighterAffils[f.b] || '')}</div>
           </div>
         </div>
       </div>`;
