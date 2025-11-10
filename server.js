@@ -129,6 +129,32 @@ function commitStateWithLocalGit(){
 
 loadState();
 
+// Announce which home page this service will serve at '/'
+if ((process.env.HOME_PAGE || '').toLowerCase() === 'admin') {
+  console.log('[routing] HOME_PAGE=admin -> serving admin.html at /');
+} else if ((process.env.HOME_PAGE || '').toLowerCase() === 'viewer') {
+  console.log('[routing] HOME_PAGE=viewer -> serving index.html at /');
+} else {
+  console.log('[routing] HOME_PAGE not set -> default Express static will serve /index.html');
+}
+
+// Explicit root routing so Render proxies and browser caches can't bypass it
+app.get('/', (req, res, next) => {
+  try {
+    const home = (process.env.HOME_PAGE || '').toLowerCase();
+    if (home === 'admin') {
+      return res.sendFile(path.join(__dirname, 'admin.html'));
+    }
+    if (home === 'viewer') {
+      return res.sendFile(path.join(__dirname, 'index.html'));
+    }
+  } catch (_) { /* ignore and fall through */ }
+  return next(); // fall back to static middleware (which will serve index.html)
+});
+
+// Always provide a dedicated /admin path as well
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+
 // serve static files
 // serve static files
 app.use(express.static(path.join(__dirname)));
@@ -231,6 +257,11 @@ app.get('/health', (req, res)=>{
   const clients = wss.clients.size;
   const pending = lastBroadcastId ? (Array.from(broadcastAcks.values()).pop() || new Set()).size : 0;
   res.json({ ok: true, clients, lastBroadcastId, pendingAcks: pending });
+});
+
+// fingerprint endpoint to verify which server build is running
+app.get('/whoami', (req, res)=>{
+  res.json({ service: 'loyalty-fights', source: 'top-level/server.js', homePage: (process.env.HOME_PAGE||'') });
 });
 
 // Start server

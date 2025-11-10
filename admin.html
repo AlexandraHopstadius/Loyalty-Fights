@@ -5,22 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin - Loyalty Fights</title>
   <style>
-    :root{--bg:#0f1112;--accent:#ff6b4a;--muted:#9aa0a6}
-    body{font-family:Segoe UI,Arial;margin:1rem;background:var(--bg);color:#fff}
-    .row{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}
-    button{padding:.5rem .9rem;border-radius:8px;border:0;background:var(--accent);color:#111;font-weight:700;cursor:pointer}
-    input,select{padding:.45rem .6rem;border-radius:6px;border:1px solid #222;background:#111;color:#fff}
-    #status{font-weight:700;color:#f0f0f0}
-    .muted{color:var(--muted);font-size:.95rem}
-    .big{font-size:1.1rem}
-    .pill{background:#111;padding:.4rem .6rem;border-radius:999px;border:1px solid #222}
-    .feedback{margin-top:.6rem;color:#cfe7d8}
-    .layout{display:flex;gap:1rem}
-    .sidebar{width:320px;max-height:70vh;overflow:auto;background:#0b0c0d;padding:.6rem;border-radius:10px;border:1px solid #202224}
-    .fightItem{padding:.5rem;border-radius:8px;margin:.25rem 0;background:#0e0f10;border:1px solid #151617;cursor:pointer}
-    .fightItem:hover{background:#141516}
-    .fightButtons{display:flex;gap:.4rem;margin-top:.4rem}
-    .smallBtn{padding:.3rem .5rem;border-radius:6px;font-weight:700}
+    :root{--bg:#0f1112;--accent:#ff6b4a;--muted:#9aa0a6;--panel:#0b0c0d;--border:#202224;--danger:#ff3b30}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{font-family:Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);color:#fff;line-height:1.3;min-height:100dvh;display:flex;flex-direction:column}
+    header.page-head{position:sticky;top:0;background:#111;padding:.6rem .9rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;z-index:10;border-bottom:1px solid #181a1b}
+    h2{margin:0;font-size:1.2rem}
+    .token-wrap{display:flex;flex:1;gap:.4rem;align-items:center;min-width:220px}
+    input,select{padding:.55rem .65rem;font-size:1rem;border-radius:8px;border:1px solid #222;background:#161718;color:#fff;width:100%;}
+    input:focus,select:focus,button:focus{outline:2px solid var(--accent);outline-offset:2px}
+    button{padding:.65rem .95rem;border-radius:10px;border:0;background:var(--accent);color:#111;font-weight:600;font-size:0.95rem;cursor:pointer;min-width:60px;display:inline-flex;justify-content:center;align-items:center;gap:.3rem}
+    button:active{transform:scale(.96)}
+    .btn-small{padding:.45rem .55rem;font-size:.8rem;border-radius:8px}
+    #status{font-weight:600}
+    .pill{background:#161718;padding:.4rem .7rem;border-radius:999px;border:1px solid #222;font-size:.75rem}
+    .muted{color:var(--muted)}
+  main{flex:1;display:flex;flex-direction:column;gap:.9rem;padding:.8rem;}
+  .sidebar{width:100%;max-height:calc(100dvh - 220px);overflow:auto;background:var(--panel);padding:.6rem .65rem;border-radius:14px;border:1px solid var(--border);}
+    .fightItem{padding:.55rem .6rem;border-radius:10px;margin:.35rem 0;background:#121314;border:1px solid #18191a;cursor:pointer;display:flex;flex-direction:column;gap:.4rem}
+    .fightItem:hover{background:#18191b}
+    .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(54px,1fr));gap:.35rem}
+    .fightButtons button{font-size:.7rem;padding:.45rem .4rem}
+    .section-actions{flex:1;display:flex;flex-direction:column;gap:.9rem}
+    .action-block{background:var(--panel);padding:.7rem .8rem;border-radius:14px;border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+    .action-block h3{margin:0 0 .3rem;font-size:.9rem;font-weight:600;color:#fff;width:100%;}
+    .feedback{margin-top:.4rem;color:#cfe7d8;font-size:.85rem;min-height:1.2rem}
+    @media (max-width:800px){
+      main{padding:.6rem}
+      .sidebar{max-height:none}
+      header.page-head{padding:.55rem .7rem}
+      h2{font-size:1.05rem}
+    }
+    @media (max-width:500px){
+      .fightButtons{grid-template-columns:repeat(auto-fit,minmax(46px,1fr))}
+      button{padding:.55rem .8rem;font-size:.85rem}
+      .btn-small{padding:.35rem .45rem;font-size:.65rem}
+      input,select{font-size:.95rem}
+    }
   </style>
   <!--
     Set `window.SERVER_ORIGIN` here to point admin clients at your deployed admin server.
@@ -30,51 +50,49 @@
     local testing when running the server on the same machine).
   -->
 
-  <script>window.SERVER_ORIGIN = 'https://loyalty-fights.onrender.com'</script>
+  <!-- If hosting admin on its own Render service, remove hard-coded SERVER_ORIGIN so it uses same origin. -->
+  <!--<script>window.SERVER_ORIGIN = 'https://loyalty-fights.onrender.com'</script>-->
 </head>
 <body>
 
-  <h2 style="margin:0 0 .5rem">Admin Controls</h2>
-  <div class="muted">Open this page with ?token=YOURTOKEN or paste token below</div>
-
-  <div class="row">
-    <label class="muted">Token:</label>
-    <input id="tokenInput" placeholder="admin token">
-    <button id="connectBtn">Connect</button>
-    <div class="pill muted">Status: <span id="status">disconnected</span></div>
-  </div>
-
-  <div class="layout">
-    <div class="sidebar" id="fightList">
-      <div class="muted">Fights (click to set current)</div>
-      <!-- Fight items will be injected here -->
+  <header class="page-head">
+    <h2>Admin Controls</h2>
+    <div class="token-wrap">
+      <input id="tokenInput" placeholder="admin token" aria-label="Admin token">
+      <button id="connectBtn" title="Connect WebSocket">Connect</button>
     </div>
+    <div class="pill muted">Status: <span id="status">disconnected</span></div>
+  </header>
+  <div class="muted" style="padding:.3rem .85rem 0">Open with ?token=YOURTOKEN to auto-connect.</div>
 
-    <div style="flex:1">
-      <div class="row">
-        <div class="muted">Live index</div>
-        <input id="idx" type="number" min="0" value="0">
-        <button id="prev">◀ Prev</button>
-        <button id="next">Next ▶</button>
+  <main>
+    <div class="section-actions">
+      <div class="action-block" aria-labelledby="liveControls">
+        <h3 id="liveControls">Live Index</h3>
+        <input id="idx" type="number" min="0" value="0" style="max-width:100px" aria-label="Live match index">
+        <button id="prev" class="btn-small" title="Previous match">◀ Prev</button>
+        <button id="next" class="btn-small" title="Next match">Next ▶</button>
         <button id="setCurrent">Set Current</button>
-        <div class="muted pill">Current: <span id="currentDisplay">-</span> / <span id="totalDisplay">-</span></div>
+        <div class="pill muted" style="margin-left:auto">Current: <span id="currentDisplay">-</span> / <span id="totalDisplay">-</span></div>
       </div>
-
-      <div class="row">
-        <div class="muted">Winner</div>
-        <select id="side"><option value="a">A</option><option value="b">B</option></select>
+      <div class="action-block" aria-labelledby="winnerControls">
+        <h3 id="winnerControls">Winner / Info</h3>
+        <select id="side" style="max-width:110px" aria-label="Winner side"><option value="a">Red (A)</option><option value="b">Blue (B)</option></select>
         <button id="setWinner">Set Winner</button>
-        <button id="setDraw">Draw</button>
-        <button id="clearWinner">Clear Winner</button>
-        <button id="setStandby">Stand by</button>
-        <button id="clearStandby">Resume</button>
-        <button id="showInfo">Show info</button>
-        <button id="clearInfo">Clear info</button>
+        <button id="setDraw" class="btn-small" title="Draw">Draw</button>
+        <button id="clearWinner" class="btn-small" title="Clear winner">Clear</button>
+        <button id="setStandby" class="btn-small" title="Pause display">Standby</button>
+        <button id="clearStandby" class="btn-small" title="Resume display">Resume</button>
+        <button id="showInfo" class="btn-small" title="Show event info">Show Info</button>
+        <button id="clearInfo" class="btn-small" title="Hide event info">Hide Info</button>
       </div>
-
+      <div class="sidebar" id="fightList" aria-label="Fight list">
+        <div class="muted" style="font-size:.75rem">Tap a fight to make it current</div>
+        <!-- Fight items injected here -->
+      </div>
       <div class="feedback" id="feedback" aria-live="polite"></div>
     </div>
-  </div>
+  </main>
 
   <div class="feedback" id="feedback" aria-live="polite"></div>
 
