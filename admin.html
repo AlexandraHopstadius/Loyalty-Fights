@@ -178,13 +178,18 @@
     if(!token){ showFeedback('Missing token', false); return; }
     // try websocket admin wrapper
     try{
-      if(ws && ws.readyState === WebSocket.OPEN){
+      // Avoid double-processing for createFight: only POST for that action
+      if(payload.type !== 'createFight' && ws && ws.readyState === WebSocket.OPEN){
         ws.send(JSON.stringify({ type:'admin', token, payload }));
       }
     }catch(e){ /* ignore ws send errors */ }
     // always POST for immediate feedback and server-side validation
     try{
       const target = (window.SERVER_ORIGIN || '') + '/admin/action?token=' + encodeURIComponent(token);
+      // attach an idempotency key for create actions
+      if (payload.type === 'createFight' && !payload.rid){
+        try{ payload.rid = (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('rid_'+Date.now()+'_'+Math.random().toString(36).slice(2)); }catch(_){ payload.rid = 'rid_'+Date.now(); }
+      }
       const res = await fetch(target, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) });
       if(res.ok){ const j = await res.json(); showFeedback('OK: '+ (j.ok? 'action applied':'response received'), true); return j; }
       else { const text = await res.text(); showFeedback('Server error: '+res.status+' '+text, false); return null; }

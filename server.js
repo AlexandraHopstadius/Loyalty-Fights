@@ -9,6 +9,10 @@ const wss = new WebSocket.Server({ server });
 const fs = require('fs');
 const STATE_FILE = path.join(__dirname, 'fights.json');
 const { exec } = require('child_process');
+// Track processed create IDs to avoid duplicate insertions when an admin
+// submits via multiple channels (WS + HTTP) or retries.
+const processedCreateIds = new Set();
+const MAX_CREATE_IDS = 200;
 
 // Simple in-memory state
 const state = {
@@ -194,6 +198,11 @@ app.post('/admin/action', async (req, res) => {
   if (msg.type === 'setStandby') state.standby = !!msg.on;
   if (msg.type === 'setInfoVisible') state.infoVisible = !!msg.on;
   if (msg.type === 'createFight') {
+    // idempotency key
+    const rid = msg.rid || (msg.data && msg.data.rid);
+    if (rid && processedCreateIds.has(rid)){
+      return res.json({ ok:true, dedup:true });
+    }
     const data = msg.data || {};
     const a = (data.a||'').trim();
     const b = (data.b||'').trim();
@@ -205,6 +214,15 @@ app.post('/admin/action', async (req, res) => {
     const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
     newFight = { id: nextId, a, b, weight, klass, aGym, bGym };
     state.fights.push(newFight);
+    if (rid){
+      processedCreateIds.add(rid);
+      // prune
+      if (processedCreateIds.size > MAX_CREATE_IDS){
+        // delete first item inserted (iteration order in Set is insertion order)
+        const first = processedCreateIds.values().next().value;
+        if (first) processedCreateIds.delete(first);
+      }
+    }
   }
   // persist and ensure the full state is broadcast after save
   await saveState();
@@ -250,6 +268,9 @@ wss.on('connection', (ws, req)=>{
         if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) delete f.winner; }
         if (msg.payload.type === 'setStandby') state.standby = !!msg.payload.on;
         if (msg.payload.type === 'createFight') {
+          // idempotency key
+          const rid = msg.payload.rid || (msg.payload.data && msg.payload.data.rid);
+          if (rid && processedCreateIds.has(rid)) return; // already applied
           const data = msg.payload.data || {};
           const a = (data.a||'').trim();
           const b = (data.b||'').trim();
@@ -260,6 +281,13 @@ wss.on('connection', (ws, req)=>{
           const bGym = (data.bGym||'').trim();
           const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
           state.fights.push({ id: nextId, a, b, weight, klass, aGym, bGym });
+          if (rid){
+            processedCreateIds.add(rid);
+            if (processedCreateIds.size > MAX_CREATE_IDS){
+              const first = processedCreateIds.values().next().value;
+              if (first) processedCreateIds.delete(first);
+            }
+          }
         }
         // persist and broadcast-full-state after save
         await saveState();
