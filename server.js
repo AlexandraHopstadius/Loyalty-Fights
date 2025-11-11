@@ -453,8 +453,24 @@ app.get('/health', (req, res)=>{
 });
 
 // fingerprint endpoint to verify which server build is running
-app.get('/whoami', (req, res)=>{
-  res.json({ service: 'loyalty-fights', source: 'top-level/server.js', homePage: (process.env.HOME_PAGE||''), db: { configured: !!DATABASE_URL } });
+app.get('/whoami', async (req, res)=>{
+  let dbConfigured = false;
+  let dbError = null;
+  if (pool){
+    try {
+      const result = await pool.query('SELECT 1');
+      if (result && result.rowCount > 0) dbConfigured = true;
+    } catch (err) {
+      dbConfigured = false;
+      dbError = err && err.message ? err.message : String(err);
+    }
+  }
+  res.json({
+    service: 'loyalty-fights',
+    source: 'top-level/server.js',
+    homePage: (process.env.HOME_PAGE||''),
+    db: { configured: dbConfigured, hasPool: !!pool, error: dbError }
+  });
 });
 
 // Start server
