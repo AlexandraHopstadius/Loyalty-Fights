@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
+const { Pool } = require('pg');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,6 +14,104 @@ const { exec } = require('child_process');
 // submits via multiple channels (WS + HTTP) or retries.
 const processedCreateIds = new Set();
 const MAX_CREATE_IDS = 200;
+// Database setup (Render Postgres via DATABASE_URL)
+const DATABASE_URL = process.env.DATABASE_URL;
+let pool = null; // pg Pool (if configured)
+
+function wantSSL(url){
+  if (!url) return false;
+  // Render Postgres requires SSL. Allow disabling via PG_SSL_DISABLE=1
+  if (process.env.PG_SSL_DISABLE === '1') return false;
+  // If URL explicitly disables SSL
+  if (/sslmode\s*=\s*disable/i.test(url)) return false;
+  return true;
+}
+
+async function initDb(){
+  if (!DATABASE_URL){
+    console.log('[db] DATABASE_URL not set; using local file storage only');
+    return false;
+  }
+  try{
+    pool = new Pool({ connectionString: DATABASE_URL, ssl: wantSSL(DATABASE_URL) ? { rejectUnauthorized: false } : undefined });
+    await pool.query('select 1');
+    // Create tables if missing
+    await pool.query(`
+      create table if not exists fights (
+        id serial primary key,
+        a text not null,
+        b text not null,
+        weight text,
+        klass text,
+        a_gym text,
+        b_gym text,
+        winner text,
+        position integer not null
+      );
+    `);
+    await pool.query(`
+      create table if not exists metadata (
+        key text primary key,
+        value jsonb
+      );
+    `);
+    console.log('[db] Connected and ensured schema');
+    return true;
+  }catch(e){
+    console.warn('[db] Failed to initialize Postgres:', e && e.message ? e.message : e);
+    pool = null;
+    return false;
+  }
+}
+
+async function loadStateFromDb(){
+  if (!pool) return false;
+  try{
+    const fr = await pool.query('select id,a,b,weight,klass,a_gym,b_gym,winner,position from fights order by position asc, id asc');
+    const fights = fr.rows.map(r=>({ id:r.id, a:r.a, b:r.b, weight:r.weight||'', klass:r.klass||'', aGym:r.a_gym||'', bGym:r.b_gym||'', winner:r.winner||undefined }));
+    const mr = await pool.query("select key,value from metadata where key in ('current','standby','infoVisible')");
+    const meta = Object.fromEntries(mr.rows.map(r=> [r.key, r.value]));
+    if (Array.isArray(fights)) state.fights = fights;
+    if (typeof meta.current === 'number') state.current = meta.current;
+    else if (meta.current && typeof meta.current === 'object' && typeof meta.current.v === 'number') state.current = meta.current.v;
+    if (typeof meta.standby === 'boolean') state.standby = meta.standby;
+    else if (meta.standby && typeof meta.standby === 'object' && typeof meta.standby.v === 'boolean') state.standby = !!meta.standby.v;
+    if (typeof meta.infoVisible === 'boolean') state.infoVisible = meta.infoVisible;
+    else if (meta.infoVisible && typeof meta.infoVisible === 'object' && typeof meta.infoVisible.v === 'boolean') state.infoVisible = !!meta.infoVisible.v;
+    console.log('[db] Loaded state from database:', fights.length, 'fights');
+    return true;
+  }catch(e){
+    console.warn('[db] load failed:', e && e.message ? e.message : e);
+    return false;
+  }
+}
+
+async function saveStateToDb(){
+  if (!pool) return;
+  const client = await pool.connect();
+  try{
+    await client.query('begin');
+    await client.query('delete from fights');
+    for (let i=0;i<state.fights.length;i++){
+      const f = state.fights[i];
+      await client.query(
+        'insert into fights (a,b,weight,klass,a_gym,b_gym,winner,position) values ($1,$2,$3,$4,$5,$6,$7,$8)',
+        [f.a||'', f.b||'', f.weight||'', f.klass||'', f.aGym||'', f.bGym||'', f.winner||null, i]
+      );
+    }
+    // upsert metadata
+    await client.query("insert into metadata(key,value) values('current', to_jsonb($1::int)) on conflict(key) do update set value=excluded.value", [state.current|0]);
+    await client.query("insert into metadata(key,value) values('standby', to_jsonb($1::boolean)) on conflict(key) do update set value=excluded.value", [!!state.standby]);
+    await client.query("insert into metadata(key,value) values('infoVisible', to_jsonb($1::boolean)) on conflict(key) do update set value=excluded.value", [!!state.infoVisible]);
+    await client.query('commit');
+    console.log('[db] Saved state to database');
+  }catch(e){
+    try{ await client.query('rollback'); }catch(_){ }
+    console.warn('[db] save failed:', e && e.message ? e.message : e);
+  }finally{
+    client.release();
+  }
+}
 
 function fightsEqual(a, b){
   if (!a || !b) return false;
@@ -41,6 +140,8 @@ let adminCount = 0;
 // try to load initial fights from file
 function loadState(){
   try{
+    // Prefer DB if available
+    // initDb may be async; we start it sync below using IIAF (see after definitions)
     if (fs.existsSync(STATE_FILE)){
       const raw = fs.readFileSync(STATE_FILE, 'utf8');
       const j = JSON.parse(raw);
@@ -56,6 +157,8 @@ function loadState(){
 async function saveState(){
   try{
   fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current, standby: !!state.standby, infoVisible: !!state.infoVisible }, null, 2), 'utf8');
+    // also persist to Postgres if configured
+    try{ await saveStateToDb(); }catch(e){ console.warn('[db] saveStateToDb error:', e && e.message ? e.message : e); }
     // attempt to push the updated state back to GitHub (optional)
     try{
       await commitStateToGitHub();
@@ -137,6 +240,16 @@ function commitStateWithLocalGit(){
 }
 
 loadState();
+// Attempt to initialize DB and, if successful, prefer loading from DB
+(async ()=>{
+  const ok = await initDb();
+  if (ok){
+    const loaded = await loadStateFromDb();
+    if (loaded){
+      console.log('[db] State active from Postgres');
+    }
+  }
+})();
 
 // Announce which home page this service will serve at '/'
 if ((process.env.HOME_PAGE || '').toLowerCase() === 'admin') {
@@ -341,7 +454,7 @@ app.get('/health', (req, res)=>{
 
 // fingerprint endpoint to verify which server build is running
 app.get('/whoami', (req, res)=>{
-  res.json({ service: 'loyalty-fights', source: 'top-level/server.js', homePage: (process.env.HOME_PAGE||'') });
+  res.json({ service: 'loyalty-fights', source: 'top-level/server.js', homePage: (process.env.HOME_PAGE||''), db: { configured: !!DATABASE_URL } });
 });
 
 // Start server
