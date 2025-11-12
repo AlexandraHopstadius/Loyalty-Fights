@@ -12,9 +12,13 @@
     header{background:var(--panel);padding:1.3rem 1.5rem;border-radius:18px;border:1px solid var(--border);box-shadow:0 10px 35px -8px rgba(0,0,0,.5)}
     h1{margin:0 0 .4rem;font-size:clamp(1.4rem,4vw,2.1rem);font-weight:800;letter-spacing:.5px}
     p.lead{margin:.2rem 0 .4rem;color:var(--muted);line-height:1.35}
-    form{background:var(--panel);padding:1.3rem 1.5rem;border-radius:20px;border:1px solid var(--border);display:flex;flex-direction:column;gap:1.05rem}
-    label{font-weight:600;display:flex;flex-direction:column;gap:.45rem;font-size:.9rem}
-    input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.75rem .85rem;font-size:1rem;border-radius:12px;border:1px solid #262f39;background:#18212a;color:#f5f9fc;box-shadow:0 1px 2px rgba(0,0,0,.4) inset}
+  form{background:var(--panel);padding:1.3rem 1.5rem;border-radius:20px;border:1px solid var(--border);display:flex;flex-direction:column;gap:1.25rem}
+  .box-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem}
+  .field-box{position:relative;background:#18212a;border:1px solid #24313d;border-radius:16px;padding:1rem .95rem;display:flex;flex-direction:column;gap:.6rem;min-height:142px;box-shadow:0 4px 14px -6px rgba(0,0,0,.5)}
+  .field-box:hover{border-color:#2d3c49}
+  .field-box label{font-weight:600;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:#93a1af}
+  label.inline-label{font-weight:600;display:flex;flex-direction:column;gap:.45rem;font-size:.9rem}
+  input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.75rem .85rem;font-size:1rem;border-radius:12px;border:1px solid #2a3541;background:#0f161d;color:#f5f9fc;box-shadow:0 1px 2px rgba(0,0,0,.4) inset}
     input:focus{outline:2px solid var(--accent);outline-offset:2px}
     .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem}
     .actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.4rem}
@@ -26,6 +30,14 @@
     .lang-switch button.active{outline:2px solid var(--accent);outline-offset:2px}
     footer{margin-top:.4rem;text-align:center;color:var(--muted);font-size:.75rem}
     .success{display:none;margin:0;padding:.9rem 1rem;border-radius:14px;background:#15382a;color:#d2f6e3;font-weight:600;border:1px solid #1e4f3b}
+    /* Logo drop zone */
+    .logo-zone{background:#10171e;border:2px dashed #33424f;border-radius:18px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;gap:.7rem;cursor:pointer;transition:border-color .25s ease, background .25s ease}
+    .logo-zone.drag{border-color:var(--accent);background:#151e26}
+    .logo-zone input{display:none}
+    .logo-preview{max-width:140px;max-height:100px;border-radius:10px;box-shadow:0 4px 12px -4px rgba(0,0,0,.6);display:none}
+    .logo-zone small{color:var(--muted);font-size:.75rem}
+    .remove-logo{display:none;background:#222e38;color:#e7edf1;border:0;border-radius:8px;padding:.4rem .7rem;font-size:.7rem;font-weight:600;cursor:pointer}
+    .remove-logo:hover{background:#2d3a46}
   </style>
 </head>
 <body>
@@ -42,23 +54,29 @@
 
     <form id="clubForm" novalidate>
       <div class="success" id="successMsg">✔️ Tack! Sparat lokalt – fortsätt.<\/div>
-      <div class="row">
-        <label id="lblEmail">
-          <span>E‑postadress</span>
+      <div class="box-group">
+        <div class="field-box" id="boxEmail">
+          <label id="lblEmail">E‑postadress</label>
           <input type="email" name="email" placeholder="namn@klubb.se" autocomplete="email" required />
-        </label>
-        <label id="lblClub">
-          <span>Klubbnamn</span>
+        </div>
+        <div class="field-box" id="boxClub">
+          <label id="lblClub">Klubbnamn</label>
           <input type="text" name="club" placeholder="Loyalty Muay Thai" required />
-        </label>
-        <label id="lblSite">
-          <span>Hemsida</span>
+        </div>
+        <div class="field-box" id="boxSite">
+          <label id="lblSite">Hemsida</label>
           <input type="url" name="site" placeholder="https://" />
-        </label>
-        <label id="lblLogo">
-          <span>Bifoga logga</span>
-          <input type="file" name="logo" accept="image/*" />
-        </label>
+        </div>
+        <div class="field-box" id="boxLogo">
+          <label id="lblLogo">Bifoga logga</label>
+          <div class="logo-zone" id="logoZone" tabindex="0" role="button" aria-label="Logo upload area">
+            <img id="logoPreview" class="logo-preview" alt="Logo preview" />
+            <strong id="logoText">Släpp fil här eller klicka</strong>
+            <small id="logoHint">PNG / JPG / SVG</small>
+            <input type="file" name="logo" id="logoInput" accept="image/*" />
+            <button type="button" class="remove-logo" id="removeLogo">Ta bort</button>
+          </div>
+        </div>
       </div>
       <div class="actions">
         <button type="submit" id="saveBtn">Spara & fortsätt</button>
@@ -86,10 +104,12 @@
         const d = dict[l] || dict.sv; lang = l;
         document.getElementById('title').textContent = d.title;
         document.getElementById('lead').textContent = d.lead;
-        document.querySelector('#lblEmail span').textContent = d.email;
-        document.querySelector('#lblClub span').textContent = d.club;
-        document.querySelector('#lblSite span').textContent = d.site;
-        document.querySelector('#lblLogo span').textContent = d.logo;
+  document.getElementById('lblEmail').textContent = d.email;
+  document.getElementById('lblClub').textContent = d.club;
+  document.getElementById('lblSite').textContent = d.site;
+  document.getElementById('lblLogo').textContent = d.logo;
+  document.getElementById('logoText').textContent = (lang==='sv'? 'Släpp fil här eller klicka': lang==='th'? 'วางไฟล์ที่นี่หรือคลิก': 'Drop file here or click');
+  document.getElementById('logoHint').textContent = (lang==='sv'? 'PNG / JPG / SVG': lang==='th'? 'PNG / JPG / SVG': 'PNG / JPG / SVG');
         document.getElementById('saveBtn').textContent = d.save;
         document.getElementById('skipBtn').textContent = d.skip;
         document.getElementById('toAdminBtn').textContent = d.admin;
@@ -108,7 +128,44 @@
         const fd = new FormData(form);
         const data = Object.fromEntries(fd.entries());
         // logo file name only stored (not uploading yet)
-        if (data.logo instanceof File){ data.logoName = data.logo.name; delete data.logo; }
+        if (data.logo instanceof File){
+          data.logoName = data.logo.name;
+          try{
+            const reader = new FileReader();
+            reader.onload = () => {
+              try{ localStorage.setItem('lf_logo_data', reader.result); }catch(e){}
+            };
+            reader.readAsDataURL(data.logo);
+          }catch(e){}
+          delete data.logo;
+        }
+      // Drag & drop + click upload logic
+      const zone = document.getElementById('logoZone');
+      const input = document.getElementById('logoInput');
+      const preview = document.getElementById('logoPreview');
+      const removeBtn = document.getElementById('removeLogo');
+      function setLogo(file){
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        preview.src = url; preview.style.display='block';
+        removeBtn.style.display='inline-block';
+        zone.classList.remove('drag');
+        try{ localStorage.setItem('lf_logo_name', file.name); }catch(e){}
+      }
+      zone.addEventListener('click', ()=> input.click());
+      zone.addEventListener('keydown', (e)=>{ if (e.key==='Enter' || e.key===' ') { e.preventDefault(); input.click(); } });
+      input.addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if (f) setLogo(f); });
+      ;['dragenter','dragover'].forEach(ev=> zone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); zone.classList.add('drag'); }));
+      ;['dragleave','drop'].forEach(ev=> zone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); if(ev==='drop'){ const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f){ input.files = e.dataTransfer.files; setLogo(f); } } zone.classList.remove('drag'); }));
+      removeBtn.addEventListener('click', ()=>{
+        preview.src=''; preview.style.display='none'; input.value=''; removeBtn.style.display='none';
+        try{ localStorage.removeItem('lf_logo_name'); localStorage.removeItem('lf_logo_data'); }catch(e){}
+      });
+      // Restore previous logo if any
+      try{
+        const prevData = localStorage.getItem('lf_logo_data');
+        if (prevData){ preview.src = prevData; preview.style.display='block'; removeBtn.style.display='inline-block'; }
+      }catch(e){}
         try{ localStorage.setItem('lf_club', JSON.stringify(data)); }catch(err){ console.warn('localStorage save failed', err); }
         const msg = document.getElementById('successMsg'); msg.style.display='block';
         setTimeout(()=>{ msg.style.display='none'; location.href='/admin'; }, 900);

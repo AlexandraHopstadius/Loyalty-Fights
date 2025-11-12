@@ -278,7 +278,13 @@ app.get('/', (req, res, next) => {
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 // Nice landing page shortcut
 app.get('/start', (req, res) => res.sendFile(path.join(__dirname, 'create.html')));
-app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'register.html')));
+app.get('/register', (req, res) => {
+  // Force fresh load of the latest form markup & assets
+  res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma','no-cache');
+  res.set('Expires','0');
+  res.sendFile(path.join(__dirname, 'register.html'));
+});
 
 // serve static files
 // serve static files
