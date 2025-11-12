@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Create your fightcard</title>
+  <style>
+    :root{
+      --bg1:#0f1115; --bg2:#121826; --accent:#ff6b4a; --muted:#aab0b7; --panel:#0d1016;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 600px at 20% 10%, #1a2030 0%, var(--bg2) 40%, #0a0c10 100%);
+      color:#e9eef5; font-family:Segoe UI,system-ui,Arial,sans-serif; display:flex; align-items:center; justify-content:center}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.08)); border:1px solid rgba(255,255,255,0.09);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding:2rem 2.2rem; border-radius:20px; width:min(92vw,640px);
+      box-shadow:0 20px 60px rgba(0,0,0,.35)}
+    h1{margin:0 0 .5rem; font-weight:800; letter-spacing:.2px; font-size:clamp(1.3rem, 3.5vw, 2rem)}
+    p{margin:0 0 1.25rem; color:var(--muted)}
+    .cta{display:flex; justify-content:center; margin-top:.5rem}
+    .btn{appearance:none; border:0; padding:1rem 1.4rem; font-size:clamp(1rem, 3.4vw, 1.25rem); font-weight:800; border-radius:14px;
+      color:#0b0d10; background:var(--accent); cursor:pointer; transition:transform .08s ease, filter .2s ease; box-shadow:0 10px 30px rgba(255,107,74,.35)}
+    .btn:active{transform:translateY(1px) scale(.98)}
+    .row{display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; justify-content:center; margin-top:1rem}
+    .lang{background:#12161e; color:#e3e7ee; border:1px solid rgba(255,255,255,.08); padding:.45rem .7rem; border-radius:999px; cursor:pointer; font-weight:600}
+    .lang.active{outline:2px solid var(--accent); outline-offset:2px}
+    .note{color:#8e95a3; font-size:.9rem; text-align:center; margin-top:.8rem}
+  </style>
+</head>
+<body>
+  <main class="card" id="app" aria-live="polite">
+    <h1 id="title">Create your fightcard here!</h1>
+    <p id="subtitle">Tap the button to open the admin and start building your card.</p>
+    <div class="cta">
+      <button id="go" class="btn">Create your fightcard here!</button>
+    </div>
+    <div class="row" aria-label="Language selector">
+      <button class="lang" data-lang="en">English</button>
+      <button class="lang" data-lang="sv">Svenska</button>
+      <button class="lang" data-lang="th">ไทย</button>
+    </div>
+    <div class="note" id="footnote">Tip: add ?lang=sv to the URL to force Swedish.</div>
+  </main>
+
+  <script>
+    (function(){
+      const t = {
+        en:{ title:'Create your fightcard here!', subtitle:'Tap the button to open the admin and start building your card.', cta:'Create your fightcard here!', tip:'Tip: add ?lang=sv to the URL to force Swedish.' },
+        sv:{ title:'Skapa ditt fightcard här!', subtitle:'Tryck på knappen för att öppna admin och börja bygga din lista.', cta:'Skapa ditt fightcard här!', tip:'Tips: lägg till ?lang=sv i URL:en för att tvinga svenska.' },
+        th:{ title:'สร้างไฟต์การ์ดของคุณที่นี่!', subtitle:'แตะปุ่มเพื่อเปิดหน้าแอดมินและเริ่มสร้างไฟต์การ์ด', cta:'สร้างไฟต์การ์ดที่นี่!', tip:'ทิป: เพิ่ม ?lang=th ที่ URL เพื่อใช้ภาษาไทย' }
+      };
+      const q = new URLSearchParams(location.search);
+      let lang = (q.get('lang')||navigator.language||'en').toLowerCase();
+      if (lang.startsWith('sv')) lang = 'sv'; else if (lang.startsWith('th')) lang = 'th'; else lang = 'en';
+      try{ const saved = localStorage.getItem('lf_lang'); if(saved) lang = saved; }catch(e){}
+
+      function apply(l){
+        const dict = t[l] || t.en; lang = l;
+        document.getElementById('title').textContent = dict.title;
+        document.getElementById('subtitle').textContent = dict.subtitle;
+        document.getElementById('go').textContent = dict.cta;
+        document.getElementById('footnote').textContent = dict.tip;
+        document.querySelectorAll('.lang').forEach(b=>{ b.classList.toggle('active', b.dataset.lang===l); });
+        try{ localStorage.setItem('lf_lang', l); }catch(e){}
+        document.documentElement.lang = l;
+      }
+
+      document.querySelectorAll('.lang').forEach(btn=> btn.addEventListener('click', ()=> apply(btn.dataset.lang)));
+      document.getElementById('go').addEventListener('click', ()=>{ location.href = '/admin'; });
+
+      apply(lang);
+    })();
+  </script>
+</body>
+</html>
