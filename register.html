@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Klubbregistrering / Club Registration</title>
+  <style>
+    :root{--bg:#0e1117;--panel:#141a22;--accent:#ff6b4a;--border:#1f272f;--muted:#94a2b1}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;font-family:Segoe UI,system-ui,Arial,sans-serif;background:linear-gradient(160deg,#0e1117,#10141c 55%,#0b0d11);color:#e8edf2;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:clamp(1rem,4vw,2.2rem)}
+    .wrap{width:min(900px,100%);display:flex;flex-direction:column;gap:1.4rem}
+    header{background:var(--panel);padding:1.3rem 1.5rem;border-radius:18px;border:1px solid var(--border);box-shadow:0 10px 35px -8px rgba(0,0,0,.5)}
+    h1{margin:0 0 .4rem;font-size:clamp(1.4rem,4vw,2.1rem);font-weight:800;letter-spacing:.5px}
+    p.lead{margin:.2rem 0 .4rem;color:var(--muted);line-height:1.35}
+    form{background:var(--panel);padding:1.3rem 1.5rem;border-radius:20px;border:1px solid var(--border);display:flex;flex-direction:column;gap:1.05rem}
+    label{font-weight:600;display:flex;flex-direction:column;gap:.45rem;font-size:.9rem}
+    input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.75rem .85rem;font-size:1rem;border-radius:12px;border:1px solid #262f39;background:#18212a;color:#f5f9fc;box-shadow:0 1px 2px rgba(0,0,0,.4) inset}
+    input:focus{outline:2px solid var(--accent);outline-offset:2px}
+    .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem}
+    .actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.4rem}
+    button{cursor:pointer;border:0;font-weight:700;background:var(--accent);color:#0b0d11;padding:.85rem 1.4rem;font-size:1rem;border-radius:14px;box-shadow:0 10px 25px -6px rgba(255,107,74,.5);transition:transform .12s ease}
+    button:active{transform:translateY(2px) scale(.97)}
+    .secondary{background:#222e38;color:#e7edf1;box-shadow:none}
+    .lang-switch{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.2rem}
+    .lang-switch button{background:#18212a;color:#d9e2ea;padding:.55rem .9rem;font-size:.85rem;font-weight:600;border-radius:10px;border:1px solid #24313d;box-shadow:none}
+    .lang-switch button.active{outline:2px solid var(--accent);outline-offset:2px}
+    footer{margin-top:.4rem;text-align:center;color:var(--muted);font-size:.75rem}
+    .success{display:none;margin:0;padding:.9rem 1rem;border-radius:14px;background:#15382a;color:#d2f6e3;font-weight:600;border:1px solid #1e4f3b}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 id="title">Klubbregistrering</h1>
+      <p class="lead" id="lead">Fyll i din klubbinformation nedan för att skapa ditt fightcard.</p>
+      <div class="lang-switch" aria-label="Språk / Language">
+        <button type="button" data-lang="sv">Svenska</button>
+        <button type="button" data-lang="en">English</button>
+        <button type="button" data-lang="th">ไทย</button>
+      </div>
+    </header>
+
+    <form id="clubForm" novalidate>
+      <div class="success" id="successMsg">✔️ Tack! Sparat lokalt – fortsätt.<\/div>
+      <div class="row">
+        <label id="lblEmail">
+          <span>E‑postadress</span>
+          <input type="email" name="email" placeholder="namn@klubb.se" autocomplete="email" required />
+        </label>
+        <label id="lblClub">
+          <span>Klubbnamn</span>
+          <input type="text" name="club" placeholder="Loyalty Muay Thai" required />
+        </label>
+        <label id="lblSite">
+          <span>Hemsida</span>
+          <input type="url" name="site" placeholder="https://" />
+        </label>
+        <label id="lblLogo">
+          <span>Bifoga logga</span>
+          <input type="file" name="logo" accept="image/*" />
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit" id="saveBtn">Spara & fortsätt</button>
+        <button type="button" class="secondary" id="skipBtn">Hoppa över</button>
+        <button type="button" class="secondary" id="toAdminBtn">Gå till admin</button>
+      </div>
+    </form>
+
+    <footer id="foot">Data lagras lokalt i din webbläsare tills du öppnar admin.</footer>
+  </div>
+
+  <script>
+    (function(){
+      const dict = {
+        sv:{ title:'Klubbregistrering', lead:'Fyll i din klubbinformation nedan för att skapa ditt fightcard.', email:'E‑postadress', club:'Klubbnamn', site:'Hemsida', logo:'Bifoga logga', save:'Spara & fortsätt', skip:'Hoppa över', admin:'Gå till admin', foot:'Data lagras lokalt i din webbläsare tills du öppnar admin.', ok:'✔️ Tack! Sparat lokalt – fortsätt.' },
+        en:{ title:'Club Registration', lead:'Enter your club details below to build your fight card.', email:'Email address', club:'Club name', site:'Website', logo:'Attach logo', save:'Save & continue', skip:'Skip', admin:'Go to admin', foot:'Data is stored locally until you open admin.', ok:'✔️ Saved locally – continue.' },
+        th:{ title:'ลงทะเบียนสโมสร', lead:'กรอกข้อมูลสโมสรของคุณเพื่อเริ่มสร้างไฟต์การ์ด.', email:'อีเมล', club:'ชื่อสโมสร', site:'เว็บไซต์', logo:'อัปโหลดโลโก้', save:'บันทึกและไปต่อ', skip:'ข้าม', admin:'ไปที่แอดมิน', foot:'ข้อมูลถูกเก็บภายในเบราว์เซอร์จนกว่าจะเปิดหน้าแอดมิน.', ok:'✔️ บันทึกแล้ว – ไปต่อ.' }
+      };
+      const qs = new URLSearchParams(location.search);
+      let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
+      if (lang.startsWith('en')) lang='en'; else if (lang.startsWith('th')) lang='th'; else lang='sv';
+      try{ const stored = localStorage.getItem('lf_lang'); if(stored) lang = stored; }catch(e){}
+
+      function apply(l){
+        const d = dict[l] || dict.sv; lang = l;
+        document.getElementById('title').textContent = d.title;
+        document.getElementById('lead').textContent = d.lead;
+        document.querySelector('#lblEmail span').textContent = d.email;
+        document.querySelector('#lblClub span').textContent = d.club;
+        document.querySelector('#lblSite span').textContent = d.site;
+        document.querySelector('#lblLogo span').textContent = d.logo;
+        document.getElementById('saveBtn').textContent = d.save;
+        document.getElementById('skipBtn').textContent = d.skip;
+        document.getElementById('toAdminBtn').textContent = d.admin;
+        document.getElementById('foot').textContent = d.foot;
+        document.getElementById('successMsg').textContent = d.ok;
+        document.querySelectorAll('.lang-switch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===l));
+        document.documentElement.lang = l;
+        try{ localStorage.setItem('lf_lang', l); }catch(e){}
+      }
+
+      document.querySelectorAll('.lang-switch button').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.lang)));
+
+      const form = document.getElementById('clubForm');
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const fd = new FormData(form);
+        const data = Object.fromEntries(fd.entries());
+        // logo file name only stored (not uploading yet)
+        if (data.logo instanceof File){ data.logoName = data.logo.name; delete data.logo; }
+        try{ localStorage.setItem('lf_club', JSON.stringify(data)); }catch(err){ console.warn('localStorage save failed', err); }
+        const msg = document.getElementById('successMsg'); msg.style.display='block';
+        setTimeout(()=>{ msg.style.display='none'; location.href='/admin'; }, 900);
+      });
+      document.getElementById('skipBtn').addEventListener('click', ()=> location.href='/admin');
+      document.getElementById('toAdminBtn').addEventListener('click', ()=> location.href='/admin');
+
+      apply(lang);
+    })();
+  </script>
+</body>
+</html>

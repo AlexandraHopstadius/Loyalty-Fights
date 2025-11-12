@@ -278,6 +278,7 @@ app.get('/', (req, res, next) => {
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 // Nice landing page shortcut
 app.get('/start', (req, res) => res.sendFile(path.join(__dirname, 'create.html')));
+app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'register.html')));
 
 // serve static files
 // serve static files
