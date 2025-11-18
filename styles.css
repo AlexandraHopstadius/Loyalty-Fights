@@ -321,7 +321,7 @@ body{
 .fight-card.live, .fight-card.red-frame{transform:scale(1.03); z-index:2}
 /* Slightly taller inner boxes when live to keep balance */
 /* Keep live cards visually highlighted without changing box height */
-.fight-card.live .fighter-box, .fight-card.red-frame .fighter-box{min-height:inherit}
+.fight-card.live .fighter-box, .fight-card.red-frame .fighter-box{min-height:clamp(88px,12vw,120px)}
 
 /* Stabilize inner text block heights so short names don't shrink boxes too much */
 .fighter-name{min-height:2.2em;display:flex;align-items:center;justify-content:center;text-align:center}
