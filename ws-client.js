@@ -21,7 +21,12 @@
   // Start in standby until we confirm a live connection
   try{ window.standby = true; }catch(e){ /* ignore */ }
 
+  // Small helper to prevent visible flicker: disable transitions while applying updates
+  function beginDomUpdate(){ try{ document.body && document.body.classList.add('updating'); }catch(_){} }
+  function endDomUpdate(){ try{ requestAnimationFrame(()=>{ document.body && document.body.classList.remove('updating'); }); }catch(_){} }
+
   function safeApplyState(msg){
+    beginDomUpdate();
     // Support either: msg = {type:'state', state:{fights:[], current:0}, broadcastId}
     // or legacy: msg = { fights:[], current:0 }
     const payload = (msg && msg.state) ? msg.state : msg;
@@ -175,6 +180,7 @@
       if (typeof renderList === 'function') try{ renderList(); }catch(e){}
       if (typeof updateNow === 'function') try{ updateNow(); }catch(e){}
       if (typeof window.renderSocial === 'function') try{ window.renderSocial(); }catch(e){}
+      endDomUpdate();
     }catch(e){ console.warn('ws-client: failed to apply state', e); }
   }
 
@@ -241,6 +247,7 @@
           if (msg.type === 'setEventColor') { window.eventColor = (msg.color||'').toString(); }
           if (msg.type === 'setEventSize') { const sz = Number(msg.size); if (Number.isFinite(sz)) window.eventSize = Math.min(60, Math.max(20, Math.round(sz))); }
           if (/^setEvent(Name|Font|Color|Size|Meta)$/.test(msg.type)) {
+            beginDomUpdate();
             try{
               const t = document.getElementById('eventTitle');
               const img = document.getElementById('eventImage');
@@ -282,8 +289,10 @@
                 }
               }
             }catch(e){}
+            endDomUpdate();
           }
           if (msg.type === 'setEventMeta') {
+            beginDomUpdate();
             // apply fields from meta message directly
             if (msg.name!=null) window.eventName = (msg.name||'').toString();
             if (msg.font!=null) window.eventFont = (msg.font||'bebas').toString();
@@ -338,6 +347,7 @@
                 }
               }
             }catch(e){}
+            endDomUpdate();
           }
           if (msg.type === 'setSocial' && msg.social && typeof msg.social === 'object'){
             window.social = msg.social;
