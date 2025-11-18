@@ -129,21 +129,14 @@ function updateNow(){
 
   const now = document.getElementById('nowDisplay');
   const f = fights[current];
-  // If the live index is exactly 8, hide the now-strip text (user request).
-  if (now){
-    if (f){
-      if (current === 8) {
-        now.textContent = '';
-      } else {
-        const w = (f.weight || '').toString().trim();
-        const sep = w ? ' \u2014 ' : '';
-        now.textContent = `${f.a} vs ${f.b}${sep}${w}`;
-      }
-    } else {
-      // No active fight: keep Now text empty (no placeholder dash)
-      now.textContent = '';
-    }
+  // Build desired Now text; hide strip entirely unless there is a live fight text
+  let nowText = '';
+  if (f && current !== 8) {
+    const w = (f.weight || '').toString().trim();
+    const sep = w ? ' \u2014 ' : '';
+    nowText = `${f.a} vs ${f.b}${sep}${w}`;
   }
+  if (now) now.textContent = nowText;
   // highlight live
   // remove live/red-frame from all cards first, then add back to the live card
   const isStandby = !!window.standby;
@@ -171,17 +164,11 @@ function updateNow(){
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
-    // If admin set standby, hide the whole now-strip (so the red box with "Nu:" and
-    // the match text/weight do not appear) and ensure cards aren't highlighted.
+    const showNow = !isStandby && !!nowText;
+    nowStrip.style.display = showNow ? '' : 'none';
+    nowStrip.classList.toggle('red-frame', showNow);
     const label = nowStrip.firstElementChild;
-    if (isStandby){
-      nowStrip.style.display = 'none';
-      nowStrip.classList.remove('red-frame');
-    } else {
-      nowStrip.style.display = '';
-      if (label) label.style.display = (current === 8) ? 'none' : '';
-      nowStrip.classList.add('red-frame');
-    }
+    if (label) label.style.display = showNow ? '' : 'none';
   }
 }
 
@@ -221,13 +208,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
       console.log('[viewer] initial event title apply', {name, color: window.eventColor, size: window.eventSize, font: window.eventFont});
     }
     if (titleImg){
-      if (window.eventImage){
-        titleImg.src = window.eventImage;
+      if (typeof window.eventImageSrc === 'string' && window.eventImageSrc){
+        titleImg.src = window.eventImageSrc;
         if (typeof window.eventImageSize === 'number'){
           titleImg.style.maxHeight = (window.eventImageSize/10).toFixed(1)+'rem';
         }
         titleImg.style.display='block';
-        // Show title below image if it has content; hide only if empty
         if (title){
           const hasName = (title.textContent || '').trim().length > 0;
           title.style.display = hasName ? '' : 'none';
@@ -302,6 +288,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           }
           if (titleImg){
             if (j.eventImage){
+              window.eventImageSrc = j.eventImage;
               titleImg.src = j.eventImage; titleImg.style.display='block';
               if (title){
                 const hasName = (title.textContent || '').trim().length > 0;

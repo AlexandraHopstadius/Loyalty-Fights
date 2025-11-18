@@ -81,7 +81,7 @@
         try{ window.eventColor = payload.eventColor; }catch(e){}
       }
       if (typeof payload.eventImage === 'string'){
-        try{ if (!/^\[object/i.test(payload.eventImage)) window.eventImage = payload.eventImage; }catch(e){}
+        try{ if (!/^\[object/i.test(payload.eventImage)) window.eventImageSrc = payload.eventImage; }catch(e){}
       }
       if (typeof payload.eventImageSize === 'number'){
         try{ window.eventImageSize = payload.eventImageSize; }catch(e){}
@@ -122,8 +122,8 @@
             if (typeof window.eventSize === 'number') t.style.fontSize = (window.eventSize/10).toFixed(1)+'rem';
           // Show image and keep title visible if it has content
           if (img){
-            if (window.eventImage){
-              img.src = window.eventImage;
+            if (window.eventImageSrc){
+              img.src = window.eventImageSrc;
               if (typeof window.eventImageSize === 'number'){
                 img.style.maxHeight = (window.eventImageSize/10).toFixed(1)+'rem';
               }
@@ -264,8 +264,8 @@
                 document.body.classList.remove('font-bebas','font-anton','font-oswald','font-montserrat','font-poppins','font-playfair','font-impact');
                 document.body.classList.add('font-'+(font||'bebas'));
                 if (img){
-                  if (window.eventImage){
-                    img.src = window.eventImage;
+                  if (window.eventImageSrc){
+                    img.src = window.eventImageSrc;
                     if (typeof window.eventImageSize === 'number'){
                       img.style.maxHeight = (window.eventImageSize/10).toFixed(1)+'rem';
                     }
@@ -301,7 +301,7 @@
             if (msg.font!=null) window.eventFont = (msg.font||'bebas').toString();
             if (msg.color!=null) window.eventColor = (msg.color||'').toString();
             if (msg.image!=null) {
-              if (typeof msg.image === 'string') window.eventImage = msg.image; else if (msg.image && typeof msg.image === 'object') { if (typeof msg.image.src === 'string') window.eventImage = msg.image.src; else if (typeof msg.image.v === 'string') window.eventImage = msg.image.v; }
+              if (typeof msg.image === 'string') window.eventImageSrc = msg.image; else if (msg.image && typeof msg.image === 'object') { if (typeof msg.image.src === 'string') window.eventImageSrc = msg.image.src; else if (typeof msg.image.v === 'string') window.eventImageSrc = msg.image.v; }
             }
             if (msg.imageSize!=null){ const isz = Number(msg.imageSize); if (Number.isFinite(isz)) window.eventImageSize = Math.min(300, Math.max(40, Math.round(isz))); }
             if (msg.size!=null){ const sz = Number(msg.size); if (Number.isFinite(sz)) window.eventSize = Math.min(60, Math.max(20, Math.round(sz))); }
@@ -322,8 +322,8 @@
                 document.body.classList.add('font-'+(font||'bebas'));
                 console.log('[viewer] event meta applied', {name:window.eventName,font:window.eventFont,color:window.eventColor,size:window.eventSize});
                 if (img){
-                  if (window.eventImage){
-                    img.src = window.eventImage;
+                  if (window.eventImageSrc){
+                    img.src = window.eventImageSrc;
                     if (typeof window.eventImageSize === 'number'){
                       img.style.maxHeight = (window.eventImageSize/10).toFixed(1)+'rem';
                     }
