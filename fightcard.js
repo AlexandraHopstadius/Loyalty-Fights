@@ -133,7 +133,8 @@ function updateNow(){
   let nowText = '';
   if (f && current !== 8) {
     const w = (f.weight || '').toString().trim();
-    nowText = `${f.a} vs ${f.b}${w ? ' ' + w : ''}`;
+    // Removed em dash separator; show weight with simple space when present.
+    nowText = w ? `${f.a} vs ${f.b} ${w}` : `${f.a} vs ${f.b}`;
   }
   if (now) now.textContent = nowText;
   // highlight live
