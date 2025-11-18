@@ -130,11 +130,18 @@ function updateNow(){
   const now = document.getElementById('nowDisplay');
   const f = fights[current];
   // If the live index is exactly 8, hide the now-strip text (user request).
-  if (now && f) {
-    if (current === 8) {
-      now.textContent = '';
+  if (now){
+    if (f){
+      if (current === 8) {
+        now.textContent = '';
+      } else {
+        const w = (f.weight || '').toString().trim();
+        const sep = w ? ' \u2014 ' : '';
+        now.textContent = `${f.a} vs ${f.b}${sep}${w}`;
+      }
     } else {
-      now.textContent = `${f.a} vs ${f.b} — ${f.weight}`;
+      // No active fight: keep Now text empty (no placeholder dash)
+      now.textContent = '';
     }
   }
   // highlight live
