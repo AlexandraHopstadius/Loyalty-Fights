@@ -24,6 +24,7 @@
   // Small helper to prevent visible flicker: disable transitions while applying updates
   function beginDomUpdate(){ try{ document.body && document.body.classList.add('updating'); }catch(_){} }
   function endDomUpdate(){ try{ requestAnimationFrame(()=>{ document.body && document.body.classList.remove('updating'); }); }catch(_){} }
+  function clearBoot(){ try{ document.body && document.body.classList.remove('boot'); }catch(_){} }
 
   function safeApplyState(msg){
     beginDomUpdate();
@@ -180,6 +181,7 @@
       if (typeof renderList === 'function') try{ renderList(); }catch(e){}
       if (typeof updateNow === 'function') try{ updateNow(); }catch(e){}
       if (typeof window.renderSocial === 'function') try{ window.renderSocial(); }catch(e){}
+      clearBoot();
       endDomUpdate();
     }catch(e){ console.warn('ws-client: failed to apply state', e); }
   }
@@ -208,6 +210,7 @@
           if (typeof msg.broadcastId === 'number' && ws.readyState === WebSocket.OPEN){
             try{ ws.send(JSON.stringify({ type: 'ack', broadcastId: msg.broadcastId })); }catch(e){}
           }
+          clearBoot();
           return;
         }
         if (msg.type === 'setFightsVisible') { window.fightsVisible = !!msg.on; }

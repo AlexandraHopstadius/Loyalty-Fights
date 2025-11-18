@@ -127,6 +127,9 @@ body{
   color:#222;
   -webkit-font-smoothing:antialiased;
 }
+/* Hide main content before first state is applied */
+body.boot .fight-main{ opacity:0 }
+body.boot *{ transition:none !important }
 .site-header{
   padding:1.2rem;
   background:linear-gradient(90deg, rgba(211,82,42,0.12), rgba(211,82,42,0.04));
@@ -254,6 +257,7 @@ body{
 
 /* During programmatic updates, disable transitions to avoid flicker */
 body.updating *{transition:none !important}
+body.updating .fight-main{opacity:0}
   .site-header h1{margin:0;font-size:1.25rem;color: #fff}
   .tag{color:var(--muted);font-size:0.9rem;margin-top:0.25rem}
 .fight-card .fighters{display:flex;gap:.5rem;align-items:center}

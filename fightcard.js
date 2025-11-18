@@ -345,6 +345,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           document.body.classList.add('font-'+(font||'bebas'));
         }catch(e){}
         renderList(); updateNow();
+        try{ document.body.classList.remove('boot'); }catch(_){ }
         // apply social from initial fetch
         try{ if (j.social && typeof j.social === 'object'){ window.social = j.social; if (typeof renderSocial === 'function') renderSocial(); } }catch(e){}
       }}
