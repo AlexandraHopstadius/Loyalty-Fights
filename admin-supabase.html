@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Supabase Admin Test</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #eee; padding: 2rem; }
+    label { display:block; margin-top: 1rem; }
+    input { width:100%; padding: .5rem; margin-top:.2rem; border:1px solid #333; background:#222; color:#fff; border-radius:6px; }
+    button { margin-top:1.5rem; padding:.6rem 1rem; background:#ff6b4a; border:0; border-radius:8px; font-weight:bold; cursor:pointer; }
+    pre { margin-top:1rem; background:#000; padding:1rem; border-radius:6px; white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+
+<h2>Supabase Admin Debugger</h2>
+
+<label>Supabase URL</label>
+<input id="url" placeholder="https://hbtjzniqvtxtdtejxusw.supabase.co" />
+
+<label>Anon key</label>
+<input id="anon" placeholder="Paste anon public key here" />
+
+<label>Admin Function URL</label>
+<input id="func" value="https://hbtjzniqvtxtdtejxusw.functions.supabase.co/admin-proxy" />
+
+<label>Admin password</label>
+<input id="pw" type="password" placeholder="Your ADMIN_PASSWORD secret" />
+
+<button id="debugBtn">Debug function</button>
+
+<h3>Response:</h3>
+<pre id="out"></pre>
+
+<script>
+document.getElementById("debugBtn").addEventListener("click", async () => {
+  const fn   = document.getElementById("func").value.trim();
+  const anon = document.getElementById("anon").value.trim();
+  const pw   = document.getElementById("pw").value.trim();
+  const out  = document.getElementById("out");
+  out.textContent = "Sending request...";
+  try {
+    const res = await fetch(fn, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + anon,
+        "apikey": anon,
+        "x-admin-password": pw
+      },
+      body: JSON.stringify({ action: "debug" })
+    });
+    const txt = await res.text();
+    out.textContent = txt;
+  } catch (e) {
+    out.textContent = "Error: " + e.message;
+  }
+});
+</script>
+
+</body>
+</html>

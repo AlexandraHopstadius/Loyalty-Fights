@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
   <title>Thai Gala - Fight Card</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Montserrat:wght@700;800&family=Oswald:wght@600;700&family=Poppins:wght@700;800&family=Playfair+Display:wght@800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20251117">
   <!--
     If you deploy the static site to GitHub Pages and run the admin server elsewhere,
     set the server origin here so clients connect to the deployed server for
@@ -18,12 +22,9 @@
   <!-- header removed -->
 
   <main class="fight-main">
-    <div class="logo-wrap"><img id="logoImage" src="loyalty_fights.png" alt="Loyalty Fights"></div>
-  <h2 class="section-title">Fight Card</h2>
-    <div class="event-info">
-      <div class="event-line event-line-1">Domargenomgång 12:15</div>
-      <div class="event-line event-line-2">Matchstart 13:00</div>
-    </div>
+  <img id="eventImage" alt="Event" class="event-image" style="display:none;margin:.6rem auto .3rem;max-height:160px;width:auto" />
+  <h1 id="eventTitle" class="event-title event-title--fx">&nbsp;</h1>
+    <div class="event-info" id="eventInfoDisplay" aria-live="polite"></div>
     <div class="now-strip">
       <div>Nu:</div>
       <div id="nowDisplay" class="now-match">—</div>
@@ -31,29 +32,36 @@
   <section id="fightList" class="cards fight-cards" aria-live="polite"></section>
 
     
+    <section class="loyalty-footer">
+    <div style="text-align:center;margin-bottom:.6rem">
+      <img id="footnoteImage" alt="Foot note" style="max-width:160px;width:28%;height:auto;display:none" />
+    </div>
+    <div id="socialBar" class="social-bar" aria-live="polite"></div>
+    </section>
+    <footer class="site-footer"></footer>
   </main>
 
-  <section class="loyalty-footer">
-    <div style="text-align:center;margin-bottom:.6rem">
-  <img src="loyaltyAsset-14-vitelefant.png" alt="Loyalty elephant" class="elephant" style="max-width:160px;width:28%;height:auto;display:inline-block" />
-    </div>
-    <p>Vill du veta mer om Loyalty Muay Thai?<br>
-    Besök vår hemsida: <a href="https://www.loyaltymuaythai.se" target="_blank">www.loyaltymuaythai.se</a></p>
-    <p>eller följ oss på Instagram: <a href="https://instagram.com/loyaltymuaythaiofficiell" target="_blank">@loyaltymuaythaiofficiell</a></p>
-  </section>
-
-  <footer class="site-footer">
-    <p>&copy; <span id="year"></span> Loyalty Fights #1</p>
-  </footer>
 
   <!-- QR modal removed -->
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <!-- SheetJS for .xlsx/.xls parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-  <script src="fightcard.js"></script>
+  <script src="fightcard.js?v=20251116"></script>
   <!-- Viewer WebSocket client: lightweight external file that listens for {type:'state'} broadcasts
        and applies them to the renderer (preserves compact HTML). -->
-  <script src="ws-client.js"></script>
+  <script>
+    // Ensure the viewer points to the running admin server for live updates.
+    // Falls back to localhost:3000 if opened from file:// or another origin.
+    window.SERVER_ORIGIN = window.SERVER_ORIGIN || (location.origin.startsWith('http') ? location.origin : 'http://localhost:3000');
+  </script>
+  <script src="ws-client.js?v=20251116"></script>
+  <script>
+    // Maintain year stamp only when element exists
+    (function(){
+      var y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
+    })();
+  </script>
 </body>
 </html>

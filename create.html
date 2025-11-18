@@ -4,33 +4,169 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Create your fightcard</title>
+  <link rel="icon" href="/thai_gala_mobile_site/logo_design.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg1:#0f1115; --bg2:#121826; --accent:#ff6b4a; --muted:#aab0b7; --panel:#0d1016;
+    :root {
+      /* Lightened arena gradient palette */
+      --bg-grad-start:#0d1629; /* softened navy */
+      --bg-grad-end:#1b2e45;   /* lighter blue */
+      --grain:rgba(255,255,255,0.03);
+      --card:#f9fafb;
+      --card-border:#dce3ec;
+      --text:#0f172a;
+      --muted:#5f6e80;
+      --accent-red:#ff3131;
+      --accent-red-hover:#ff3131;
+      --accent-red-glow:rgba(255,49,49,0.45);
+      /* Extended red spectrum for richer CTA gradient */
+      --accent-red-mid:#ff4232;
+      --accent-red-hot:#ff5d3a;
+      --accent-red-edge:#ff7845;
+      /* Accent blue for secondary link */
+      --accent-blue:#3b82f6;
+      --accent-blue-deep:#1e4fa3;
+      --accent-blue-glow:rgba(59,130,246,0.45);
+      --lang-bg:#111418;
+      --lang-bg-hover:#1d242c;
+      --lang-active-outline:#ef233c;
     }
-    *{box-sizing:border-box}
+    *{box-sizing:border-box;}
     html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 600px at 20% 10%, #1a2030 0%, var(--bg2) 40%, #0a0c10 100%);
-      color:#e9eef5; font-family:Segoe UI,system-ui,Arial,sans-serif; display:flex; align-items:center; justify-content:center}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.08)); border:1px solid rgba(255,255,255,0.09);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding:2rem 2.2rem; border-radius:20px; width:min(92vw,640px);
-      box-shadow:0 20px 60px rgba(0,0,0,.35)}
-    h1{margin:0 0 .5rem; font-weight:800; letter-spacing:.2px; font-size:clamp(1.3rem, 3.5vw, 2rem)}
-    p{margin:0 0 1.25rem; color:var(--muted)}
-    .cta{display:flex; justify-content:center; margin-top:.5rem}
-    .btn{appearance:none; border:0; padding:1rem 1.4rem; font-size:clamp(1rem, 3.4vw, 1.25rem); font-weight:800; border-radius:14px;
-      color:#0b0d10; background:var(--accent); cursor:pointer; transition:transform .08s ease, filter .2s ease; box-shadow:0 10px 30px rgba(255,107,74,.35)}
-    .btn:active{transform:translateY(1px) scale(.98)}
-    .row{display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; justify-content:center; margin-top:1rem}
-    .lang{background:#12161e; color:#e3e7ee; border:1px solid rgba(255,255,255,.08); padding:.45rem .7rem; border-radius:999px; cursor:pointer; font-weight:600}
-    .lang.active{outline:2px solid var(--accent); outline-offset:2px}
-    .note{color:#8e95a3; font-size:.9rem; text-align:center; margin-top:.8rem}
+    body{
+      margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.6rem;
+      /* Diagonal + radial arena glow for depth and energy */
+      background:
+        radial-gradient(1200px 800px at 20% 12%, rgba(19,34,53,0.45) 0%, rgba(19,34,53,0.12) 44%, rgba(10,15,31,0) 64%),
+        radial-gradient(1100px 760px at 82% 88%, rgba(12,20,36,0.50) 0%, rgba(10,15,31,0.22) 56%, rgba(10,15,31,0) 72%),
+        linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
+      position:relative;font-family:'Montserrat', 'Poppins', 'Bebas Neue', Arial, sans-serif;color:var(--text);
+    }
+    /* Subtle gritty noise overlay (SVG fractal noise) */
+    body::before{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      background-size:160px 160px; background-repeat:repeat;
+      mix-blend-mode:overlay; opacity:.10; filter:contrast(118%);
+    }
+    /* Soft vignette to reinforce fight-night atmosphere */
+    body::after{
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(120% 90% at 50% 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.28) 100%);
+    }
+    /* Reduce vertical padding so the white card is thinner in height */
+     /* Visual card: render the white rounded rectangle using ::before so we can
+       display a shorter white box without moving the content inside. The
+       content remains in the normal flow above the pseudo-element. */
+    :root{--card-visual-height:440px;--card-visual-offset:11rem;--card-shift:-8rem;--svg-crop-left:120px;--svg-crop-right:0}
+     .card{background:transparent;border:none;border-radius:16px;padding:1rem 1.6rem;padding-bottom:.6rem;width:min(94vw,700px);position:relative;top:var(--card-shift);overflow:visible;animation:cardFade .6s ease both;z-index:0}
+    .card::before{content:'';position:absolute;left:0;right:0;top:var(--card-visual-offset);height:var(--card-visual-height);background:var(--card);border:1px solid var(--card-border);border-radius:16px;box-shadow:0 18px 40px -10px rgba(0,0,0,0.35),0 6px 18px rgba(0,0,0,0.20);pointer-events:none;z-index:0}
+    /* decorative overlay aligned to the visual card only (avoid tinting background) */
+    .card::after{content:'';position:absolute;left:0;right:0;top:var(--card-visual-offset);height:var(--card-visual-height);background:radial-gradient(900px 400px at 85% 10%,rgba(255,255,255,0.35),transparent 60%);opacity:.18;border-radius:16px;pointer-events:none;z-index:1}
+     /* ensure card children render above the pseudo elements */
+     .card > *{position:relative;z-index:2}
+    @keyframes cardFade{from{opacity:0;transform:translateY(24px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);} }
+  .site-logo{position:absolute;top:18px;left:24px;width:140px;max-width:30vw;height:auto;z-index:40;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.38));transition:transform .3s ease,filter .3s ease}
+  .site-logo:hover{transform:scale(1.05);filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5))}
+  @media (max-width:640px){.site-logo{width:110px;left:16px;top:16px}}
+    /* Heading sits slightly lower in card, no gap before SVG */
+    h1{margin:2.5rem 0 0;font-weight:800;font-size:clamp(1.9rem,4.8vw,2.4rem);letter-spacing:.5px;text-transform:uppercase;font-family:'Bebas Neue','Montserrat',sans-serif;color:#08111c;text-align:center;}
+    p{margin:0 0 1.6rem;color:var(--muted);font-size:clamp(1rem,2.4vw,1.15rem);font-weight:500;text-align:center;line-height:1.3;}
+    /* Checklist styling */
+    .checklist{display:flex;flex-direction:column;gap:.1rem;margin:0 auto 0;max-width:720px}
+    .check{display:flex;align-items:flex-start;gap:.6rem;background:transparent;border:0;border-radius:0;padding:0;box-shadow:none}
+    .check input{appearance:none;width:18px;height:18px;border-radius:4px;border:2px solid #16a34a;margin-top:.15rem;position:relative}
+    .check input:checked{background:#16a34a;border-color:#16a34a}
+    .check input:checked::after{content:'';position:absolute;left:3px;top:1px;width:8px;height:12px;border:3px solid #fff;border-top:0;border-left:0;transform:rotate(45deg)}
+    .check .text{color:#0f172a;font-weight:600;line-height:1.25}
+    .check .text .emoji{margin-right:.35rem}
+    /* Demo link: position directly beneath language buttons, centered within visual card */
+    /* Demo link: moved further down and slightly more left */
+    .sub-cta{margin-top:2.0rem;width:min(94vw,700px);display:flex;justify-content:center;}
+    .sub-cta .link-secondary{display:inline-block;margin-left:-42px;}
+    .link-secondary{color:#d9e9ff;background:linear-gradient(160deg,#0f2238 0%, #12304b 40%, #163a59 70%, #1e4d72 100%);border:1px solid rgba(30,77,114,0.65);padding:.38rem .75rem;border-radius:999px;text-decoration:none;font-weight:600;font-size:.78rem;letter-spacing:.25px;line-height:1.1;position:relative;overflow:hidden;box-shadow:0 3px 12px -6px rgba(0,0,0,0.55),0 0 0 1px rgba(59,130,246,0.25);transition:box-shadow .3s ease,filter .25s ease,background .35s ease,color .35s ease}
+    .link-secondary::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0.12) 32%,rgba(255,255,255,0) 58%);mix-blend-mode:overlay;opacity:.45;pointer-events:none;transition:opacity .35s ease,filter .35s ease}
+    .link-secondary:hover{filter:brightness(1.06);box-shadow:0 6px 22px -6px rgba(0,0,0,0.6),0 0 0 3px rgba(59,130,246,0.35)}
+    .link-secondary:hover::before{opacity:.7;filter:blur(.4px)}
+    /* Move CTA button closer to the hero area (lift up toward blue-marked area) */
+    .cta{display:flex;justify-content:center;margin-top:-4.8rem}
+    .btn{appearance:none;border:0;padding:1.1rem 2.4rem;font-size:clamp(1.12rem,3.6vw,1.35rem);font-weight:700;letter-spacing:.3px;border-radius:999px;color:#fff;
+      /* Center any inline image/icon with text perfectly */
+      display:inline-flex;align-items:center;justify-content:center;gap:.5rem;line-height:1;
+      background:
+        linear-gradient(160deg,#e91414 0%, #f32121 16%, #f13528 42%, #e74a30 74%, #e35a38 88%, #dc643c 100%);
+      cursor:pointer;box-shadow:0 0 0 0 var(--accent-red-glow),0 12px 32px -6px var(--accent-red-glow);
+      transition:box-shadow .25s ease,transform .15s ease,filter .25s ease;position:relative;overflow:hidden;}
+    .btn::before{content:'';position:absolute;inset:0;border-radius:inherit;
+      background:linear-gradient(120deg,rgba(255,255,255,0.28) 0%,rgba(255,255,255,0.12) 30%,rgba(255,255,255,0.04) 46%,rgba(255,255,255,0) 60%);
+      mix-blend-mode:overlay;opacity:.48;pointer-events:none;transition:opacity .3s ease,filter .3s ease;}
+    .btn:hover{box-shadow:0 0 0 6px rgba(239,35,60,0.25),0 20px 50px -8px var(--accent-red-glow);filter:brightness(1.07);}    
+    .btn:hover::before{opacity:.75;filter:blur(.5px);} 
+    .btn:active{transform:translateY(2px);}
+    .row{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:2.1rem}
+    .lang{background:var(--lang-bg);color:#e5e9ef;border:1px solid rgba(255,255,255,0.08);padding:.55rem 1.05rem;border-radius:999px;cursor:pointer;font-weight:600;font-size:.9rem;letter-spacing:.4px;font-family:'Montserrat',sans-serif;display:inline-flex;align-items:center;gap:.4rem;transition:background .25s ease,box-shadow .25s ease,color .25s ease;position:relative;}
+    .lang:hover{background:var(--lang-bg-hover);}
+    .lang.active{box-shadow:0 0 0 2px var(--lang-active-outline),0 6px 16px -4px rgba(239,35,60,0.4);}
+    .note{color:#c0c7d2;font-size:.78rem;text-align:center;margin-top:1.2rem;font-weight:500;letter-spacing:.3px}
+    /* Hero stroke image wrapper (heading sits just above it) */
+    /* Keep SVG wrapper tightly spaced under the title; provide room so heading sits in red-marked area */
+    .text-svg-wrap{display:block;line-height:0;margin:-8.4rem auto 0;overflow:hidden;padding-top:.4rem}
+    /* Overlay text aligned to the right of the checkbox marks in the SVG */
+    .text-svg-wrap{position:relative}
+    .svg-overlay-text{position:absolute;top:130px;left:30px;right:16px;color:#08111c;font-weight:800;text-transform:uppercase;letter-spacing:.5px;line-height:1.2;font-family:'Bebas Neue','Montserrat',sans-serif;font-size:clamp(1.0rem,2.4vw,1.45rem);pointer-events:none;user-select:none}
+    .svg-overlay-text.secondary{top:198px}
+     /* Aggressive top/bottom crop of SVG using clip-path; adjust values as needed.
+       --svg-crop-top leaves a little bit of padding above the stroke. */
+    :root{--svg-crop-top:110px;--svg-crop-bottom:155px}
+    .hero-text-svg{display:block;max-width:100%;height:auto;margin:0 auto;clip-path:inset(var(--svg-crop-top) var(--svg-crop-right) var(--svg-crop-bottom) var(--svg-crop-left));}
+    /* Heading placement: push down into the red-marked area */
+    /* Increased top margin to move the title much lower */
+    .hero-title{margin:20rem 0 0.06rem !important;font-weight:800;font-size:clamp(2rem,5vw,2.6rem);letter-spacing:.5px;text-transform:uppercase;font-family:'Bebas Neue','Montserrat',sans-serif;color:#08111c;text-align:center;}
+    @media (max-width:640px){
+      :root{--svg-crop-top:70px;--svg-crop-bottom:100px;--card-visual-offset:7.5rem;--card-shift:-6rem;--card-visual-height:360px;--svg-crop-left:70px}
+      /* Mobile: slightly smaller offsets so layout fits */
+      .hero-title{font-size:clamp(1.8rem,9vw,2.3rem);margin:16.0rem 0 0.04rem}
+      .hero-text-svg{clip-path:inset(var(--svg-crop-top) 0 var(--svg-crop-bottom) 0);}
+      .text-svg-wrap{margin:-6.0rem auto 0;padding-top:.35rem}
+        .svg-overlay-text{left:-10px;top:100px;font-size:clamp(0.9rem,3.6vw,1.1rem)}
+        .svg-overlay-text.secondary{left:-10px;top:160px;font-size:clamp(0.9rem,3.6vw,1.1rem)}
+        .cta{margin-top:-2.4rem}
+    }
+    @media (min-width:1024px){
+      :root{--svg-crop-top:130px;--svg-crop-bottom:175px;--card-visual-offset:19rem;--card-shift:-10rem;--card-visual-height:500px;--svg-crop-left:180px}
+      .hero-title{font-size:clamp(2.5rem,4.6vw,3.2rem);margin:24.0rem 0 0.08rem}
+      .hero-text-svg{clip-path:inset(var(--svg-crop-top) 0 var(--svg-crop-bottom) 0);}
+        .svg-overlay-text{left:110px;top:170px;font-size:clamp(1.2rem,2.0vw,1.6rem)}
+        .svg-overlay-text.secondary{left:110px;top:242px;font-size:clamp(1.2rem,2.0vw,1.6rem)}
+        .cta{margin-top:-8.2rem}
+      .text-svg-wrap{margin:-9.6rem auto 0;padding-top:.45rem}
+    }
+    /* Responsive refinements */
+    @media (max-width:640px){
+      .card{padding:0.8rem 1.2rem;padding-bottom:.4rem;border-radius:14px}
+      h1{font-size:clamp(1.9rem,8vw,2.2rem)}
+      p{font-size:clamp(.95rem,4vw,1.05rem)}
+      .btn{width:100%;}
+    }
+    @media (max-width:640px){
+      :root{--card-visual-height:320px}
+      .card{padding:0.8rem 1.2rem;padding-bottom:.4rem;border-radius:14px}
+    }
   </style>
 </head>
 <body>
-  <main class="card" id="app" aria-live="polite">
-    <h1 id="title">Create your fightcard here!</h1>
-    <p id="subtitle">Tap the button to open the admin and start building your card.</p>
+  <img src="thai_gala_mobile_site/logo_design.svg" alt="Logo" class="site-logo" />
+  <main class="card" id="app" aria-live="polite" role="region" aria-label="Fightcard creation">
+    <h1 id="title" class="hero-title">Create your fightcard here!</h1>
+    <div class="checklist" aria-label="Highlights">
+      <div class="text-svg-wrap">
+        <div id="svgOverlayText" class="svg-overlay-text" aria-hidden="true"></div>
+        <div id="svgOverlayText2" class="svg-overlay-text secondary" aria-hidden="true"></div>
+        <img class="hero-text-svg" src="thai_gala_mobile_site/text.svg" alt="Build and share professional fight cards for your Muay Thai events — instantly.">
+      </div>
+    </div>
     <div class="cta">
       <button id="go" class="btn">Create your fightcard here!</button>
     </div>
@@ -39,15 +175,16 @@
       <button class="lang" data-lang="sv">Svenska</button>
       <button class="lang" data-lang="th">ไทย</button>
     </div>
-    <div class="note" id="footnote">Tip: add ?lang=sv to the URL to force Swedish.</div>
+    
+    <div class="sub-cta"><a id="demoLink" class="link-secondary" href="/index.html" target="_blank" rel="noopener">View a demo fight card</a></div>
   </main>
 
   <script>
     (function(){
       const t = {
-        en:{ title:'Create your fightcard here!', subtitle:'Tap the button to open the admin and start building your card.', cta:'Create your fightcard here!', tip:'Tip: add ?lang=sv to the URL to force Swedish.' },
-        sv:{ title:'Skapa ditt fightcard här!', subtitle:'Tryck på knappen för att öppna admin och börja bygga din lista.', cta:'Skapa ditt fightcard här!', tip:'Tips: lägg till ?lang=sv i URL:en för att tvinga svenska.' },
-        th:{ title:'สร้างไฟต์การ์ดของคุณที่นี่!', subtitle:'แตะปุ่มเพื่อเปิดหน้าแอดมินและเริ่มสร้างไฟต์การ์ด', cta:'สร้างไฟต์การ์ดที่นี่!', tip:'ทิป: เพิ่ม ?lang=th ที่ URL เพื่อใช้ภาษาไทย' }
+        en:{ title:'Create your fightcard here!', subtitle:'', cta:'Create your fightcard here!', demo:'View a demo fight card' },
+        sv:{ title:'Skapa ditt fightcard här!', subtitle:'', cta:'Skapa ditt fightcard här!', demo:'Visa ett demo fightcard' },
+        th:{ title:'สร้างไฟต์การ์ดของคุณที่นี่!', subtitle:'', cta:'สร้างไฟต์การ์ดที่นี่!', demo:'ดูตัวอย่างไฟต์การ์ด' }
       };
       const q = new URLSearchParams(location.search);
       let lang = (q.get('lang')||navigator.language||'en').toLowerCase();
@@ -57,12 +194,38 @@
       function apply(l){
         const dict = t[l] || t.en; lang = l;
         document.getElementById('title').textContent = dict.title;
-        document.getElementById('subtitle').textContent = dict.subtitle;
+        var subt = document.getElementById('subtitle'); if (subt) subt.textContent = dict.subtitle || '';
         document.getElementById('go').textContent = dict.cta;
-        document.getElementById('footnote').textContent = dict.tip;
+        var demo = document.getElementById('demoLink'); if (demo) demo.textContent = dict.demo || 'View a demo fight card';
+  // footnote tip removed
         document.querySelectorAll('.lang').forEach(b=>{ b.classList.toggle('active', b.dataset.lang===l); });
         try{ localStorage.setItem('lf_lang', l); }catch(e){}
         document.documentElement.lang = l;
+        // Set overlay tagline for Swedish only
+        const ov = document.getElementById('svgOverlayText');
+        const ov2 = document.getElementById('svgOverlayText2');
+        const overlay = {
+          sv: [
+            'SKAPA SNYGGA FIGHT CARD FÖR DINA KAMPSPORTSEVENT DIREKT!',
+            'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.'
+          ],
+          en: [
+            'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS INSTANTLY!',
+            'UPDATE MATCHES LIVE AND SHARE EVERYTHING WITH THE AUDIENCE AND CLUBS.'
+          ],
+          th: [
+            'สร้างไฟต์การ์ดสวยงามสำหรับอีเวนต์กีฬาการต่อสู้ของคุณได้ทันที!',
+            'อัปเดตแมตช์สด และแชร์ทุกอย่างกับผู้ชมและยิมต่างๆ'
+          ]
+        };
+        const lines = overlay[l];
+        if (lines && ov && ov2){
+          ov.textContent = lines[0]; ov.style.display = 'block';
+          ov2.textContent = lines[1]; ov2.style.display = 'block';
+        } else {
+          if (ov){ ov.textContent = ''; ov.style.display = 'none'; }
+          if (ov2){ ov2.textContent = ''; ov2.style.display = 'none'; }
+        }
       }
 
       document.querySelectorAll('.lang').forEach(btn=> btn.addEventListener('click', ()=> apply(btn.dataset.lang)));

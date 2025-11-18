@@ -8,18 +8,8 @@ if (!isBrowser) {
   try { module.exports = {}; } catch (e) { /* ignore */ }
   // stop executing client-only code
 } else {
-  const DEFAULT_FIGHTS = [
-  {id:1, a:"Leon Ländin", b:"Axel Toll", weight:"44 kg", klass:"JR-D Herr"},
-  {id:2, a:"Saga Lundström", b:"Sava Kader", weight:"51 kg", klass:"C Dam"},
-  {id:3, a:"Elof Stålhane", b:"Baris Yildiz", weight:"67 kg", klass:"JR-D Herr"},
-  {id:4, a:"Daniel Chikowski Bredenberg", b:"Texas Sjöden", weight:"71 kg", klass:"JR-C Herr"},
-  {id:5, a:"Dennis Sjögren Reis", b:"Freddy Hellman", weight:"67 kg", klass:"C Herr"},
-  {id:6, a:"Tora Grant", b:"Samina Burgaj", weight:"62 kg", klass:"C Dam"},
-  {id:7, a:"Vilmer Albinsson", b:"Gustav Fernsund", weight:"67 kg", klass:"JR-C Herr"}
-];
-
-  // Initialize fights from the default set so the page always has content to render.
-  let fights = DEFAULT_FIGHTS.slice();
+  // Start with an empty fights array; will be populated from server (/state) or admin actions.
+  let fights = [];
 
 // small map of fighter affiliations/gyms to show under names
 const fighterAffils = {
@@ -55,27 +45,62 @@ window.current = current;
 function renderList(){
   const list = document.getElementById('fightList');
   list.innerHTML = '';
+  if (!fights.length){
+    // mark container as empty for centered layout (vertical middle)
+    try{ const fl = document.getElementById('fightList'); if(fl){ fl.classList.add('is-empty','empty-center'); } }catch(e){}
+    const empty = document.createElement('div');
+    empty.className = 'empty-placeholder';
+    empty.innerHTML = 'Inga matcher ännu<br>Fghtcard skapas när admin lägger till matcher.';
+    list.appendChild(empty);
+    updateNow();
+    return;
+  }
+  // remove empty marker when fights exist
+  try{ const fl = document.getElementById('fightList'); if(fl){ fl.classList.remove('is-empty','empty-center'); } }catch(e){}
+  // Apply compact class when single fight to shrink card height
+  try{
+    if (fights.length <= 1){ list.classList.add('compact'); } else { list.classList.remove('compact'); }
+  }catch(e){ }
   fights.forEach((f, i)=>{
     const el = document.createElement('article');
     el.className='card fight-card';
     el.dataset.index = i;
+    // compute winner/loser classes (robust: normalize stored value)
+    const win = (f.winner || '').toString().toLowerCase().trim();
+    let aClass = '';
+    let bClass = '';
+    if (win === 'a') { aClass = 'winner'; bClass = 'loser'; }
+    else if (win === 'b') { bClass = 'winner'; aClass = 'loser'; }
+    else if (win === 'draw') { aClass = 'draw'; bClass = 'draw'; }
+    function methodLabel(code){
+      const m = (code||'').toString().toLowerCase().trim();
+      if (!m) return '';
+      const map = { anon:'Anonymous', dec:'Decision', ko:'KO', tko:'TKO', dq:'DQ', wo:'Walkover', nc:'No Contest', rtd:'RTD' };
+      const txt = map[m] || m.toUpperCase();
+      return `\n        <div class="win-method">Win by ${txt}</div>`;
+    }
+    if (f && f.method) { try{ console.debug('[viewer] method present for card', i, f.method); }catch(_){}} 
+    const methodHtml = (f && f.method) ? methodLabel(f.method) : '';
     el.innerHTML = `
       <div class="match">
         ${f.klass ? `<div class="fight-klass">${f.klass}</div>` : ''}
   <div class="weight-label">${f.weight}</div>
   <div class="fight-row">
-          <div class="fighter-box ${f.winner==='a' ? 'winner' : (f.winner==='draw' ? 'draw' : '')}" data-side="a">
+          <div class="fighter-box ${aClass}" data-side="a">
             <div class="fighter-name">${f.a}</div>
             <div class="fighter-meta">${(f.aGym || fighterAffils[f.a] || '')}</div>
           </div>
-          <div class="vs-col"><span class="vs-label">vs</span>${f.winner==='draw' ? '<div class="vs-draw">draw</div>' : ''}</div>
-          <div class="fighter-box ${f.winner==='b' ? 'winner' : (f.winner==='draw' ? 'draw' : '')}" data-side="b">
+          <div class="vs-col"><span class="vs-label">vs</span></div>
+          <div class="fighter-box ${bClass}" data-side="b">
             <div class="fighter-name">${f.b}</div>
             <div class="fighter-meta">${(f.bGym || fighterAffils[f.b] || '')}</div>
           </div>
         </div>
+        ${methodHtml || (f && f.winner === 'draw' ? '\n        <div class="win-method">Draw</div>' : '')}
       </div>`;
-    if (i===current) el.classList.add('live');
+    if (i===current) {
+      el.classList.add('live');
+    }
     list.appendChild(el);
 
     // no winner/loser controls — simplified card
@@ -87,8 +112,10 @@ function renderList(){
 function setWinner(matchIndex, side){
   if (matchIndex<0 || matchIndex>=fights.length) return;
   const f = fights[matchIndex];
-  if (side!=='a' && side!=='b') return;
-  f.winner = side;
+  // normalize side value to be tolerant of 'A'/'B' or extra whitespace
+  const s = (side || '').toString().toLowerCase().trim();
+  if (s !== 'a' && s !== 'b') return;
+  f.winner = s;
   renderList();
 }
 
@@ -126,6 +153,14 @@ function updateNow(){
     const visible = (typeof window.infoVisible === 'boolean') ? window.infoVisible : true;
     if (infoEl) infoEl.style.display = visible ? '' : 'none';
   }catch(e){ /* ignore in non-browser env */ }
+  // Show/Hide fights list entirely if fightsVisible false
+  try {
+    const listWrap = document.getElementById('fightList');
+    const sectionTitle = document.querySelector('.section-title');
+    const show = (window.fightsVisible!==false);
+    if (listWrap) listWrap.style.display = show ? '' : 'none';
+    if (sectionTitle) sectionTitle.style.display = show ? '' : 'none';
+  }catch(e){}
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
@@ -146,21 +181,240 @@ function updateNow(){
 document.addEventListener('DOMContentLoaded', ()=>{
   const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
   renderList();
+  // Base gradient used for viewer background
+  const BASE_GRADIENT = "linear-gradient(to bottom, #22394f 0%, #1a2d41 28%, #142433 55%, #0d1a26 78%, #09131d 100%)";
+  const SOFT_BLACK_GRADIENT = "linear-gradient(to bottom, #0f1822 0%, #0d141d 50%, #0b1119 100%)";
+  function applyBgTint(hex){
+    // No overlay: gradient by default; soft gradient when black; solid for other colors
+    if (!hex || typeof hex !== 'string'){
+      document.body.style.background = BASE_GRADIENT;
+      return;
+    }
+    const low = hex.toLowerCase();
+    if (low === '#000000' || low === '#000'){
+      document.body.style.background = SOFT_BLACK_GRADIENT;
+      return;
+    }
+    const m = hex.match(/^#?([0-9a-f]{6})$/i);
+    if(!m){ document.body.style.background = BASE_GRADIENT; return; }
+    const color = '#' + m[1];
+    document.body.style.background = color;
+  }
+  // apply event name and font if provided by server
+  try{
+    const title = document.getElementById('eventTitle');
+    const titleImg = document.getElementById('eventImage');
+    if (title){
+      const name = (window.eventName || '').trim();
+      title.textContent = name;
+      if (window.eventColor){ title.style.color = window.eventColor; }
+      if (typeof window.eventSize === 'number'){
+        title.style.fontSize = (window.eventSize/10).toFixed(1)+'rem';
+      }
+      console.log('[viewer] initial event title apply', {name, color: window.eventColor, size: window.eventSize, font: window.eventFont});
+    }
+    if (titleImg){
+      if (window.eventImage){
+        titleImg.src = window.eventImage;
+        if (typeof window.eventImageSize === 'number'){
+          titleImg.style.maxHeight = (window.eventImageSize/10).toFixed(1)+'rem';
+        }
+        titleImg.style.display='block';
+        // Show title below image if it has content; hide only if empty
+        if (title){
+          const hasName = (title.textContent || '').trim().length > 0;
+          title.style.display = hasName ? '' : 'none';
+        }
+      } else {
+        titleImg.style.display='none';
+        if (title) title.style.display='';
+      }
+    }
+    // footnote image
+    try{
+      const footEl = document.getElementById('footnoteImage');
+      if (footEl){
+        if (typeof window.eventFootnoteImage === 'string' && window.eventFootnoteImage){
+          footEl.src = window.eventFootnoteImage;
+          footEl.style.display='inline-block';
+        } else {
+          footEl.src=''; footEl.style.display='none';
+        }
+      }
+    }catch(e){}
+    // apply info text
+    try{
+      if (typeof window.eventInfo === 'string'){
+        const infoEl = document.getElementById('eventInfoDisplay');
+        if (infoEl){
+          const raw = window.eventInfo.trim();
+          if (raw){
+            const safe = raw.replace(/[<>]/g,'');
+            infoEl.innerHTML = safe.split(/\r?\n/).map(line=> `<div class="event-line" style="font-family:'Bebas Neue',Arial,sans-serif;font-weight:900;letter-spacing:1.2px;font-size:1.22rem;">${line}</div>`).join('');
+            infoEl.style.display = '';
+          } else {
+            infoEl.innerHTML=''; infoEl.style.display='none';
+          }
+        }
+      }
+    }catch(e){}
+    const font = (window.eventFont || 'bebas').toLowerCase();
+    document.body.classList.remove('font-bebas','font-anton','font-oswald','font-montserrat','font-poppins','font-playfair','font-impact');
+    document.body.classList.add('font-'+(font||'bebas'));
+    if (typeof window.eventBgColor === 'string'){
+      applyBgTint(window.eventBgColor);
+      try{ document.documentElement.style.setProperty('--bg', window.eventBgColor); }catch(e){}
+    }
+  }catch(e){}
 
   // try to fetch server state (persisted) so viewer shows admin-updated fights/current immediately
   (async function(){
     try{
       const res = await fetch('/state');
       if (res.ok){ const j = await res.json(); if (j){
-        if (Array.isArray(j.fights) && j.fights.length){
-            // replace fights array while preserving reference
-            fights.length = 0; j.fights.forEach(f=> fights.push(f));
+        if (Array.isArray(j.fights)){
+          fights.length = 0; j.fights.forEach(f=> fights.push(f));
+        }
+        if (typeof j.current === 'number') current = j.current; else current = 0;
+        // sync fightsVisible from server state (viewer previously didn't update this on initial fetch)
+        if (typeof j.fightsVisible === 'boolean') {
+          window.fightsVisible = j.fightsVisible;
+        }
+        // event meta
+        try{
+          const title = document.getElementById('eventTitle');
+          const titleImg = document.getElementById('eventImage');
+          if (title){
+            const name = (j.eventName||'').trim();
+            title.textContent = name;
+            if (j.eventColor){ title.style.color = j.eventColor; }
+            if (typeof j.eventSize === 'number'){
+              title.style.fontSize = (j.eventSize/10).toFixed(1)+'rem';
+            }
+            console.log('[viewer] /state event meta applied', {name, font: j.eventFont, color: j.eventColor, size: j.eventSize});
           }
-          // set current if provided, otherwise default to 0 so index 0 is live
-          if (typeof j.current === 'number') current = j.current; else current = 0;
+          if (titleImg){
+            if (j.eventImage){
+              titleImg.src = j.eventImage; titleImg.style.display='block';
+              if (title){
+                const hasName = (title.textContent || '').trim().length > 0;
+                title.style.display = hasName ? '' : 'none';
+              }
+            } else { titleImg.style.display='none'; if (title) title.style.display=''; }
+          }
+          if (titleImg && typeof j.eventImageSize === 'number'){
+            titleImg.style.maxHeight = (j.eventImageSize/10).toFixed(1)+'rem';
+          }
+          // footnote image from state
+          try{
+            if (typeof j.eventFootnoteImage === 'string'){
+              window.eventFootnoteImage = j.eventFootnoteImage;
+              const footEl = document.getElementById('footnoteImage');
+              if (footEl){
+                if (j.eventFootnoteImage){ footEl.src = j.eventFootnoteImage; footEl.style.display='inline-block'; }
+                else { footEl.src=''; footEl.style.display='none'; }
+              }
+            }
+          }catch(e){}
+          if (typeof j.eventInfo === 'string'){
+            window.eventInfo = j.eventInfo;
+            const infoEl = document.getElementById('eventInfoDisplay');
+            if (infoEl){
+              const raw = j.eventInfo.trim();
+              if (raw){
+                const safe = raw.replace(/[<>]/g,'');
+                infoEl.innerHTML = safe.split(/\r?\n/).map(line=> `<div class="event-line">${line}</div>`).join('');
+                infoEl.style.display='';
+              } else { infoEl.innerHTML=''; infoEl.style.display='none'; }
+            }
+          }
+          if (typeof j.eventBgColor === 'string' && j.eventBgColor){
+            window.eventBgColor = j.eventBgColor;
+            applyBgTint(j.eventBgColor);
+            try{ document.documentElement.style.setProperty('--bg', j.eventBgColor); }catch(e){}
+          }
+          const font = (j.eventFont||'bebas').toLowerCase();
+          document.body.classList.remove('font-bebas','font-anton','font-oswald','font-montserrat','font-poppins','font-playfair','font-impact');
+          document.body.classList.add('font-'+(font||'bebas'));
+        }catch(e){}
         renderList(); updateNow();
+        // apply social from initial fetch
+        try{ if (j.social && typeof j.social === 'object'){ window.social = j.social; if (typeof renderSocial === 'function') renderSocial(); } }catch(e){}
       }}
     }catch(e){ /* ignore */ }
+  })();
+
+  function renderSocial(){
+    const wrap = document.getElementById('socialBar');
+    if (!wrap) return;
+    const social = window.social && typeof window.social === 'object' ? window.social : null;
+    wrap.innerHTML = '';
+    if (!social) return;
+    function makeRow(iconSvg, html){
+      const div = document.createElement('div');
+      div.className='social-row';
+      div.innerHTML = iconSvg + html;
+      wrap.appendChild(div);
+    }
+    // website
+    if (social.website && social.website.enabled && social.website.value){
+      let url = social.website.value.trim();
+      if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+      const safeUrl = url.replace(/"/g,'');
+      makeRow('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.85"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2c2.5 3.5 2.5 16.5 0 20"></path></svg>', `<a href="${safeUrl}" target="_blank" rel="noopener">${social.website.value}</a>`);
+    }
+    // facebook
+    if (social.facebook && social.facebook.enabled && social.facebook.value){
+      let url = social.facebook.value.trim();
+      // assume user enters full page URL; if not and it's a short name, build facebook.com/name
+      if (url && !/^https?:\/\//i.test(url)) url = 'https://facebook.com/' + url.replace(/^\//,'');
+      const safeUrl = url.replace(/"/g,'');
+      makeRow('<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="opacity:.85"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.16 1.8.16v2h-1c-1 0-1.3.62-1.3 1.25V12h2.3l-.37 3h-1.93v7A10 10 0 0 0 22 12"></path></svg>', `<a href="${safeUrl}" target="_blank" rel="noopener">Facebook</a>`);
+    }
+    // instagram
+    if (social.instagram && social.instagram.enabled && social.instagram.value){
+      const handle = social.instagram.value.trim().replace(/^@+/, '');
+      const url = 'https://instagram.com/' + handle;
+      makeRow('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.85"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>', `<a href="${url}" target="_blank" rel="noopener">@${handle}</a>`);
+    }
+    // additional
+    if (social.additional && social.additional.enabled && social.additional.value){
+      const raw = social.additional.value.trim();
+      let html = raw.replace(/[<>]/g,'');
+      if (/^https?:\/\//i.test(raw)){
+        const safe = raw.replace(/"/g,'');
+        html = `<a href="${safe}" target="_blank" rel="noopener">${safe}</a>`;
+      }
+      makeRow('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.85"><path d="M12 2l4 7h-8l4-7z"></path><circle cx="12" cy="14" r="4"></circle><path d="M12 18v4"></path></svg>', html);
+    }
+    if (!wrap.innerHTML.trim()){
+      // nothing enabled – keep empty (could show placeholder later)
+    }
+  }
+  // expose so ws-client can call after applying state
+  window.renderSocial = renderSocial;
+
+  // Fallback polling: if viewer is on a different origin and WebSocket didn't connect
+  // ensure fights eventually appear. Poll /state every 6s until at least 1 fight is loaded.
+  (function pollUntilFights(){
+    let attempts = 0;
+    const maxAttempts = 20; // ~2 minutes
+    async function poll(){
+      if (fights.length > 0) return; // already populated by ws or initial fetch
+      attempts++;
+      try{
+        const r = await fetch('/state');
+        if (r.ok){ const j = await r.json(); if (Array.isArray(j.fights) && j.fights.length){
+          fights.length = 0; j.fights.forEach(f=> fights.push(f));
+          if (typeof j.current === 'number') current = j.current;
+          if (typeof j.fightsVisible === 'boolean') window.fightsVisible = j.fightsVisible;
+          renderList(); updateNow();
+          return; // stop polling once loaded
+        }}
+      }catch(_){ /* ignore */ }
+      if (attempts < maxAttempts) setTimeout(poll, 6000);
+    }
+    setTimeout(poll, 6000);
   })();
 
   const nextBtn = document.getElementById('next'); if (nextBtn) nextBtn.addEventListener('click', ()=>{ current = Math.min(fights.length-1, current+1); updateNow(); });
@@ -270,50 +524,6 @@ function highlightFightByNames(nameA, nameB, add = true){
 // expose for console testing
 window._fights = fights;
 
-// Try to auto-load an Excel/CSV file placed in the site root named like 'loyalty fights 1'
-;(async function tryAutoLoad(){
-  const baseNames = [
-    'loyalty fights 1.xlsx',
-    'loyalty fights 1.xls',
-    'loyalty fights 1.csv'
-  ];
-  for (const name of baseNames){
-    try {
-      const res = await fetch(encodeURI('./'+name));
-      if (!res.ok) continue;
-      const lower = name.toLowerCase();
-      if (lower.endsWith('.csv')){
-        const text = await res.text();
-        const rows = csvToRows(text);
-        const parsed = rowsToFights(rows);
-        if (parsed.length) {
-          fights.length = 0; parsed.forEach((f,i)=> fights.push({id:i+1,a:f.a,b:f.b,weight:f.weight||''}));
-          current = 0; renderList();
-          console.log('Loaded fights from', name);
-          return;
-        }
-      } else {
-        // binary
-        const ab = await res.arrayBuffer();
-        if (window.XLSX){
-          const wb = window.XLSX.read(ab, {type:'array'});
-          const first = wb.SheetNames[0];
-          const rows = window.XLSX.utils.sheet_to_json(wb.Sheets[first], {header:1});
-          const parsed = rowsToFights(rows);
-          if (parsed.length){
-            fights.length = 0; parsed.forEach((f,i)=> fights.push({id:i+1,a:f.a,b:f.b,weight:f.weight||''}));
-            current = 0; renderList();
-            console.log('Loaded fights from', name);
-            return;
-          }
-        } else {
-          console.warn('SheetJS (XLSX) not available to parse', name);
-        }
-      }
-    } catch (e){
-      // ignore and try next
-    }
-  }
-})();
+// Auto-loading removed: viewer intentionally starts empty until admin creates fights.
 
 } // end browser-only block

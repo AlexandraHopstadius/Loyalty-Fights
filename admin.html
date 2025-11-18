@@ -4,41 +4,251 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin - Loyalty Fights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0f1112;--accent:#ff6b4a;--muted:#9aa0a6;--panel:#0b0c0d;--border:#202224;--danger:#ff3b30}
+    :root{
+      --bg-grad-start:#0d1629;
+      --bg-grad-end:#1b2e45;
+      --text:#0f172a;
+      --muted:#5f6e80;
+      --card:#ffffff;
+      --card-border:#dce3ec;
+      --border:#dce3ec;
+      --shadow-sm:0 6px 18px -10px rgba(0,0,0,0.15),0 2px 6px rgba(0,0,0,0.08);
+      --shadow-lg:0 26px 60px -18px rgba(0,0,0,0.35),0 10px 28px -6px rgba(0,0,0,0.20);
+      --accent-red:#e91414;
+      --accent-red-mid:#f32121;
+      --accent-red-hot:#f13528;
+      --accent-red-edge:#e74a30;
+      --accent-red-glow:rgba(255,49,49,0.45);
+      --primary:#e91414;
+      --primary-hover:#f13528;
+    }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    body{font-family:Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);color:#fff;line-height:1.3;min-height:100dvh;display:flex;flex-direction:column}
-    header.page-head{position:sticky;top:0;background:#111;padding:.6rem .9rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;z-index:10;border-bottom:1px solid #181a1b}
-    h2{margin:0;font-size:1.2rem}
-    .token-wrap{display:flex;flex:1;gap:.4rem;align-items:center;min-width:220px}
-    input,select{padding:.55rem .65rem;font-size:1rem;border-radius:8px;border:1px solid #222;background:#161718;color:#fff;width:100%;}
-    input:focus,select:focus,button:focus{outline:2px solid var(--accent);outline-offset:2px}
-    button{padding:.65rem .95rem;border-radius:10px;border:0;background:var(--accent);color:#111;font-weight:600;font-size:0.95rem;cursor:pointer;min-width:60px;display:inline-flex;justify-content:center;align-items:center;gap:.3rem}
-    button:active{transform:scale(.96)}
-    .btn-small{padding:.45rem .55rem;font-size:.8rem;border-radius:8px}
-    #status{font-weight:600}
-    .pill{background:#161718;padding:.4rem .7rem;border-radius:999px;border:1px solid #222;font-size:.75rem}
+    body{margin:0;min-height:100dvh;display:flex;flex-direction:column;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;color:var(--text);background:
+      radial-gradient(1200px 800px at 20% 12%, rgba(19,34,53,0.45) 0%, rgba(19,34,53,0.12) 44%, rgba(10,15,31,0) 64%),
+      radial-gradient(1100px 760px at 82% 88%, rgba(12,20,36,0.50) 0%, rgba(10,15,31,0.22) 56%, rgba(10,15,31,0) 72%),
+      linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
+      position:relative;line-height:1.35}
+    body::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:160px 160px;mix-blend-mode:overlay;opacity:.10}
+    body::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.28) 100%)}
+    header.page-head{position:sticky;top:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(8px);padding:.9rem 1.4rem;display:flex;flex-wrap:wrap;gap:.9rem;align-items:center;z-index:50;border-bottom:1px solid rgba(220,227,236,0.8);box-shadow:0 10px 30px -12px rgba(0,0,0,0.25);border-radius:0 0 18px 18px}
+    header.page-head::after{content:'';position:absolute;inset:0;background:linear-gradient(140deg,rgba(255,255,255,0.55),rgba(255,255,255,0.2));pointer-events:none}
+    h2{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;font-family:'Bebas Neue','Montserrat',sans-serif;color:#08111c}
+    .token-wrap{display:flex;flex:1;gap:.5rem;align-items:center;min-width:260px}
+    input,select,textarea{padding:.65rem .7rem;font-size:1rem;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text);width:100%;box-shadow:inset 0 1px 0 rgba(0,0,0,0.02)}
+    input:focus,select:focus,textarea:focus,button:focus{outline:2px solid rgba(37,99,235,0.35);outline-offset:2px}
+    button{padding:.75rem 1.05rem;border-radius:999px;border:0;font-weight:700;font-size:.95rem;cursor:pointer;min-width:64px;display:inline-flex;justify-content:center;align-items:center;gap:.45rem;position:relative;overflow:hidden;color:#fff;background:
+      linear-gradient(160deg,var(--accent-red) 0%, var(--accent-red-mid) 32%, var(--accent-red-hot) 68%, var(--accent-red-edge) 100%);box-shadow:0 0 0 0 var(--accent-red-glow),0 12px 32px -6px var(--accent-red-glow);transition:box-shadow .25s ease,filter .25s ease,transform .18s ease}
+    button::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,rgba(255,255,255,0.30) 0%,rgba(255,255,255,0.12) 38%,rgba(255,255,255,0) 60%);mix-blend-mode:overlay;opacity:.55;pointer-events:none;transition:opacity .3s ease,filter .3s ease}
+    button:hover{filter:brightness(1.07);box-shadow:0 0 0 6px rgba(239,35,60,0.25),0 20px 50px -8px var(--accent-red-glow)}
+    button:active{transform:translateY(2px)}
+    .btn-small{padding:.55rem .75rem;font-size:.78rem;border-radius:999px;box-shadow:0 6px 20px -8px var(--accent-red-glow)}
+    .btn-small:hover{box-shadow:0 0 0 4px rgba(239,35,60,0.18),0 14px 42px -10px var(--accent-red-glow)}
+    /* Circular danger icon button (for Remove) */
+    .btn-circle-danger{width:42px;height:42px;min-width:42px;border-radius:50%;padding:0;display:inline-flex;align-items:center;justify-content:center;line-height:0;color:#fff;border:0}
+    .btn-circle-danger svg{width:18px;height:18px}
+    #status{font-weight:700}
+    .pill{background:#eef2ff;padding:.45rem .8rem;border-radius:999px;border:1px solid #dbeafe;font-size:.78rem;color:#1e40af}
     .muted{color:var(--muted)}
-  main{flex:1;display:flex;flex-direction:column;gap:.9rem;padding:.8rem;}
-  .sidebar{width:100%;max-height:calc(100dvh - 220px);overflow:auto;background:var(--panel);padding:.6rem .65rem;border-radius:14px;border:1px solid var(--border);}
-    .fightItem{padding:.55rem .6rem;border-radius:10px;margin:.35rem 0;background:#121314;border:1px solid #18191a;cursor:pointer;display:flex;flex-direction:column;gap:.4rem}
-    .fightItem:hover{background:#18191b}
-    .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(54px,1fr));gap:.35rem}
-    .fightButtons button{font-size:.7rem;padding:.45rem .4rem}
-    .section-actions{flex:1;display:flex;flex-direction:column;gap:.9rem}
-    .action-block{background:var(--panel);padding:.7rem .8rem;border-radius:14px;border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
-    .action-block h3{margin:0 0 .3rem;font-size:.9rem;font-weight:600;color:#fff;width:100%;}
-    .feedback{margin-top:.4rem;color:#cfe7d8;font-size:.85rem;min-height:1.2rem}
+    .section-actions{flex:1;display:flex;flex-direction:column;gap:1rem;padding:1rem}
+    .admin-shell{width:100%;max-width:1500px;margin:0 auto;padding:1.2rem 1.6rem 0;display:grid;grid-template-columns:1fr 420px;gap:2.2rem;position:relative;z-index:2;justify-content:center;align-items:flex-start;min-height:100vh;}
+    @media (max-width:1200px){.admin-shell{grid-template-columns:1fr 380px}}
+    @media (max-width:1020px){.admin-shell{grid-template-columns:1fr}.preview-pane{position:relative;top:auto}}
+    .panel-stack{display:flex;flex-direction:column;gap:1.4rem}
+    .card{background:var(--card);padding:1.15rem 1.25rem 3.5rem 1.25rem;border-radius:20px;border:1px solid var(--card-border);box-shadow:var(--shadow-lg);position:relative;overflow:visible;margin-bottom:1.2rem}
+    .card::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(140deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0.15) 42%,rgba(255,255,255,0) 70%);mix-blend-mode:overlay;pointer-events:none;opacity:.35}
+    .card h3{margin:0 0 .75rem;font-size:1.05rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;font-family:'Montserrat',sans-serif;color:#0f172a;display:flex;align-items:center;gap:.55rem}
+    .field{display:flex;flex-direction:column;gap:.35rem;width:100%}
+    .label{font-size:.85rem;color:#0f172a;font-weight:600}
+    /* Ensure all field titles align perfectly to the card padding */
+    .card .field > .label{padding-left:.1rem;margin-left:0}
+    .card .row .label{padding-left:.1rem}
+    .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+    /* Modern circular color picker */
+    .color-picker{width:48px;height:48px;display:flex;align-items:center;justify-content:center;position:relative}
+    #eventColor,#eventBgColor{appearance:none;-webkit-appearance:none;border-radius:50%;width:48px;height:48px;padding:0;border:0;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,0,0,0.35);background:transparent;transition:box-shadow .25s ease,transform .25s ease}
+    #eventColor::-webkit-color-swatch,#eventBgColor::-webkit-color-swatch{border:none;border-radius:50%;}
+    #eventColor::-webkit-color-swatch-wrapper,#eventBgColor::-webkit-color-swatch-wrapper{padding:0;border-radius:50%}
+    #eventColor::-moz-color-swatch,#eventBgColor::-moz-color-swatch{border:none;border-radius:50%;}
+    #eventColor:hover,#eventBgColor:hover{box-shadow:0 0 0 3px rgba(239,35,60,0.35),0 10px 28px -10px rgba(239,35,60,0.35);}
+    #eventColor:focus,#eventBgColor:focus{outline:none;box-shadow:0 0 0 3px rgba(61,165,255,0.55),0 0 0 8px rgba(61,165,255,0.15),0 12px 32px -12px rgba(0,0,0,0.4);}
+    #eventColor:active,#eventBgColor:active{transform:scale(.96);}
+    /* Font option styling */
+    #eventFont option{font-size:.9rem}
+    .opt-bebas{font-family:'Bebas Neue','Montserrat',sans-serif}
+    .opt-anton{font-family:'Anton','Montserrat',sans-serif}
+    .opt-oswald{font-family:'Oswald','Montserrat',sans-serif}
+    .opt-montserrat{font-family:'Montserrat',sans-serif}
+    .opt-poppins{font-family:'Poppins','Montserrat',sans-serif}
+    .opt-playfair{font-family:'Playfair Display','Georgia',serif}
+    .opt-impact{font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif}
+
+    /* Compact spacing specifically for the Admin Controls card */
+    .card[aria-labelledby="eventControls"]{padding:.9rem 1rem 2rem 1rem}
+    .card[aria-labelledby="eventControls"] h3{margin-bottom:.55rem}
+    .card[aria-labelledby="eventControls"] .field{gap:.25rem}
+    .card[aria-labelledby="eventControls"] .row{gap:.45rem}
+    /* Align Social Links and Card Management header with Admin */
+    .card[aria-labelledby="socialControls"],
+    .card[aria-labelledby="newFightControls"]{padding-top:.9rem;padding-left:1rem;padding-right:1rem}
+    /* Reduce bottom padding just for Social Links card */
+    .card[aria-labelledby="socialControls"]{padding-bottom:1.75rem}
+    /* Headline size compact control */
+    .size-control{display:flex;flex-direction:column;gap:.35rem;position:relative}
+    .size-compact{display:flex;align-items:center;gap:.4rem;position:relative}
+    /* Unified pill for input + caret */
+    /* Removed initial size-pill shadowed variant */
+      /* Match base input vertical rhythm (.65rem top/bottom) */
+      /* Updated box-shadow for size-pill */
+      .size-pill{display:inline-flex;align-items:stretch;background:#fff;border:1px solid transparent;border-radius:10px;overflow:hidden;box-shadow:none;background-clip:border-box;position:relative}
+      .size-pill::after{content:'';position:absolute;inset:0;border-radius:10px;box-shadow:0 0 0 1px var(--border) inset;pointer-events:none}
+    .size-pill #eventSizeNumber{border:0;box-shadow:none;border-radius:10px 0 0 10px;padding:.65rem .45rem;width:50px;text-align:center;font-weight:400;line-height:1rem}
+    #eventSizeNumber{width:72px;padding:.45rem .4rem;border-radius:10px;border:1px solid var(--border);background:#fff;font-size:1rem;font-weight:400;text-align:center;box-shadow:none;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif}
+    #eventSizeNumber:focus{outline:2px solid rgba(37,99,235,0.35);outline-offset:2px}
+    /* Remove native arrows from the Headline size number input */
+    #eventSizeNumber::-webkit-outer-spin-button,
+    #eventSizeNumber::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0 }
+    #eventSizeNumber{ appearance:textfield; -moz-appearance:textfield }
+    /* Dropdown caret button */
+    .size-caret{display:inline-flex;align-items:center;justify-content:center;width:26px;border:0;border-left:1px solid var(--border);background:#fff;color:#111;cursor:pointer;box-shadow:none;padding:0 .4rem;appearance:none;-webkit-appearance:none;border-radius:0;filter:none}
+    .size-caret:hover{background:#f8fafc;filter:none;box-shadow:none}
+    .size-caret::before{content:none !important}
+    /* Remove blue focus ring on the headline size controls */
+    .size-pill #eventSizeNumber:focus,
+    .size-pill .size-caret:focus{ outline:none !important; box-shadow:none !important; }
+    /* Headline font pill to match size pill */
+    /* Removed initial font-pill shadowed variant */
+      .font-pill select#eventFont{appearance:none;-webkit-appearance:none;border:0;background:#fff;padding:.65rem .65rem .65rem .65rem;font-size:1rem;font-weight:400;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;min-width:140px}
+      /* Updated box-shadow for font-pill */
+      .font-pill{display:inline-flex;align-items:stretch;background:#fff;border:1px solid transparent;border-radius:10px;overflow:visible;box-shadow:none;position:relative;background-clip:border-box}
+    .font-pill::after{content:'';position:absolute;inset:0;border-radius:10px;box-shadow:0 0 0 1px var(--border) inset;pointer-events:none}
+    .font-pill select#eventFont:focus{outline:none}
+    .font-caret{display:inline-flex;align-items:center;justify-content:center;width:26px;border-left:1px solid var(--border);background:#fff;color:#111;cursor:pointer;padding:0 .4rem;appearance:none;-webkit-appearance:none;box-shadow:none;filter:none;border-radius:0}
+    .font-caret:hover{background:#f8fafc;filter:none;box-shadow:none}
+    .font-pill .font-caret:focus{outline:none !important;box-shadow:none !important}
+    .font-caret svg{width:16px;height:16px}
+    .font-menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--card-border);border-radius:12px;box-shadow:var(--shadow-lg);padding:.25rem;display:none;z-index:1000;min-width:180px}
+    .font-menu.open{display:block}
+    .font-menu button{display:block;width:100%;background:transparent;border:0;border-radius:0;padding:.6rem .75rem;text-align:left;font-weight:700;color:#0f172a;font-size:.9rem;cursor:pointer;box-shadow:none;outline:none}
+    .font-menu button:hover,
+    .font-menu button:focus,
+    .font-menu button:active{background:transparent !important;color:#0f172a;box-shadow:none;outline:none}
+    .font-menu button::before{content:none !important}
+    .font-menu button + button{border-top:1px solid rgba(15,23,42,0.06)}
+    .size-caret svg{width:16px;height:16px}
+    /* Dropdown menu */
+    .size-menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--card-border);border-radius:12px;box-shadow:var(--shadow-lg);padding:.25rem;display:none;z-index:1000;min-width:110px}
+    .size-menu.open{display:block}
+    .size-menu button{display:block;width:100%;background:transparent;border:0;border-radius:0;padding:.6rem .75rem;text-align:left;font-weight:400;color:#0f172a;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;box-shadow:none;outline:none}
+    .size-menu button:hover,
+    .size-menu button:focus,
+    .size-menu button:active{background:transparent !important;color:#0f172a;box-shadow:none;outline:none}
+    .size-menu button::before{content:none !important}
+    .size-menu button + button{border-top:1px solid rgba(15,23,42,0.06)}
+    /* Slider removed */
+    .file-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+    /* Align the inline image size label with the field title */
+    .img-size-control{display:flex;align-items:center;gap:.4rem}
+    .img-size-control > .label{margin-top:-.2rem}
+    .thumb{display:none;max-height:72px;border-radius:8px;border:1px solid var(--border)}
+    /* Upload zone */
+    .upload-zone{display:flex;flex-direction:column;gap:.5rem}
+    .upload-drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:0.9rem;border-radius:12px;border:2px dashed rgba(15,23,42,0.08);background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(250,250,252,0.98));cursor:pointer;min-width:220px;min-height:84px;color:var(--muted);text-align:center}
+    .upload-drop svg{width:30px;height:30px;opacity:.9}
+    .upload-drop.dragover{border-color:rgba(239,35,60,0.9);background:linear-gradient(180deg,rgba(255,245,245,0.98),rgba(255,240,240,0.98));color:#9b1b1b}
+    .upload-text{font-weight:600;color:#243142}
+    .upload-hint{font-size:.78rem;color:var(--muted)}
+    .upload-preview{display:flex;gap:.6rem;align-items:center}
+    .upload-preview .thumb{display:block;max-height:64px;border-radius:10px;border:1px solid rgba(15,23,42,0.06)}
+    .upload-meta{display:flex;flex-direction:column;gap:.25rem}
+    .upload-meta .name{font-weight:700;color:#0f172a}
+    .upload-meta .actions{display:flex;gap:.4rem}
+    .upload-meta button{background:transparent;border:0;color:var(--accent-red);font-weight:700;cursor:pointer}
+    /* Modern attach button */
+    .attach-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:#fff;color:var(--text);font-weight:700;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.06)}
+    .attach-btn svg{width:18px;height:18px;flex-shrink:0}
+    .attach-filename{font-size:.85rem;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .attach-clear{background:transparent;border:0;color:#c33;cursor:pointer;padding:.25rem .5rem;border-radius:8px}
+    .range-row{display:flex;align-items:center;gap:.6rem}
+    input[type=range]{accent-color:var(--primary);flex:1}
+    .value-pill{min-width:64px;text-align:right;font-size:.82rem;color:var(--muted)}
+    .sidebar{width:100%;max-height:calc(100dvh - 240px);overflow:auto}
+    .fightItem{padding:.65rem;border-radius:14px;margin:.45rem 0;background:#ffffff;border:1px solid var(--card-border);cursor:pointer;display:flex;flex-direction:column;gap:.45rem;box-shadow:var(--shadow-sm);transition:background .25s ease,box-shadow .25s ease}
+    .fightItem:hover{background:#f5f9fc;box-shadow:0 10px 24px -10px rgba(0,0,0,0.18)}
+    .fightItem.current{
+      background:#fff5f5;
+      border:3px solid #ef233c; /* uniform thickness all around */
+      box-shadow:0 10px 26px -10px rgba(239,35,60,0.38);
+    }
+    /* Drag and drop cues */
+    .fightItem{cursor:grab}
+    .fightItem.dragging{opacity:.55;cursor:grabbing}
+    .fightItem.drop-before{box-shadow:0 -3px 0 0 #ef233c inset}
+    .fightItem.drop-after{box-shadow:0 3px 0 0 #ef233c inset}
+    .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:.4rem}
+    .fightButtons button{font-size:.85rem;padding:.55rem .6rem}
+    /* Win method row */
+    .method-row{display:flex;align-items:center;gap:.45rem;margin-top:.25rem;flex-wrap:wrap}
+    .method-label{display:none}
+    select.win-method{
+      appearance:none;-webkit-appearance:none;cursor:pointer;
+      border:1px solid var(--card-border); border-radius:999px;
+      padding:.52rem 2rem .52rem .8rem; font-size:.86rem; font-weight:800;
+      width:200px; /* slightly wider for clarity */
+      background:#fff no-repeat right .6rem center/12px 12px;
+      color:#111; box-shadow:var(--shadow-sm);
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    }
+    select.win-method:focus{outline:2px solid rgba(37,99,235,0.35);outline-offset:2px}
+    select.win-method option{color:#000}
+    .feedback{margin-top:.4rem;color:#065f46;font-size:.9rem;min-height:1.2rem}
+    /* Social rows */
+    .social-row{display:flex;align-items:center;gap:.45rem;background:#fff;border:1px solid var(--card-border);border-radius:14px;padding:.5rem .65rem;box-shadow:var(--shadow-sm);transition:box-shadow .25s ease,transform .25s ease}
+    .social-row:hover{box-shadow:0 12px 28px -12px rgba(0,0,0,0.25);transform:translateY(-2px)}
+    .social-row svg{opacity:.9}
+    .social-row .checkbox{margin-left:auto}
+    /* Preview pane removed */
+    /* Per-card collapse */
+    .card.collapsed{box-shadow:0 6px 16px -12px rgba(0,0,0,0.28)}
+    /* Admin, Social, Card Management collapsed sizing */
+    .card[aria-labelledby="eventControls"].collapsed{min-height:54px;max-height:54px;overflow:hidden;padding:.9rem 1rem .5rem 1rem}
+    .card[aria-labelledby="socialControls"].collapsed{min-height:54px;max-height:54px;overflow:hidden;padding:.9rem 1rem .5rem 1rem}
+    .card[aria-labelledby="newFightControls"].collapsed{min-height:54px;max-height:54px;overflow:hidden;padding:.9rem 1rem .5rem 1rem}
+    /* Keep titles same size and placement when collapsed */
+    .card[aria-labelledby="eventControls"].collapsed h3,
+    .card[aria-labelledby="socialControls"].collapsed h3,
+    .card[aria-labelledby="newFightControls"].collapsed h3{font-size:1.05rem;letter-spacing:.5px;margin:0 0 .75rem}
+    .card.collapsed > :not(h3):not(#toggleCompact):not(#toggleSocial):not(#toggleCard){display:none}
+    /* Fight creation modal styling aligned with admin card */
+    #fightModalInner{background:var(--card)!important;color:var(--text);border:1px solid var(--card-border)!important;border-radius:20px!important;box-shadow:var(--shadow-lg);position:relative;overflow:auto;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;padding:1.2rem 1.25rem}
+    #fightModalInner::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(140deg,rgba(255,255,255,0.38) 0%,rgba(255,255,255,0.16) 42%,rgba(255,255,255,0) 74%);mix-blend-mode:overlay;pointer-events:none}
+    #fightModalInner h3{font-family:'Montserrat',sans-serif;font-weight:800;letter-spacing:.5px;color:#0f172a}
+    #fightModalInner fieldset{border:1px solid var(--card-border)!important;border-radius:14px!important;background:#fff;padding:.85rem .9rem}
+    #fightModalInner legend{font-family:'Montserrat',sans-serif;font-weight:600;color:#0f172a;letter-spacing:.3px}
+    #fightModalInner input{background:#fff;border:1px solid var(--border);border-radius:10px;padding:.65rem .7rem;font-size:.95rem;color:var(--text);font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif}
+    #fightModalInner input:focus{outline:2px solid rgba(37,99,235,0.35);outline-offset:2px}
+    #fightModalInner form{gap:.95rem}
+    .btn-neutral{padding:.65rem .95rem;border-radius:999px;border:1px solid var(--card-border);background:#fff;color:#0f172a;font-weight:700;font-size:.85rem;cursor:pointer;box-shadow:0 6px 18px -8px rgba(0,0,0,0.18);transition:box-shadow .25s ease,filter .25s ease,transform .18s ease}
+    .btn-neutral:hover{background:#f8fafc;box-shadow:0 0 0 4px rgba(15,23,42,0.08),0 14px 38px -10px rgba(0,0,0,0.25)}
+    .btn-neutral:active{transform:translateY(2px)}
+    /* Per-card toggles in card headers */
+    #toggleCompact, #toggleSocial, #toggleCard{position:absolute;top:10px;right:12px;background:#fff;color:#0f172a;border:1px solid var(--card-border);padding:.5rem .75rem;font-size:.68rem;font-weight:800;border-radius:12px;box-shadow:0 6px 18px -8px rgba(0,0,0,0.22);cursor:pointer;letter-spacing:.5px;z-index:10}
+    #toggleCompact:hover, #toggleSocial:hover, #toggleCard:hover{background:#f8fafc}
+    .card.collapsed #toggleCompact, .card.collapsed #toggleSocial, .card.collapsed #toggleCard{background:linear-gradient(160deg,var(--accent-red) 0%, var(--accent-red-mid) 40%, var(--accent-red-hot) 90%);color:#fff;border:0;box-shadow:0 0 0 4px rgba(239,35,60,0.25),0 10px 26px -8px var(--accent-red-glow)}
+    .card.collapsed #toggleCompact::before, .card.collapsed #toggleSocial::before, .card.collapsed #toggleCard::before{content:''}
+    /* Collapsed sizing handled above for both Admin & Social */
     @media (max-width:800px){
-      main{padding:.6rem}
-      .sidebar{max-height:none}
-      header.page-head{padding:.55rem .7rem}
+      .section-actions{padding:.8rem}
+      header.page-head{padding:.7rem .85rem}
       h2{font-size:1.05rem}
     }
     @media (max-width:500px){
-      .fightButtons{grid-template-columns:repeat(auto-fit,minmax(46px,1fr))}
-      button{padding:.55rem .8rem;font-size:.85rem}
-      .btn-small{padding:.35rem .45rem;font-size:.65rem}
+      .fightButtons{grid-template-columns:repeat(auto-fit,minmax(60px,1fr))}
+      button{padding:.65rem .9rem;font-size:.9rem}
+      .btn-small{padding:.45rem .65rem;font-size:.8rem}
       input,select{font-size:.95rem}
     }
   </style>
@@ -63,60 +273,287 @@
     </div>
     <div class="pill muted">Status: <span id="status">disconnected</span></div>
   </header>
-  <div class="muted" style="padding:.3rem .85rem 0">Open with ?token=YOURTOKEN to auto-connect.</div>
+  <!-- Removed auto-connect hint per request -->
 
-  <main>
-    <div class="section-actions">
-      <div class="action-block" aria-labelledby="liveControls">
-        <h3 id="liveControls">Live Index</h3>
-        <input id="idx" type="number" min="0" value="0" style="max-width:100px" aria-label="Live match index">
-        <button id="prev" class="btn-small" title="Previous match">◀ Prev</button>
-        <button id="next" class="btn-small" title="Next match">Next ▶</button>
-        <button id="setCurrent">Set Current</button>
-        <div class="pill muted" style="margin-left:auto">Current: <span id="currentDisplay">-</span> / <span id="totalDisplay">-</span></div>
+  <main class="admin-shell">
+    <div class="section-actions panel-stack">
+      <div class="card" aria-labelledby="eventControls">
+        <h3 id="eventControls">Admin Controls</h3>
+        <button id="toggleCompact" type="button" aria-pressed="false" aria-label="Hide panels" title="Hide panels">Hide</button>
+        <div class="field" style="max-width:720px">
+          <div class="label">Event name (headline)</div>
+          <div class="row" style="align-items:center">
+            <input id="eventName" placeholder="Event name" style="flex:1">
+            <div style="display:flex;flex-direction:column;align-items:center;margin-left:.6rem">
+              <div class="label" style="font-size:.92em;margin-bottom:.1rem">Title color</div>
+              <div class="color-picker" title="Title color">
+                <input id="eventColor" type="color" value="#ffffff" aria-label="Event title color">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:.5rem">
+          <div class="field" style="max-width:220px">
+            <div class="label">Headline font</div>
+            <div class="font-pill" style="position:relative">
+              <select id="eventFont" aria-label="Headline font">
+                <option value="bebas" class="opt-bebas">Bebas Neue</option>
+                <option value="anton" class="opt-anton">Anton</option>
+                <option value="oswald" class="opt-oswald">Oswald</option>
+                <option value="montserrat" class="opt-montserrat">Montserrat</option>
+                <option value="poppins" class="opt-poppins">Poppins</option>
+                <option value="playfair" class="opt-playfair">Playfair</option>
+                <option value="impact" class="opt-impact">Impact</option>
+              </select>
+              <button id="fontDropdownBtn" type="button" class="font-caret" aria-label="Open font list" title="Choose font">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div id="fontDropdownMenu" class="font-menu" role="listbox" aria-label="Headline font options"><!-- injected --></div>
+            </div>
+          </div>
+          <div class="field" style="max-width:200px">
+              <div class="label">Headline size</div>
+              <div class="size-control">
+                <div class="size-compact">
+                  <div class="size-pill">
+                    <input id="eventSizeNumber" type="number" min="1" max="15" step="1" value="5" aria-label="Headline size in rem (integer)">
+                    <button id="sizeDropdownBtn" type="button" class="size-caret" aria-haspopup="listbox" aria-expanded="false" title="Choose size">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                  </div>
+                  <div id="sizeDropdownMenu" class="size-menu" role="listbox" aria-label="Headline sizes">
+                    <!-- options injected by JS -->
+                  </div>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="max-width:220px">
+            <div class="label">Background color</div>
+            <div class="color-picker" title="Background color" style="margin-top:.2rem">
+              <input id="eventBgColor" type="color" value="#000000" aria-label="Background color">
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:.4rem;align-items:flex-end">
+          <div class="field" style="flex:1;min-width:280px;gap:.15rem">
+            <div class="label">Header image</div>
+            <div class="file-row modern-file-row">
+              <input id="eventImage" type="file" accept="image/*" title="Attach an image to show instead of text" style="display:none">
+              <button id="attachImageBtn" type="button" class="attach-btn" title="Attach image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-8.48 8.48a5.5 5.5 0 0 1-7.78 0 5.5 5.5 0 0 1 0-7.78l7.07-7.07a3.75 3.75 0 0 1 5.3 5.3L10 17.5a1.75 1.75 0 0 1-2.47 0 1.75 1.75 0 0 1 0-2.47l6.36-6.36"/></svg>
+                Attach image
+              </button>
+              <span id="eventImageName" class="attach-filename" aria-live="polite"></span>
+              <button id="clearImageBtn" type="button" class="attach-clear" title="Remove selected image">✕</button>
+              <div class="img-size-control" title="Image max height">
+                <label class="label" for="eventImageSize">Size</label>
+                <input id="eventImageSize" type="range" min="60" max="240" value="150" step="2">
+                <span id="eventImageSizeDisplay" class="size-display" aria-live="polite"></span>
+              </div>
+            </div>
+            <!-- Move image preview below attach/drop zone, above background color -->
+            <img id="eventImagePreview" alt="Event image preview" class="thumb modern-thumb" style="display:none;margin:1.1rem auto .6rem;max-width:96%;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,0.10);" />
+            </div>
+          </div>
+        
+        <div class="field" style="margin-top:.4rem;max-width:720px">
+          <div class="label">Info box (appears under title)</div>
+          <textarea id="eventInfo" rows="4" placeholder="Exempel: Matchstart 13:00" style="resize:vertical"></textarea>
+          <div class="muted" style="font-size:.75rem">Use line breaks to separate lines. Leave empty to hide.</div>
+        </div>
+        <div class="field" style="margin-top:.6rem;max-width:720px">
+          <div class="label">Foot note image (appears at bottom of fight card)</div>
+          <div class="file-row">
+            <input id="eventFootnote" type="file" accept="image/*" title="Attach a footnote image (e.g. logo)" style="display:none">
+            <button id="attachFootnoteBtn" type="button" class="attach-btn" title="Attach footnote image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-8.48 8.48a5.5 5.5 0 0 1-7.78 0 5.5 5.5 0 0 1 0-7.78l7.07-7.07a3.75 3.75 0 0 1 5.3 5.3L10 17.5a1.75 1.75 0 0 1-2.47 0 1.75 1.75 0 0 1 0-2.47l6.36-6.36"/></svg>
+              Attach footnote
+            </button>
+            <span id="eventFootnoteName" class="attach-filename" aria-live="polite"></span>
+            <button id="clearFootnoteBtn" type="button" class="attach-clear" title="Remove selected footnote">✕</button>
+            <img id="eventFootnotePreview" alt="Foot note preview" class="thumb modern-thumb" style="display:none;margin:1.1rem auto .6rem;max-width:96%;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,0.10);" />
+          </div>
+          <div class="row" style="margin-top:.8rem">
+            <button id="saveEvent">Save Event</button>
+          </div>
+        </div>
       </div>
-      <div class="action-block" aria-labelledby="newFightControls">
-        <h3 id="newFightControls">Card Management</h3>
-        <button id="newFightBtn" style="background:#222;color:#fff" title="Create new fight card">- New fight card</button>
+
+      <!-- New dedicated Social Links panel -->
+      <div class="card" aria-labelledby="socialControls">
+        <h3 id="socialControls">Social Links</h3>
+        <button id="toggleSocial" type="button" aria-pressed="false" aria-label="Hide social links" title="Hide social links">Hide</button>
+        <div style="display:flex;flex-direction:column;gap:.45rem;width:100%;max-width:640px" id="socialPanel">
+          <!-- Website -->
+          <div class="label">Website</div>
+          <label class="social-row">
+            <span style="display:inline-flex;align-items:center" title="Website">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2c2.5 3.5 2.5 16.5 0 20"></path></svg>
+            </span>
+            <input id="socialWebsiteValue" placeholder="https://www.example.com" style="flex:1" />
+          </label>
+          <!-- Facebook -->
+          <div class="label" style="margin-top:.15rem">Facebook</div>
+          <label class="social-row">
+            <span title="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.16 1.8.16v2h-1c-1 0-1.3.62-1.3 1.25V12h2.3l-.37 3h-1.93v7A10 10 0 0 0 22 12"></path></svg>
+            </span>
+            <input id="socialFacebookValue" placeholder="facebook page URL" style="flex:1" />
+          </label>
+          <!-- Instagram -->
+          <div class="label" style="margin-top:.15rem">Instagram</div>
+          <label class="social-row">
+            <span title="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </span>
+            <input id="socialInstagramValue" placeholder="loyaltymuaythaiofficiell" style="flex:1" />
+          </label>
+          <!-- Additional -->
+          <div class="label" style="margin-top:.15rem">Additional</div>
+          <label class="social-row">
+            <span title="Extra">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l4 7h-8l4-7z"></path><circle cx="12" cy="14" r="4"></circle><path d="M12 18v4"></path></svg>
+            </span>
+            <input id="socialAdditionalValue" placeholder="extra info or link" style="flex:1" />
+          </label>
+          <div class="row" style="margin-top:.4rem"><button id="saveSocial" style="align-self:flex-start">Save Social</button></div>
+        </div>
       </div>
-      <div class="action-block" aria-labelledby="winnerControls">
-        <h3 id="winnerControls">Winner / Info</h3>
-        <select id="side" style="max-width:110px" aria-label="Winner side"><option value="a">Red (A)</option><option value="b">Blue (B)</option></select>
-        <button id="setWinner">Set Winner</button>
-        <button id="setDraw" class="btn-small" title="Draw">Draw</button>
-        <button id="clearWinner" class="btn-small" title="Clear winner">Clear</button>
-        <button id="setStandby" class="btn-small" title="Pause display">Standby</button>
-        <button id="clearStandby" class="btn-small" title="Resume display">Resume</button>
-        <button id="showInfo" class="btn-small" title="Show event info">Show Info</button>
-        <button id="clearInfo" class="btn-small" title="Hide event info">Hide Info</button>
+      
+  <div class="card" aria-labelledby="newFightControls">
+      <h3 id="newFightControls">Card Management</h3>
+      <button id="toggleCard" type="button" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
+  <button id="newFightBtn" type="button" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
+    <button id="clearAllFights" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
+        <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.6rem">
+          <!-- Fight items injected here -->
+        </div>
       </div>
-      <div class="sidebar" id="fightList" aria-label="Fight list">
-        <div class="muted" style="font-size:.75rem">Tap a fight to make it current</div>
-        <!-- Fight items injected here -->
-      </div>
-      <div class="feedback" id="feedback" aria-live="polite"></div>
-    </div>
+      <!-- Preview pane removed per request -->
   </main>
+  <!-- Static fight creation modal (hidden by default) -->
+  <div id="fightModal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:99999">
+    <div id="fightModalInner" style="width:clamp(300px,90%,480px);max-height:90vh;overflow:auto">
+      <h3 style="margin:.2rem 0 1rem;font-size:1.05rem">Create New Fight</h3>
+      <form id="fightForm" style="display:flex;flex-direction:column;gap:.75rem">
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="muted">Division / Klass</label>
+          <input name="klass" placeholder="e.g. Junior C" autocomplete="off">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="muted">Weight class</label>
+          <input name="weight" placeholder="e.g. 67 kg" autocomplete="off">
+        </div>
+        <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
+          <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter A</legend>
+          <input name="a" placeholder="Name" required autocomplete="off">
+          <input name="aGym" placeholder="Gym / Club" autocomplete="off">
+        </fieldset>
+        <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
+          <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter B</legend>
+          <input name="b" placeholder="Name" required autocomplete="off">
+          <input name="bGym" placeholder="Gym / Club" autocomplete="off">
+        </fieldset>
+        <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.4rem">
+          <button type="button" id="cancelFight" class="btn-neutral" onclick="(function(){var m=document.getElementById('fightModal'); if(m) m.style.display='none';})()">Cancel</button>
+          <button type="submit" id="createFightBtn">Create fight</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <div class="feedback" id="feedback" aria-live="polite"></div>
 
   <script>
+  // Fight modal functions
+  function openFightModal(){
+    const modal = document.getElementById('fightModal');
+    const form = document.getElementById('fightForm');
+    if(!modal || !form){ console.error('[admin] modal missing'); return; }
+    modal.style.display='flex';
+    console.log('[admin] fight modal opened');
+    try{ form.querySelector('input[name="klass"]').focus(); }catch(_){}
+  }
+  function closeFightModal(){ const m = document.getElementById('fightModal'); if(m) m.style.display='none'; }
   // simplified admin UI with explicit connect and clear feedback
   const urlToken = new URLSearchParams(location.search).get('token') || '';
   const tokenInput = document.getElementById('tokenInput');
   const statusEl = document.getElementById('status');
-  const feedback = document.getElementById('feedback');
+  const toggleCompactBtn = document.getElementById('toggleCompact');
+  const feedback = document.getElementById('feedback'); // element removed; remain for backward compatibility
   const currentDisplay = document.getElementById('currentDisplay');
   const totalDisplay = document.getElementById('totalDisplay');
   const idxEl = document.getElementById('idx');
+  function getSelectedIndex(){
+    if (idxEl) { const n = parseInt(idxEl.value||'0',10); return Number.isFinite(n)? n : 0; }
+    if (state && typeof state.current === 'number') return state.current;
+    return 0;
+  }
+
+  // Map headline size 1..15 to ~0.6rem..8.0rem with extra growth at the top end
+  function sizeIntToRem(v){
+    const iv = Math.max(1, Math.min(15, Math.round(Number(v)||1)));
+    const MIN = 0.6, MAX = 8.0; // extend max for bigger text at 15
+    const t = (iv - 1) / 14;    // 0..1 over 15 steps
+    const eased = 1 - Math.pow(1 - t, 2); // easeOutQuad for more growth near the end
+    return MIN + eased * (MAX - MIN);
+  }
+  function remToSizeInt(rem){
+    const r = Number(rem)||0.6; const MIN = 0.6, MAX = 8.0;
+    const p = Math.max(0, Math.min(1, (r - MIN) / (MAX - MIN)));
+    // invert easeOutQuad: t = 1 - sqrt(1 - p)
+    const t = 1 - Math.sqrt(Math.max(0, 1 - p));
+    const v = Math.round(t * 14 + 1);
+    return Math.max(1, Math.min(15, v));
+  }
 
   tokenInput.value = urlToken;
 
   let ws = null;
   let state = null;
+  // Track locally chosen win-methods to avoid placeholder flicker until server state arrives
+  const localWinMethods = Object.create(null);
 
   function setStatus(s){ statusEl.textContent = s; }
-  function showFeedback(msg, ok=true){ feedback.textContent = msg; feedback.style.color = ok? '#cfe7d8':'#f6b3b3'; }
+  function showFeedback(msg, ok=true){ if (feedback){ feedback.textContent = msg; feedback.style.color = ok? '#cfe7d8':'#f6b3b3'; } else { console.log('[feedback]', ok? 'OK:' : 'ERR:', msg); } }
+
+  // Admin Controls per-card collapse
+  if (toggleCompactBtn){
+    const adminCard = toggleCompactBtn.closest('.card');
+    toggleCompactBtn.addEventListener('click', () => {
+      const collapsed = adminCard.classList.toggle('collapsed');
+      toggleCompactBtn.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+      toggleCompactBtn.textContent = collapsed ? 'Show' : 'Hide';
+      toggleCompactBtn.title = collapsed ? 'Show panels' : 'Hide panels';
+      toggleCompactBtn.setAttribute('aria-label', toggleCompactBtn.title);
+    });
+  }
+  // Social Links per-card collapse
+  (function initSocialCollapse(){
+    const btn = document.getElementById('toggleSocial');
+    if(!btn) return;
+    const card = btn.closest('.card');
+    btn.addEventListener('click', ()=>{
+      const collapsed = card.classList.toggle('collapsed');
+      btn.setAttribute('aria-pressed', collapsed? 'true':'false');
+      btn.textContent = collapsed? 'Show' : 'Hide';
+      btn.title = collapsed? 'Show social links':'Hide social links';
+      btn.setAttribute('aria-label', btn.title);
+    });
+  })();
+  // Card Management per-card collapse
+  (function initCardCollapse(){
+    const btn = document.getElementById('toggleCard');
+    if(!btn) return;
+    const card = btn.closest('.card');
+    btn.addEventListener('click', ()=>{
+      const collapsed = card.classList.toggle('collapsed');
+      btn.setAttribute('aria-pressed', collapsed? 'true':'false');
+      btn.textContent = collapsed? 'Show' : 'Hide';
+      btn.title = collapsed? 'Show card management':'Hide card management';
+      btn.setAttribute('aria-label', btn.title);
+    });
+  })();
+  // Social Links panel no per-card collapse (toggle removed)
 
   function connect(){
     const token = tokenInput.value.trim();
@@ -142,11 +579,125 @@
 
   function updateUIFromState(){
     if(!state) return;
-    idxEl.value = (state.current!=null)? state.current : 0;
-    currentDisplay.textContent = (state.current!=null)? state.current : '-';
-    totalDisplay.textContent = (Array.isArray(state.fights)? state.fights.length : '-');
+    if (idxEl) idxEl.value = (state.current!=null)? state.current : 0;
+    if (currentDisplay) currentDisplay.textContent = (state.current!=null)? state.current : '-';
+    if (totalDisplay) totalDisplay.textContent = (Array.isArray(state.fights)? state.fights.length : '-');
     showFeedback('State updated', true);
     renderFightList();
+    // event fields
+    try{
+      document.getElementById('eventName').value = state.eventName || '';
+      document.getElementById('eventFont').value = (state.eventFont || 'bebas');
+      if (state.eventColor) document.getElementById('eventColor').value = state.eventColor;
+      if (typeof state.eventSize === 'number') {
+        const sizeNum = document.getElementById('eventSizeNumber');
+        const header = document.getElementById('previewHeader');
+        const rem = (state.eventSize/10);
+        const uiVal = remToSizeInt(rem);
+        if (sizeNum) sizeNum.value = String(uiVal);
+        if (header) header.style.fontSize = rem.toFixed(2)+'rem';
+      }
+      if (typeof state.eventImageSize === 'number'){
+        const s2 = document.getElementById('eventImageSize');
+        const d2 = document.getElementById('eventImageSizeDisplay');
+        if (s2) s2.value = state.eventImageSize;
+        if (d2) d2.textContent = String(parseInt(state.eventImageSize,10));
+        try{
+          const pv = document.getElementById('eventImagePreview');
+          if (pv && state.eventImageSize){ pv.style.maxHeight = (state.eventImageSize/10).toFixed(1)+'rem'; }
+        }catch(_){ }
+      }
+      if (typeof state.eventInfo === 'string'){
+        const infoEl = document.getElementById('eventInfo');
+        if (infoEl) infoEl.value = state.eventInfo;
+      }
+      if (typeof state.eventBgColor === 'string' && state.eventBgColor){
+        const bg = document.getElementById('eventBgColor');
+        if (bg) bg.value = state.eventBgColor;
+      }
+      // reflect existing event image in preview if present
+      try{
+        const pv = document.getElementById('eventImagePreview');
+        if (pv){
+          if (state.eventImage){ pv.src = state.eventImage; pv.style.display = 'inline-block'; }
+          else { pv.src=''; pv.style.display='none'; }
+        }
+      }catch(e){}
+    }catch(e){}
+
+    // footnote preview reflect existing
+    try{
+      const fpv = document.getElementById('eventFootnotePreview');
+      if (fpv){
+        if (state.eventFootnoteImage){ fpv.src = state.eventFootnoteImage; fpv.style.display='inline-block'; }
+        else { fpv.src=''; fpv.style.display='none'; }
+      }
+    }catch(_){ }
+
+    // reflect fightsVisible button emphasis safely
+    try{
+      const hideBtn = document.getElementById('hideFights');
+      const showBtn = document.getElementById('showFights');
+      if (hideBtn && showBtn){
+        const vis = state && state.fightsVisible !== false;
+        hideBtn.style.opacity = vis ? '1' : '0.6';
+        showBtn.style.opacity = vis ? '0.6' : '1';
+      }
+    }catch(_){ }
+
+    // Social panel reflect existing values (checkboxes removed; we only fill text inputs)
+    try{
+      if (state.social && typeof state.social === 'object'){
+        const s = state.social;
+        const map = [
+          ['Website','website'],['Facebook','facebook'],['Instagram','instagram'],['Additional','additional']
+        ];
+        map.forEach(([label,key])=>{
+          const val = document.getElementById('social'+ label + 'Value');
+          if (val && s[key]){ val.value = s[key].value || ''; }
+        });
+      }
+    }catch(e){ console.warn('[admin] failed to reflect social panel', e.message); }
+
+    // Preview pane population
+    try{
+      const headerEl = document.getElementById('previewHeader');
+      const infoEl = document.getElementById('previewInfo');
+      const fightsWrap = document.getElementById('previewFights');
+      const emptyEl = document.getElementById('previewEmpty');
+      // previewMeta removed (no badge display)
+      function badge(t){ const s=document.createElement('span'); s.textContent=t; return s; }
+      if(headerEl){
+        headerEl.textContent = state.eventName || 'Event Title';
+        const fontStacks = {
+          bebas: "'Bebas Neue','Montserrat',sans-serif",
+          anton: "'Anton','Montserrat',sans-serif",
+          oswald: "'Oswald','Montserrat',sans-serif",
+          montserrat: "'Montserrat',sans-serif",
+          poppins: "'Poppins','Montserrat',sans-serif",
+          playfair: "'Playfair Display','Georgia',serif",
+          impact: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+        };
+        headerEl.style.fontFamily = fontStacks[state.eventFont] || "'Montserrat',sans-serif";
+        if(state.eventColor){ headerEl.style.color = state.eventColor; }
+      }
+      if(infoEl){ infoEl.textContent = state.eventInfo || ''; infoEl.style.display = state.eventInfo? 'block':'none'; }
+      // meta badges removed
+      if(fightsWrap && emptyEl){
+        fightsWrap.innerHTML='';
+        if(state.fights && state.fights.length){
+          emptyEl.style.display='none';
+          state.fights.forEach((f,i)=>{
+            const item=document.createElement('div');
+            item.className='preview-fight'+(state.current===i? ' current':'');
+            item.innerHTML = `<span>#${i+1} ${escapeHtml(f.a)} vs ${escapeHtml(f.b)}</span><span>${escapeHtml(f.klass||'')}</span>`;
+            fightsWrap.appendChild(item);
+          });
+        } else {
+          emptyEl.style.display='block';
+        }
+      }
+    }catch(e){ console.warn('[admin] preview pane update failed', e.message); }
   }
 
   function renderFightList(){
@@ -154,36 +705,138 @@
     // remove old items except the header line
     container.querySelectorAll('.fightItem').forEach(n=>n.remove());
     if(!state || !Array.isArray(state.fights)) return;
+    // helpers for dnd
+    let dragId = null;
+    function clearDropCues(){ container.querySelectorAll('.fightItem').forEach(n=>{ n.classList.remove('drop-before','drop-after'); }); }
+    function onDragStart(e){ const el = e.currentTarget; dragId = el.dataset.id; el.classList.add('dragging'); try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', dragId); }catch(_){} }
+    function applyDropCue(e){ const el = e.currentTarget; if (!dragId) return; clearDropCues(); const rect = el.getBoundingClientRect(); const mid = rect.top + rect.height/2; if (e.clientY < mid) el.classList.add('drop-before'); else el.classList.add('drop-after'); }
+    function onDragEnter(e){ e.preventDefault(); try{ if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'; }catch(_){} applyDropCue(e); }
+    function onDragOver(e){ e.preventDefault(); try{ if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'; }catch(_){} applyDropCue(e); }
+    function onDragLeave(){ this.classList.remove('drop-before','drop-after'); }
+    function onDrop(e){ e.preventDefault(); const target = e.currentTarget; const dragged = container.querySelector('.fightItem.dragging'); if (!dragged || !target || dragged===target) { clearDropCues(); return; } const before = target.classList.contains('drop-before'); clearDropCues(); if (before) container.insertBefore(dragged, target); else container.insertBefore(dragged, target.nextSibling); // persist new order
+      const ids = Array.from(container.querySelectorAll('.fightItem')).map(n=> Number(n.dataset.id));
+      // reorder local state by ids
+      try{
+        const byId = new Map(state.fights.map(x=>[x.id, x]));
+        let matched = 0;
+        const reordered = [];
+        ids.forEach(id=>{ const it = byId.get(id); if (it) { reordered.push(it); byId.delete(id); matched++; } });
+        if (matched === 0 && ids.length === state.fights.length && ids.every((n,i)=> Number.isInteger(n) && n>=0 && n<state.fights.length)){
+          // Fallback: order array appears to be indices, not IDs
+          const tmp = [];
+          ids.forEach(idx=>{ const it = state.fights[idx]; if (it) tmp.push(it); });
+          if (tmp.length) { reordered.length = 0; Array.prototype.push.apply(reordered, tmp); byId.clear(); }
+        } else {
+          // append any remaining (shouldn’t happen but safe)
+          byId.forEach(v=> reordered.push(v));
+        }
+        // preserve current fight by id
+        const curId = (state.fights[state.current] && state.fights[state.current].id) || null;
+        state.fights = reordered;
+        if (curId!=null){ const ni = state.fights.findIndex(x=>x.id===curId); state.current = ni>=0? ni : Math.min(state.current, state.fights.length-1); }
+        try{ renderFightList(); }catch(_){}
+      }catch(_){ }
+      // notify server
+      sendAction({ type:'reorderFights', order: ids });
+    }
+    function onDragEnd(){ this.classList.remove('dragging'); clearDropCues(); }
+
     state.fights.forEach((f, i)=>{
       const div = document.createElement('div'); div.className = 'fightItem';
+      div.dataset.id = String(f.id||i);
+      if (state && typeof state.current === 'number' && state.current === i){ div.classList.add('current'); }
       const title = document.createElement('div'); title.innerHTML = `<strong>#${i+1}</strong> ${escapeHtml(f.a)} vs ${escapeHtml(f.b)} <span class="muted">(${escapeHtml(f.klass||'')})</span>`;
       div.appendChild(title);
       const btns = document.createElement('div'); btns.className = 'fightButtons';
       const aBtn = document.createElement('button'); aBtn.textContent = 'A'; aBtn.className='smallBtn'; aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
       const bBtn = document.createElement('button'); bBtn.textContent = 'B'; bBtn.className='smallBtn'; bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
   const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
-      const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'clearWinner', index:i}); });
-    const focus = document.createElement('button'); focus.textContent='Show'; focus.className='smallBtn'; focus.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setCurrent', index:i}); });
-    const remove = document.createElement('button'); remove.textContent='Remove'; remove.className='smallBtn'; remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){} } }});
-  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr); btns.appendChild(focus); btns.appendChild(remove);
+      const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); delete localWinMethods[i]; sendAction({type:'clearWinner', index:i}); sendAction({type:'setWinMethod', index:i, method:''}); });
+    const remove = document.createElement('button');
+    remove.className = 'btn-circle-danger';
+    remove.setAttribute('aria-label','Remove fight');
+    remove.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='#ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='6' x2='18' y2='18'/><line x1='18' y1='6' x2='6' y2='18'/></svg>";
+    remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){} } }});
+  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr); btns.appendChild(remove);
       div.appendChild(btns);
-      div.addEventListener('click', ()=>{ idxEl.value = i; sendAction({type:'setCurrent', index:i}); });
+      // Always show method selector so it doesn't disappear if winner is unset
+      {
+        const row = document.createElement('div'); row.className = 'method-row';
+        const lab = document.createElement('span'); lab.className = 'method-label'; lab.textContent = 'Win by:';
+        const select = document.createElement('select'); select.className = 'win-method'; select.setAttribute('aria-label','Win method');
+        const opts = [
+          {v:'', t:'Win by…', placeholder:true},
+          {v:'anon', t:'Win by Anonymous'},
+          {v:'dec', t:'Win by Decision'},
+          {v:'ko', t:'Win by KO'},
+          {v:'tko', t:'Win by TKO'},
+          {v:'dq', t:'Win by DQ'},
+          {v:'wo', t:'Win by Walkover'},
+          {v:'nc', t:'Win by No Contest'},
+          {v:'rtd', t:'Win by RTD'}
+        ];
+        opts.forEach(o=>{ const opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.t; if (o.placeholder){ opt.disabled = true; opt.hidden = true; } select.appendChild(opt); });
+        if (f.method){ try{ select.value = String(f.method||''); }catch(_){ select.value=''; } } else { select.value = localWinMethods[i] || ''; }
+        select.addEventListener('click', ev=> ev.stopPropagation());
+        // Optimistically update local state to avoid flicker back to placeholder
+        select.addEventListener('change', ev=>{
+          ev.stopPropagation();
+          const val = select.value;
+          localWinMethods[i] = val;
+          try{ if (state && Array.isArray(state.fights) && state.fights[i]){
+            if (val) state.fights[i].method = val; else delete state.fights[i].method;
+          } }catch(_){ }
+          // re-render immediately so the selected label shows
+          try{ renderFightList(); }catch(_){ }
+          sendAction({ type:'setWinMethod', index:i, method: val });
+        });
+        const save = document.createElement('button'); save.textContent = 'Save'; save.className = 'btn-small';
+        save.addEventListener('click', (ev)=>{ 
+          ev.stopPropagation(); 
+          const val = select.value;
+          localWinMethods[i] = val;
+          try{ if (state && Array.isArray(state.fights) && state.fights[i]){
+            if (val) state.fights[i].method = val; else delete state.fights[i].method;
+          } }catch(_){ }
+          try{ renderFightList(); }catch(_){ }
+          sendAction({ type:'setWinMethod', index:i, method: val }); 
+        });
+        // label hidden visually but kept for accessibility; content shown on the control itself
+        row.appendChild(lab); row.appendChild(select); row.appendChild(save);
+        div.appendChild(row);
+      }
+      div.addEventListener('click', ()=>{
+        if (idxEl) idxEl.value = i;
+        // Optimistically mark as current for immediate feedback
+        try{ if (state){ state.current = i; } }catch(_){ }
+        try{ renderFightList(); }catch(_){ }
+        sendAction({type:'setCurrent', index:i});
+      });
       container.appendChild(div);
+      // Enable drag on the whole item; disable on inner buttons
+      try{
+        div.setAttribute('draggable','true');
+        div.addEventListener('dragstart', onDragStart);
+        div.addEventListener('dragenter', onDragEnter);
+        div.addEventListener('dragover', onDragOver);
+        div.addEventListener('dragleave', onDragLeave);
+        div.addEventListener('drop', onDrop);
+        div.addEventListener('dragend', onDragEnd);
+        div.querySelectorAll('button,select').forEach(el=> el.setAttribute('draggable','false'));
+      }catch(_){ }
     });
   }
 
   function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
   async function sendAction(payload){
-    const token = tokenInput.value.trim();
-    if(!token){ showFeedback('Missing token', false); return; }
-    // try websocket admin wrapper
-    try{
-      // Avoid double-processing for createFight: only POST for that action
-      if(payload.type !== 'createFight' && ws && ws.readyState === WebSocket.OPEN){
-        ws.send(JSON.stringify({ type:'admin', token, payload }));
-      }
-    }catch(e){ /* ignore ws send errors */ }
+    let token = tokenInput.value.trim();
+    if(!token){
+      console.warn('[admin] Missing token; using default token fallback');
+      token = (window.DEFAULT_ADMIN_TOKEN || 'letmein');
+    }
+    // Do NOT send over WebSocket to avoid duplicate processing on server
+    // All actions are sent via HTTP POST with optional idempotency keys where relevant
     // always POST for immediate feedback and server-side validation
     try{
       const target = (window.SERVER_ORIGIN || '') + '/admin/action?token=' + encodeURIComponent(token);
@@ -192,106 +845,437 @@
         try{ payload.rid = (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('rid_'+Date.now()+'_'+Math.random().toString(36).slice(2)); }catch(_){ payload.rid = 'rid_'+Date.now(); }
       }
       const res = await fetch(target, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) });
-      if(res.ok){ const j = await res.json(); showFeedback('OK: '+ (j.ok? 'action applied':'response received'), true); return j; }
-      else { const text = await res.text(); showFeedback('Server error: '+res.status+' '+text, false); return null; }
+      if(res.ok){
+        const j = await res.json();
+        if (payload.type === 'createFight') console.log('[admin] createFight response', j);
+        showFeedback('OK: '+ (j.ok? 'action applied':'response received'), true);
+        return j;
+      } else {
+        const text = await res.text();
+        console.warn('[admin] action error', res.status, text);
+        showFeedback('Server error: '+res.status+' '+text, false);
+        return null;
+      }
     }catch(e){ showFeedback('Network error: '+e.message, false); return null; }
   }
 
   document.getElementById('connectBtn').addEventListener('click', ()=> connect());
 
-  document.getElementById('setCurrent').addEventListener('click', ()=>{
-    const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'setCurrent', index });
-  });
-  document.getElementById('prev').addEventListener('click', ()=>{
-    const val = Math.max(0, (parseInt(idxEl.value||'0',10)-1)); idxEl.value = val; sendAction({ type:'setCurrent', index:val });
-  });
-  document.getElementById('next').addEventListener('click', ()=>{
-    const val = (parseInt(idxEl.value||'0',10)+1); idxEl.value = val; sendAction({ type:'setCurrent', index:val });
+  (function bindLiveIndexShortcuts(){
+    const setBtn = document.getElementById('setCurrent');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    if (setBtn) setBtn.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'setCurrent', index }); });
+    if (prevBtn) prevBtn.addEventListener('click', ()=>{ const val = Math.max(0, getSelectedIndex()-1); if (idxEl) idxEl.value = val; sendAction({ type:'setCurrent', index:val }); });
+    if (nextBtn) nextBtn.addEventListener('click', ()=>{ const val = getSelectedIndex()+1; if (idxEl) idxEl.value = val; sendAction({ type:'setCurrent', index:val }); });
+  })();
+  // Modern attach button wiring: footnote image
+  (function initFootnoteAttachButton(){
+    const attachBtn = document.getElementById('attachFootnoteBtn');
+    const fileInput = document.getElementById('eventFootnote');
+    const preview = document.getElementById('eventFootnotePreview');
+    const nameEl = document.getElementById('eventFootnoteName');
+    const clearBtn = document.getElementById('clearFootnoteBtn');
+    if (!fileInput) return;
+
+    function showPreviewFromFile(f){
+      if (!f) { nameEl && (nameEl.textContent=''); if(preview){ preview.src=''; preview.style.display='none'; } return; }
+      nameEl && (nameEl.textContent = f.name);
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        if (!preview) return;
+        preview.src = reader.result;
+        preview.style.display = 'inline-block';
+        preview.classList.add('modern-thumb');
+      };
+      reader.readAsDataURL(f);
+    }
+
+    if (attachBtn) attachBtn.addEventListener('click', ()=> fileInput.click());
+
+    fileInput.addEventListener('change', ()=>{
+      const f = fileInput.files && fileInput.files[0];
+      if (!f){ showPreviewFromFile(null); return; }
+      showPreviewFromFile(f);
+    });
+
+    if (clearBtn) clearBtn.addEventListener('click', ()=>{
+      try{ fileInput.value = ''; }catch(e){}
+      showPreviewFromFile(null);
+    });
+  })();
+
+  (function bindWinnerInfoActions(){
+    const setW = document.getElementById('setWinner');
+    const setD = document.getElementById('setDraw');
+    const clrW = document.getElementById('clearWinner');
+    const sbOn = document.getElementById('setStandby');
+    const sbOff = document.getElementById('clearStandby');
+    const infoOn = document.getElementById('showInfo');
+    const infoOff = document.getElementById('clearInfo');
+    const hideF = document.getElementById('hideFights');
+    const showF = document.getElementById('showFights');
+    if (setW) setW.addEventListener('click', ()=>{ const index = getSelectedIndex(); const side = (document.getElementById('side')||{}).value || 'a'; sendAction({ type:'setWinner', index, side }); });
+    if (setD) setD.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'setWinner', index, side:'draw' }); });
+    if (clrW) clrW.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'clearWinner', index }); });
+    if (sbOn) sbOn.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:true }); });
+    if (sbOff) sbOff.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:false }); });
+    if (infoOn) infoOn.addEventListener('click', ()=>{ sendAction({ type:'setInfoVisible', on:true }); });
+    if (infoOff) infoOff.addEventListener('click', ()=>{ sendAction({ type:'setInfoVisible', on:false }); });
+    if (hideF) hideF.addEventListener('click', ()=>{ sendAction({ type:'setFightsVisible', on:false }); });
+    if (showF) showF.addEventListener('click', ()=>{ sendAction({ type:'setFightsVisible', on:true }); });
+  })();
+
+  document.getElementById('saveEvent').addEventListener('click', async ()=>{
+    const name = document.getElementById('eventName').value || '';
+    const font = document.getElementById('eventFont').value || 'bebas';
+    const color = document.getElementById('eventColor').value || '';
+    const sizeNumEl = document.getElementById('eventSizeNumber');
+    let size = 50; // default internal tenths of rem (5.0rem)
+    if (sizeNumEl){
+      const raw = (sizeNumEl.value||'').toString().replace(',', '.');
+      let val = parseFloat(raw);
+      if (!isNaN(val)){
+        val = Math.max(1, Math.min(15, Math.round(val))); // integer 1..15
+        const rem = sizeIntToRem(val);
+        size = Math.round(rem * 10); // tenths-of-rem
+      }
+    }
+    const imageSize = parseInt(document.getElementById('eventImageSize').value,10);
+  const info = document.getElementById('eventInfo').value || '';
+  const bgColor = document.getElementById('eventBgColor').value || '';
+    const fileInput = document.getElementById('eventImage');
+    const file = fileInput && fileInput.files && fileInput.files[0];
+    let imageData = null;
+    if (file){
+      imageData = await new Promise((resolve)=>{
+        const reader = new FileReader();
+        reader.onload = ()=> resolve(reader.result);
+        reader.onerror = ()=> resolve(null);
+        reader.readAsDataURL(file);
+      });
+      // update preview immediately
+  const pv = document.getElementById('eventImagePreview');
+  if (pv && imageData){ pv.src = imageData; pv.style.display='inline-block'; pv.classList.add('thumb'); }
+    }
+    // footnote image
+    const footInput = document.getElementById('eventFootnote');
+    const footFile = footInput && footInput.files && footInput.files[0];
+    let footnoteData = null;
+    if (footFile){
+      footnoteData = await new Promise((resolve)=>{
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(footFile);
+      });
+  const fpv = document.getElementById('eventFootnotePreview');
+  if (fpv && footnoteData){ fpv.src = footnoteData; fpv.style.display='inline-block'; fpv.classList.add('thumb'); }
+      console.log('[admin] footnoteImage selected length', footnoteData ? footnoteData.length : 0);
+    }
+    // use unified action, optionally including image data URL
+    const payload = { type:'setEventMeta', name, font, color, size, imageSize, info, bgColor };
+    if (imageData!=null) payload.image = imageData;
+    if (footnoteData!=null) payload.footnoteImage = footnoteData;
+    else {
+      // if preview already showing but no new file selected, keep existing (no clear logic yet)
+      if (state && state.eventFootnoteImage){ payload.footnoteImage = state.eventFootnoteImage; }
+    }
+    sendAction(payload);
   });
 
-  document.getElementById('setWinner').addEventListener('click', ()=>{
-    const index = parseInt(idxEl.value||'0',10) || 0; const side = document.getElementById('side').value; sendAction({ type:'setWinner', index, side });
-  });
-  document.getElementById('setDraw').addEventListener('click', ()=>{
-    const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'setWinner', index, side:'draw' });
-  });
-  document.getElementById('clearWinner').addEventListener('click', ()=>{
-    const index = parseInt(idxEl.value||'0',10) || 0; sendAction({ type:'clearWinner', index });
-  });
-  document.getElementById('setStandby').addEventListener('click', ()=>{
-    sendAction({ type:'setStandby', on:true });
-  });
-  document.getElementById('clearStandby').addEventListener('click', ()=>{
-    sendAction({ type:'setStandby', on:false });
-  });
-  document.getElementById('showInfo').addEventListener('click', ()=>{
-    sendAction({ type:'setInfoVisible', on:true });
-  });
-  document.getElementById('clearInfo').addEventListener('click', ()=>{
-    sendAction({ type:'setInfoVisible', on:false });
-  });
+  // Save social panel
+  const saveSocialBtn = document.getElementById('saveSocial');
+  if (saveSocialBtn){
+    saveSocialBtn.addEventListener('click', ()=>{
+      const vWebsite = (document.getElementById('socialWebsiteValue').value||'').trim();
+      const vFacebook = (document.getElementById('socialFacebookValue').value||'').trim();
+      const vInstagram = (document.getElementById('socialInstagramValue').value||'').trim();
+      const vAdditional = (document.getElementById('socialAdditionalValue').value||'').trim();
+      const social = {
+        website:   { enabled: !!vWebsite,   value: vWebsite },
+        facebook:  { enabled: !!vFacebook,  value: vFacebook },
+        instagram: { enabled: !!vInstagram, value: vInstagram },
+        additional:{ enabled: !!vAdditional,value: vAdditional }
+      };
+      sendAction({ type:'setSocial', social });
+    });
+  }
 
+
+      // reflect fightsVisible button emphasis (moved into updateUIFromState to avoid null state)
     // New fight modal logic
-    const modalHtml = `
-      <div id="fightModal" style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;font-size:16px">
-        <div style="background:#111;padding:1rem 1.1rem;border-radius:16px;width:clamp(300px,90%,480px);border:1px solid #222;max-height:90vh;overflow:auto;font-family:Segoe UI,Arial,sans-serif">
-          <h3 style="margin:.2rem 0 1rem;font-size:1.05rem">Create New Fight</h3>
-          <form id="fightForm" style="display:flex;flex-direction:column;gap:.75rem">
-            <div style="display:flex;flex-direction:column;gap:.35rem">
-              <label class="muted">Division / Klass</label>
-              <input name="klass" placeholder="e.g. Junior C" autocomplete="off">
-            </div>
-            <div style="display:flex;flex-direction:column;gap:.35rem">
-              <label class="muted">Weight class</label>
-              <input name="weight" placeholder="e.g. 67 kg" autocomplete="off">
-            </div>
-            <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
-              <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter A</legend>
-              <input name="a" placeholder="Name" required autocomplete="off">
-              <input name="aGym" placeholder="Gym / Club" autocomplete="off">
-            </fieldset>
-            <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
-              <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter B</legend>
-              <input name="b" placeholder="Name" required autocomplete="off">
-              <input name="bGym" placeholder="Gym / Club" autocomplete="off">
-            </fieldset>
-            <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.4rem">
-              <button type="button" id="cancelFight" style="background:#222;color:#eee">Cancel</button>
-              <button type="submit" id="createFightBtn">Create fight</button>
-            </div>
-          </form>
-        </div>
-      </div>`;
-    function openFightModal(){
-      if(document.getElementById('fightModal')) return; // already open
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-      const modal = document.getElementById('fightModal');
+    // Attach submit & cancel once
+    (function bindModalHandlers(){
       const form = document.getElementById('fightForm');
-      modal.addEventListener('click', e=>{ if(e.target === modal) closeFightModal(); });
-      document.getElementById('cancelFight').addEventListener('click', ()=> closeFightModal());
+      const cancel = document.getElementById('cancelFight');
+      const modal = document.getElementById('fightModal');
+      if(!form || !cancel || !modal) return;
+      cancel.addEventListener('click', closeFightModal);
+      // Robust backdrop close: only close if press starts and ends on backdrop without dragging
+      let backdropPointerDown = false;
+      let backdropMoved = false;
+      modal.addEventListener('pointerdown', (e)=>{
+        if (e.target === modal){ backdropPointerDown = true; backdropMoved = false; }
+        else { backdropPointerDown = false; backdropMoved = false; }
+      });
+      modal.addEventListener('pointermove', ()=>{ if (backdropPointerDown) backdropMoved = true; });
+      modal.addEventListener('pointerup', (e)=>{
+        if (e.target === modal && backdropPointerDown && !backdropMoved){ closeFightModal(); }
+        backdropPointerDown = false; backdropMoved = false;
+      });
       form.addEventListener('submit', async (e)=>{
         e.preventDefault();
         const fd = new FormData(form);
         const data = Object.fromEntries(fd.entries());
         if(!data.a || !data.b){ showFeedback('Enter both fighter names', false); return; }
+        // Warn clearly if missing token
+        if (!tokenInput.value.trim()){
+          showFeedback('Missing token — enter admin token at top, then try again', false);
+          try{ tokenInput.focus(); }catch(_){ }
+          return;
+        }
         const resp = await sendAction({ type:'createFight', data });
-        closeFightModal();
         if (resp && resp.fight){
-          // optimistic local update so it appears instantly
-          if (!state) state = { fights: [], current: 0 };
-          state.fights.push(resp.fight);
-          updateUIFromState();
+          // Avoid double-listing: rely on server state instead of optimistic push
+          try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(_){ }
+          closeFightModal();
         } else {
-          // fallback to full state fetch if response didn't include fight
+          // keep modal open if token missing or error
           try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(_){ }
         }
       });
+      // ESC key to close
+      document.addEventListener('keydown', (ev)=>{ if(ev.key==='Escape'){ closeFightModal(); } });
+    })();
+    // Instrument fight creation button
+    const newFightBtn = document.getElementById('newFightBtn');
+    function simplePromptCreate(){
+      try{
+        const a = prompt('Fighter A name'); if(!a) return;
+        const b = prompt('Fighter B name'); if(!b) return;
+        const weight = prompt('Weight class (optional)')||'';
+        const klass = prompt('Division / Klass (optional)')||'';
+        sendAction({ type:'createFight', data:{ a, b, weight, klass } });
+      }catch(e){ console.error('[admin] simplePromptCreate failed', e); }
     }
-    function closeFightModal(){ const m = document.getElementById('fightModal'); if(m) m.remove(); }
-    document.getElementById('newFightBtn').addEventListener('click', openFightModal);
+    function safeOpenFightModal(){
+      console.log('[admin] newFightBtn clicked');
+      openFightModal();
+      // Fallback: if styling didn’t apply (still hidden), use simple prompts
+      setTimeout(()=>{
+        const m = document.getElementById('fightModal');
+        const shown = m && window.getComputedStyle(m).display !== 'none';
+        if (!shown){
+          console.warn('[admin] Modal did not open — using prompt fallback');
+          simplePromptCreate();
+        }
+      }, 50);
+    }
+    if (newFightBtn){ newFightBtn.addEventListener('click', safeOpenFightModal); }
+    document.getElementById('clearAllFights').addEventListener('click', async ()=>{
+      if (!confirm('Really remove ALL fights from the card?')) return;
+      const r = await sendAction({ type:'clearAllFights' });
+      if (r && r.ok){
+        try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){ }
+      }
+    });
 
   // auto-connect if token provided in URL
   if(tokenInput.value) connect();
+
+  // Build color palette swatches
+  // Swatch palette removed; circular color inputs styled via CSS
+
+  // Headline size numeric control (integer-only, supports comma input)
+  (function initHeadlineSize(){
+    const num = document.getElementById('eventSizeNumber');
+    if(!num) return;
+    const header = document.getElementById('previewHeader');
+    const btn = document.getElementById('sizeDropdownBtn');
+    const menu = document.getElementById('sizeDropdownMenu');
+    const pill = btn ? btn.closest('.size-pill') : null;
+    function persist(rem){
+      const tenths = Math.round(rem * 10);
+      try{ if (!state) state = {}; state.eventSize = tenths; }catch(_){ }
+      try{ sendAction({ type:'setEventSize', size: tenths }); }catch(_){ }
+    }
+    function normalize(val){
+      const s = (val==null? '' : String(val)).replace(',', '.');
+      let v = parseFloat(s);
+      if (isNaN(v)) v = 5;
+      // clamp to 1..15 and force integer
+      v = Math.max(1, Math.min(15, Math.round(v)));
+      return v;
+    }
+    function apply(){
+      const v = normalize(num.value);
+      num.value = v; // integer shown
+      const rem = sizeIntToRem(v);
+      if (header) header.style.fontSize = rem.toFixed(2)+'rem';
+      return rem;
+    }
+    num.addEventListener('input', apply);
+    num.addEventListener('change', ()=>{ const rem = apply(); persist(rem); });
+    num.addEventListener('blur', ()=>{ const rem = apply(); persist(rem); });
+    apply();
+
+    // Build dropdown menu options 1..15
+    if (menu){
+      menu.innerHTML = '';
+      for(let i=1;i<=15;i++){
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('role','option');
+        b.textContent = String(i);
+        b.addEventListener('click', ()=>{
+          num.value = String(i);
+          // Update preview immediately and persist to server
+          const rem = apply();
+          persist(rem);
+          // dispatch change for any external listeners
+          num.dispatchEvent(new Event('change', { bubbles:true }));
+          closeMenu();
+        });
+        menu.appendChild(b);
+      }
+    }
+    function openMenu(){ if(menu){ if(pill){ menu.style.minWidth = pill.offsetWidth + 'px'; } menu.classList.add('open'); if(btn) btn.setAttribute('aria-expanded','true'); } }
+    function closeMenu(){ if(menu){ menu.classList.remove('open'); if(btn) btn.setAttribute('aria-expanded','false'); } }
+    function toggleMenu(){ if(menu) { menu.classList.contains('open') ? closeMenu() : openMenu(); } }
+    if (btn){ btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMenu(); }); }
+    document.addEventListener('click', (e)=>{ if(!menu) return; const p = menu.parentElement; if (p && !p.contains(e.target)) closeMenu(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMenu(); });
+  })();
+  // Font dropdown caret: trigger native select
+  (function initFontCaret(){
+    const btn = document.getElementById('fontDropdownBtn');
+    const sel = document.getElementById('eventFont');
+    const menu = document.getElementById('fontDropdownMenu');
+    if(!btn || !sel || !menu) return;
+    const fonts = [
+      {v:'bebas', label:'Bebas Neue', stack:"'Bebas Neue','Montserrat',sans-serif"},
+      {v:'anton', label:'Anton', stack:"'Anton','Montserrat',sans-serif"},
+      {v:'oswald', label:'Oswald', stack:"'Oswald','Montserrat',sans-serif"},
+      {v:'montserrat', label:'Montserrat', stack:"'Montserrat',sans-serif"},
+      {v:'poppins', label:'Poppins', stack:"'Poppins','Montserrat',sans-serif"},
+      {v:'playfair', label:'Playfair', stack:"'Playfair Display','Georgia',serif"},
+      {v:'impact', label:'Impact', stack:"Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"}
+    ];
+    function build(){
+      menu.innerHTML='';
+      fonts.forEach(f=>{
+        const b=document.createElement('button');
+        b.type='button'; b.setAttribute('role','option'); b.dataset.value=f.v; b.textContent=f.label; b.style.fontFamily=f.stack;
+        b.addEventListener('click', ()=>{
+          sel.value = f.v;
+          sel.dispatchEvent(new Event('change', {bubbles:true}));
+          closeMenu();
+        });
+        menu.appendChild(b);
+      });
+    }
+    function openMenu(){ menu.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
+    function closeMenu(){ menu.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+    function toggle(){ menu.classList.contains('open')? closeMenu(): openMenu(); }
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(); });
+    document.addEventListener('click', (e)=>{ if(!menu.contains(e.target) && e.target!==btn) closeMenu(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMenu(); });
+    build();
+  })();
+
+  // Image size slider live display
+  (function initImageSize(){
+    const s2 = document.getElementById('eventImageSize');
+    const d2 = document.getElementById('eventImageSizeDisplay');
+    if (!s2 || !d2) return;
+    s2.addEventListener('input', ()=>{
+      const v = parseInt(s2.value,10);
+      // update preview size immediately (no visible rem label in UI)
+      d2 && (d2.textContent = (v/10).toFixed(1)+'rem');
+      // if preview image is visible, constrain its max-height to the selected value
+      try{
+        const pv = document.getElementById('eventImagePreview');
+        if (pv && pv.style.display !== 'none') pv.style.maxHeight = (v/10).toFixed(1)+'rem';
+      }catch(e){}
+    });
+  })();
+
+  // Modern attach button wiring: supports drag/drop, keyboard activation, preview image, filename and clear
+  (function initAttachButton(){
+    const attachBtn = document.getElementById('attachImageBtn');
+    const fileInput = document.getElementById('eventImage');
+    const preview = document.getElementById('eventImagePreview');
+    const nameEl = document.getElementById('eventImageName');
+    const clearBtn = document.getElementById('clearImageBtn');
+    const sizeInput = document.getElementById('eventImageSize');
+    const sizeDisplay = document.getElementById('eventImageSizeDisplay');
+    const uploadZone = document.getElementById('eventUploadZone');
+    if (!fileInput) return;
+
+    function showPreviewFromFile(f){
+      if (!f) { nameEl && (nameEl.textContent=''); if(preview){ preview.src=''; preview.style.display='none'; } return; }
+      nameEl && (nameEl.textContent = f.name);
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        if (!preview) return;
+        preview.src = reader.result;
+        preview.style.display = 'inline-block';
+        preview.classList.add('modern-thumb');
+        try{ if (sizeInput && typeof sizeInput.value !== 'undefined'){ preview.style.maxHeight = (parseInt(sizeInput.value,10)/10).toFixed(1)+'rem'; } }catch(e){}
+      };
+      reader.readAsDataURL(f);
+    }
+
+    // clicking the visible zone or button opens file picker
+    if (uploadZone){
+      uploadZone.addEventListener('click', ()=> fileInput.click());
+      uploadZone.addEventListener('keydown', (ev)=>{ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); fileInput.click(); } });
+      uploadZone.addEventListener('dragover', (ev)=>{ ev.preventDefault(); uploadZone.classList.add('dragover'); });
+      uploadZone.addEventListener('dragleave', (ev)=>{ ev.preventDefault(); uploadZone.classList.remove('dragover'); });
+      uploadZone.addEventListener('drop', (ev)=>{
+        ev.preventDefault(); uploadZone.classList.remove('dragover');
+        const f = (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]) || null;
+        if (!f) return;
+        // try to populate native file input so saveEvent still finds the file
+        try{
+          const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+        }catch(_){ /* ignore if not supported */ }
+        showPreviewFromFile(f);
+      });
+    }
+
+    if (attachBtn) attachBtn.addEventListener('click', ()=> fileInput.click());
+
+    fileInput.addEventListener('change', ()=>{
+        const f = fileInput.files && fileInput.files[0];
+        if (!f){ showPreviewFromFile(null); return; }
+        // Set image size slider to 162 by default on attach
+        if (sizeInput) {
+          sizeInput.value = '162';
+          const v = 162;
+          if (sizeDisplay) sizeDisplay.textContent = v;
+          try{ if (preview && preview.style.display !== 'none') preview.style.maxHeight = (v/10).toFixed(1)+'rem'; }catch(_){ }
+        }
+        showPreviewFromFile(f);
+    });
+
+    if (clearBtn) clearBtn.addEventListener('click', ()=>{
+      try{ fileInput.value = ''; }catch(e){}
+      showPreviewFromFile(null);
+    });
+
+    // update preview size display if slider changes
+    if (sizeInput){
+      sizeInput.addEventListener('input', ()=>{
+        const v = parseInt(sizeInput.value,10);
+        if (sizeDisplay) sizeDisplay.textContent = v;
+        try{ if (preview && preview.style.display !== 'none') preview.style.maxHeight = (v/10).toFixed(1)+'rem'; }catch(_){ }
+      });
+      // initialize display
+      try{ if (sizeDisplay) sizeDisplay.textContent = parseInt(sizeInput.value,10); }catch(_){ }
+    }
+  })();
 
   // fetch initial state so the page shows accurate values even before ws connects
   (async ()=>{

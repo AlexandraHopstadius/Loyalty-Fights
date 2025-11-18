@@ -3,12 +3,15 @@ const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
 const { Pool } = require('pg');
+const crypto = require('crypto');
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const fs = require('fs');
 const STATE_FILE = path.join(__dirname, 'fights.json');
+// Disable legacy file-based fight persistence so default fights never reappear.
+const DISABLE_FILE = true;
 const { exec } = require('child_process');
 // Track processed create IDs to avoid duplicate insertions when an admin
 // submits via multiple channels (WS + HTTP) or retries.
@@ -17,6 +20,78 @@ const MAX_CREATE_IDS = 200;
 // Database setup (Render Postgres via DATABASE_URL)
 const DATABASE_URL = process.env.DATABASE_URL;
 let pool = null; // pg Pool (if configured)
+
+// Ephemeral multi-card support (in-memory). Each card has its own state and expiry.
+// For production, back this with a DB table.
+const cards = new Map(); // slug -> { club, createdAt, expiresAt, state }
+
+function generateSlug(len = 8){
+  const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const bytes = crypto.randomBytes(len);
+  let out = '';
+  for (let i=0;i<len;i++) out += alphabet[bytes[i] % alphabet.length];
+  return out;
+}
+
+// Turn a club name into a URL-friendly slug: remove diacritics, lowercase, strip
+// non-alphanumerics, collapse dashes. Limit length to 40 chars. Return null if
+// empty after cleaning.
+function slugifyClubName(name){
+  if (!name) return null;
+  try { name = String(name); } catch(_) { return null; }
+  // Normalize accents (diacritics) then strip combining marks manually for broad Node compatibility.
+  let s = name.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  s = s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').replace(/-{2,}/g,'-');
+  if (!s) return null;
+  return s.slice(0,40);
+}
+
+const RESERVED_SLUGS = new Set(['admin','register','start','state','health','whoami','cards','c','styles.css','fightcard.js','ws-client.js']);
+
+function defaultState(){
+  return { current: 0, fights: [], standby: false, infoVisible: true };
+}
+
+function createCard({ club, wantClubSlug }, ttlHours = 48){
+  let slugCandidate = null;
+  if (wantClubSlug){
+    const name = club && (club.club || club.name || club.clubName); // attempt multiple keys
+    const friendly = slugifyClubName(name);
+    if (friendly){
+      if (!RESERVED_SLUGS.has(friendly)) {
+        slugCandidate = friendly;
+        console.log('[cards] Using club-based slug candidate:', friendly);
+      } else {
+        console.log('[cards] Club slug reserved, falling back to random:', friendly);
+      }
+    } else {
+      console.log('[cards] Club name produced empty slug, falling back to random');
+    }
+  }
+  let slug;
+  if (slugCandidate){
+    slug = slugCandidate;
+    // ensure uniqueness; append short random suffix if already taken
+    if (cards.has(slug)){
+      let attempt = 0;
+      while(cards.has(slug) && attempt < 5){
+        slug = slugCandidate + '-' + generateSlug(4).toLowerCase();
+        attempt++;
+      }
+      if (cards.has(slug)){
+        // fallback to random slug completely
+        slug = generateSlug(8);
+      }
+    }
+  } else {
+    do { slug = generateSlug(8); } while(cards.has(slug));
+  }
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + Math.max(1, ttlHours) * 3600 * 1000);
+  const rec = { club: club || {}, createdAt: now.toISOString(), expiresAt: expiresAt.toISOString(), state: defaultState() };
+  cards.set(slug, rec);
+  return { slug, record: rec };
+}
 
 function wantSSL(url){
   if (!url) return false;
@@ -46,9 +121,12 @@ async function initDb(){
         a_gym text,
         b_gym text,
         winner text,
+        method text,
         position integer not null
       );
     `);
+    // Ensure 'method' column exists for older deployments
+    try { await pool.query("alter table fights add column if not exists method text"); } catch(_) { /* ignore */ }
     await pool.query(`
       create table if not exists metadata (
         key text primary key,
@@ -67,9 +145,9 @@ async function initDb(){
 async function loadStateFromDb(){
   if (!pool) return false;
   try{
-    const fr = await pool.query('select id,a,b,weight,klass,a_gym,b_gym,winner,position from fights order by position asc, id asc');
-    const fights = fr.rows.map(r=>({ id:r.id, a:r.a, b:r.b, weight:r.weight||'', klass:r.klass||'', aGym:r.a_gym||'', bGym:r.b_gym||'', winner:r.winner||undefined }));
-    const mr = await pool.query("select key,value from metadata where key in ('current','standby','infoVisible')");
+    const fr = await pool.query('select id,a,b,weight,klass,a_gym,b_gym,winner,method,position from fights order by position asc, id asc');
+    const fights = fr.rows.map(r=>({ id:r.id, a:r.a, b:r.b, weight:r.weight||'', klass:r.klass||'', aGym:r.a_gym||'', bGym:r.b_gym||'', winner:r.winner||undefined, method:r.method||undefined }));
+  const mr = await pool.query("select key,value from metadata where key in ('current','standby','infoVisible','eventName','eventFont','eventColor','eventSize','eventImage','eventImageSize','eventInfo','eventBgColor','eventFootnoteImage','fightsVisible','social')");
     const meta = Object.fromEntries(mr.rows.map(r=> [r.key, r.value]));
     if (Array.isArray(fights)) state.fights = fights;
     if (typeof meta.current === 'number') state.current = meta.current;
@@ -78,7 +156,31 @@ async function loadStateFromDb(){
     else if (meta.standby && typeof meta.standby === 'object' && typeof meta.standby.v === 'boolean') state.standby = !!meta.standby.v;
     if (typeof meta.infoVisible === 'boolean') state.infoVisible = meta.infoVisible;
     else if (meta.infoVisible && typeof meta.infoVisible === 'object' && typeof meta.infoVisible.v === 'boolean') state.infoVisible = !!meta.infoVisible.v;
-    console.log('[db] Loaded state from database:', fights.length, 'fights');
+  console.log('[db] Loaded state from database:', fights.length, 'fights');
+  if (typeof meta.eventName === 'string') state.eventName = meta.eventName;
+  else if (meta.eventName && typeof meta.eventName === 'object' && typeof meta.eventName.v === 'string') state.eventName = meta.eventName.v;
+  if (typeof meta.eventFont === 'string') state.eventFont = meta.eventFont;
+  else if (meta.eventFont && typeof meta.eventFont === 'object' && typeof meta.eventFont.v === 'string') state.eventFont = meta.eventFont.v;
+  if (typeof meta.eventColor === 'string') state.eventColor = meta.eventColor;
+  else if (meta.eventColor && typeof meta.eventColor === 'object' && typeof meta.eventColor.v === 'string') state.eventColor = meta.eventColor.v;
+  if (typeof meta.eventSize === 'number') state.eventSize = meta.eventSize;
+  else if (meta.eventSize && typeof meta.eventSize === 'object' && typeof meta.eventSize.v === 'number') state.eventSize = meta.eventSize.v;
+  if (typeof meta.eventImage === 'string') state.eventImage = /^\[object/i.test(meta.eventImage) ? '' : meta.eventImage;
+  else if (meta.eventImage && typeof meta.eventImage === 'object' && typeof meta.eventImage.v === 'string') state.eventImage = meta.eventImage.v;
+  if (typeof meta.eventImageSize === 'number') state.eventImageSize = meta.eventImageSize;
+  else if (meta.eventImageSize && typeof meta.eventImageSize === 'object' && typeof meta.eventImageSize.v === 'number') state.eventImageSize = meta.eventImageSize.v;
+  if (typeof meta.eventInfo === 'string') state.eventInfo = meta.eventInfo;
+  else if (meta.eventInfo && typeof meta.eventInfo === 'object' && typeof meta.eventInfo.v === 'string') state.eventInfo = meta.eventInfo.v;
+  if (typeof meta.eventBgColor === 'string') state.eventBgColor = meta.eventBgColor;
+  else if (meta.eventBgColor && typeof meta.eventBgColor === 'object' && typeof meta.eventBgColor.v === 'string') state.eventBgColor = meta.eventBgColor.v;
+  if (typeof meta.eventFootnoteImage === 'string') state.eventFootnoteImage = /^\[object/i.test(meta.eventFootnoteImage) ? '' : meta.eventFootnoteImage;
+  else if (meta.eventFootnoteImage && typeof meta.eventFootnoteImage === 'object' && typeof meta.eventFootnoteImage.v === 'string') state.eventFootnoteImage = meta.eventFootnoteImage.v;
+  if (typeof meta.fightsVisible === 'boolean') state.fightsVisible = meta.fightsVisible;
+  else if (meta.fightsVisible && typeof meta.fightsVisible === 'object' && typeof meta.fightsVisible.v === 'boolean') state.fightsVisible = !!meta.fightsVisible.v;
+  // social (stored as object)
+  if (meta.social && typeof meta.social === 'object') {
+    try { state.social = meta.social; } catch(_) { /* ignore parse errors */ }
+  }
     return true;
   }catch(e){
     console.warn('[db] load failed:', e && e.message ? e.message : e);
@@ -95,14 +197,25 @@ async function saveStateToDb(){
     for (let i=0;i<state.fights.length;i++){
       const f = state.fights[i];
       await client.query(
-        'insert into fights (a,b,weight,klass,a_gym,b_gym,winner,position) values ($1,$2,$3,$4,$5,$6,$7,$8)',
-        [f.a||'', f.b||'', f.weight||'', f.klass||'', f.aGym||'', f.bGym||'', f.winner||null, i]
+        'insert into fights (a,b,weight,klass,a_gym,b_gym,winner,method,position) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)',
+        [f.a||'', f.b||'', f.weight||'', f.klass||'', f.aGym||'', f.bGym||'', f.winner||null, f.method||null, i]
       );
     }
-    // upsert metadata
+  // upsert metadata
     await client.query("insert into metadata(key,value) values('current', to_jsonb($1::int)) on conflict(key) do update set value=excluded.value", [state.current|0]);
     await client.query("insert into metadata(key,value) values('standby', to_jsonb($1::boolean)) on conflict(key) do update set value=excluded.value", [!!state.standby]);
     await client.query("insert into metadata(key,value) values('infoVisible', to_jsonb($1::boolean)) on conflict(key) do update set value=excluded.value", [!!state.infoVisible]);
+  await client.query("insert into metadata(key,value) values('eventName', to_jsonb($1::text)) on conflict(key) do update set value=excluded.value", [state.eventName||'']);
+  await client.query("insert into metadata(key,value) values('eventFont', to_jsonb($1::text)) on conflict(key) do update set value=excluded.value", [state.eventFont||'bebas']);
+  await client.query("insert into metadata(key,value) values('eventColor', to_jsonb($1::text)) on conflict(key) do update set value=excluded.value", [state.eventColor||'']);
+  await client.query("insert into metadata(key,value) values('eventSize', to_jsonb($1::int)) on conflict(key) do update set value=excluded.value", [Number.isFinite(state.eventSize)? state.eventSize : null]);
+  await client.query("insert into metadata(key,value) values('eventImage', to_jsonb($1::text)) on conflict(key) do update set value=excluded.value", [state.eventImage||'']);
+  await client.query("insert into metadata(key,value) values('eventImageSize', to_jsonb($1::int)) on conflict(key) do update set value=excluded.value", [Number.isFinite(state.eventImageSize)? state.eventImageSize : null]);
+  await client.query("insert into metadata(key,value) values('eventInfo', to_jsonb($1::text)) on conflict(key) do update set value=excluded.value", [state.eventInfo||'']);
+  await client.query("insert into metadata(key,value) values('eventBgColor', to_jsonb($1::text)) on conflict(key) do update set value=excluded.value", [state.eventBgColor||'']);
+  await client.query("insert into metadata(key,value) values('eventFootnoteImage', to_jsonb($1::text)) on conflict(key) do update set value=excluded.value", [state.eventFootnoteImage||'']);
+  await client.query("insert into metadata(key,value) values('fightsVisible', to_jsonb($1::boolean)) on conflict(key) do update set value=excluded.value", [state.fightsVisible!==false]);
+  await client.query("insert into metadata(key,value) values('social', to_jsonb($1::json)) on conflict(key) do update set value=excluded.value", [state.social || {}]);
     await client.query('commit');
     console.log('[db] Saved state to database');
   }catch(e){
@@ -121,7 +234,24 @@ function fightsEqual(a, b){
 // Simple in-memory state
 const state = {
   current: 0,
-  fights: [] // will be initialized from fights.json if present
+  fights: [], // will be initialized from fights.json if present
+  eventName: '',
+  eventFont: 'bebas', // default font key
+  eventColor: '#ffffff',
+  eventSize: null, // optional integer (rem *10). e.g. 35 => 3.5rem
+  eventImage: '',
+  eventImageSize: null, // optional integer (rem *10) controlling image max height
+  eventInfo: '', // free-form info text displayed under title (admin editable)
+  eventBgColor: '', // background color for viewer
+  eventFootnoteImage: '', // optional footnote image displayed in viewer footer
+  fightsVisible: true,
+  // Social links/info block (each key: { enabled:boolean, value:string })
+  social: {
+    website: { enabled: false, value: '' },
+    facebook: { enabled: false, value: '' },
+    instagram: { enabled: false, value: '' },
+    additional: { enabled: false, value: '' }
+  }
 };
 // allow a standby flag to pause the now-strip on clients
 state.standby = false;
@@ -139,48 +269,44 @@ let adminCount = 0;
 
 // try to load initial fights from file
 function loadState(){
-  try{
-    // Prefer DB if available
-    // initDb may be async; we start it sync below using IIAF (see after definitions)
-    if (fs.existsSync(STATE_FILE)){
-      const raw = fs.readFileSync(STATE_FILE, 'utf8');
-      const j = JSON.parse(raw);
-      if (Array.isArray(j.fights)) state.fights = j.fights;
-      if (typeof j.current === 'number') state.current = j.current;
-      if (typeof j.standby === 'boolean') state.standby = j.standby;
-  if (typeof j.infoVisible === 'boolean') state.infoVisible = j.infoVisible;
-      console.log('Loaded fights from', STATE_FILE);
-    }
-  }catch(e){ console.warn('Failed to load state file', e.message); }
+  // Intentionally no-op: file persistence disabled.
+  if (!DISABLE_FILE){
+    try{
+      if (fs.existsSync(STATE_FILE)){
+        const raw = fs.readFileSync(STATE_FILE, 'utf8');
+        const j = JSON.parse(raw);
+        if (Array.isArray(j.fights)) state.fights = j.fights;
+        if (typeof j.current === 'number') state.current = j.current;
+      }
+    }catch(e){ console.warn('Failed to load state file', e.message); }
+  }
 }
 
 async function saveState(){
-  try{
-  fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current, standby: !!state.standby, infoVisible: !!state.infoVisible }, null, 2), 'utf8');
-    // also persist to Postgres if configured
-    try{ await saveStateToDb(); }catch(e){ console.warn('[db] saveStateToDb error:', e && e.message ? e.message : e); }
-    // attempt to push the updated state back to GitHub (optional)
+  // Persist only to DB (if configured) and broadcast; skip file & GitHub when disabled.
+  if (DISABLE_FILE){
+    try{ await saveStateToDb(); }catch(e){ console.warn('[db] saveStateToDb error (no-file mode):', e && e.message ? e.message : e); }
     try{
-      await commitStateToGitHub();
-    }catch(err){
-      // non-fatal: log and continue
+      const bid = ++lastBroadcastId;
+      broadcastAcks.set(bid, new Set());
+      broadcast({ type: 'state', state, broadcastId: bid });
+      console.log(`[state] broadcast id=${bid} (file persistence disabled)`);
+    }catch(e){ console.warn('Broadcast after save failed', e && e.message ? e.message : e); }
+    return;
+  }
+  try{
+  fs.writeFileSync(STATE_FILE, JSON.stringify({ fights: state.fights, current: state.current, standby: !!state.standby, infoVisible: !!state.infoVisible, fightsVisible: state.fightsVisible!==false, eventName: state.eventName||'', eventFont: state.eventFont||'bebas', eventColor: state.eventColor||'', eventSize: state.eventSize, eventImage: state.eventImage||'', eventImageSize: state.eventImageSize, eventInfo: state.eventInfo||'', eventBgColor: state.eventBgColor||'', eventFootnoteImage: state.eventFootnoteImage||'', social: state.social||{} }, null, 2), 'utf8');
+    try{ await saveStateToDb(); }catch(e){ console.warn('[db] saveStateToDb error:', e && e.message ? e.message : e); }
+    try{ await commitStateToGitHub(); }catch(err){
       console.warn('GitHub commit failed:', err && err.message ? err.message : err);
-      // Try pushing with local git as a fallback (uses your configured git credentials)
-      try{
-        await commitStateWithLocalGit();
-      }catch(e){
-        console.warn('Local git push also failed:', e && e.message ? e.message : e);
-      }
+      try{ await commitStateWithLocalGit(); }catch(e){ console.warn('Local git push also failed:', e && e.message ? e.message : e); }
     }
-
-    // After persisting, broadcast the full state to all connected clients so viewers can update immediately
     try{
       const bid = ++lastBroadcastId;
       broadcastAcks.set(bid, new Set());
       broadcast({ type: 'state', state, broadcastId: bid });
       console.log(`Saved fights.json; broadcastId=${bid}; clients=${wss.clients.size}`);
     }catch(e){ console.warn('Broadcast after save failed', e && e.message ? e.message : e); }
-
   }catch(e){ console.warn('Failed to save state file', e && e.message ? e.message : e); }
 }
 
@@ -202,7 +328,7 @@ async function commitStateToGitHub(){
     const getRes = await fetch(getUrl, { headers });
     if (getRes.status === 200){ const j = await getRes.json(); sha = j.sha; }
 
-    const content = Buffer.from(JSON.stringify({ fights: state.fights, current: state.current }, null, 2)).toString('base64');
+  const content = Buffer.from(JSON.stringify({ fights: state.fights, current: state.current, fightsVisible: state.fightsVisible!==false, eventName: state.eventName, eventFont: state.eventFont, eventColor: state.eventColor, eventSize: state.eventSize, eventImage: state.eventImage||'', eventImageSize: state.eventImageSize, eventInfo: state.eventInfo||'', eventBgColor: state.eventBgColor||'', eventFootnoteImage: state.eventFootnoteImage||'', social: state.social||{} }, null, 2)).toString('base64');
     const body = { message: 'Update fights.json (admin)', content, committer: { name: 'Loyalty Fights', email: 'noreply@local' } };
     if (sha) body.sha = sha;
 
@@ -240,6 +366,9 @@ function commitStateWithLocalGit(){
 }
 
 loadState();
+// Force empty fights on startup always.
+state.fights = [];
+state.current = 0;
 // Attempt to initialize DB and, if successful, prefer loading from DB
 (async ()=>{
   const ok = await initDb();
@@ -247,6 +376,13 @@ loadState();
     const loaded = await loadStateFromDb();
     if (loaded){
       console.log('[db] State active from Postgres');
+      // User request: always start with zero fights for fresh admin links.
+      if (state.fights && state.fights.length){
+        console.log('[startup] Clearing existing', state.fights.length, 'fights to start with an empty card');
+        state.fights = [];
+        state.current = 0;
+  try { await saveState(); } catch(e){ console.warn('[startup] Failed to persist cleared fights', e&&e.message?e.message:e); }
+      }
     }
   }
 })();
@@ -286,6 +422,24 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'register.html'));
 });
 
+// Viewer/Admin routes for a specific card slug
+app.get('/c/:slug', (req, res) => {
+  const { slug } = req.params;
+  const rec = cards.get(slug);
+  if (!rec) return res.status(404).send('Not found');
+  if (new Date(rec.expiresAt) < new Date()) return res.status(410).send('Link expired');
+  res.set('Cache-Control','no-store');
+  return res.sendFile(path.join(__dirname, 'index.html'));
+});
+app.get('/admin/:slug', (req, res) => {
+  const { slug } = req.params;
+  const rec = cards.get(slug);
+  if (!rec) return res.status(404).send('Not found');
+  if (new Date(rec.expiresAt) < new Date()) return res.status(410).send('Link expired');
+  res.set('Cache-Control','no-store');
+  return res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 // serve static files
 // serve static files
 app.use(express.static(path.join(__dirname)));
@@ -304,7 +458,23 @@ app.use(function(req, res, next){
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'letmein';
 
 // endpoint for admin to post actions (ws handles broadcasts too)
-app.use(express.json());
+// Increase JSON payload limit to allow data URLs for event images
+app.use(express.json({ limit: '12mb' }));
+// Create a new card after registration/payment
+app.post('/cards', (req, res) => {
+  try{
+    const ttl = Math.min(72, Math.max(24, Number(req.body && req.body.ttlHours || 48)));
+    const club = req.body && req.body.club ? req.body.club : {};
+    const wantClubSlug = !!(req.body && req.body.useClubSlug);
+  const { slug, record } = createCard({ club, wantClubSlug }, ttl);
+    const viewerUrl = `/c/${slug}`;
+    const adminUrl = `/admin/${slug}?token=${encodeURIComponent(process.env.ADMIN_TOKEN || 'letmein')}`;
+  return res.json({ ok:true, slug, expiresAt: record.expiresAt, viewerUrl, adminUrl, clubSlugRequested: wantClubSlug });
+  }catch(e){
+    return res.status(500).json({ ok:false, error: e && e.message ? e.message : String(e) });
+  }
+});
+
 app.post('/admin/action', async (req, res) => {
   const token = req.query.token;
   if (token !== ADMIN_TOKEN) return res.status(401).json({ error: 'unauthorized' });
@@ -321,9 +491,105 @@ app.post('/admin/action', async (req, res) => {
     state.standby = false;
   }
   if (msg.type === 'setWinner'){ const f = state.fights[msg.index]; if (f) f.winner = msg.side; }
-  if (msg.type === 'clearWinner'){ const f = state.fights[msg.index]; if (f) delete f.winner; }
+  if (msg.type === 'clearWinner'){ const f = state.fights[msg.index]; if (f) { delete f.winner; delete f.method; } }
+  if (msg.type === 'setWinMethod'){
+    const f = state.fights[msg.index];
+    const m = (msg.method||'').toString().trim();
+    if (!f){ console.warn('[admin-http] setWinMethod: index out of range', msg.index); }
+    else {
+      if (m) { f.method = m; console.log('[admin-http] setWinMethod applied', { index: msg.index, method: m, a: f.a, b: f.b }); }
+      else { delete f.method; console.log('[admin-http] setWinMethod cleared', { index: msg.index, a: f.a, b: f.b }); }
+    }
+  }
+  if (msg.type === 'reorderFights'){
+    const order = Array.isArray(msg.order) ? msg.order.map(n=>Number(n)).filter(n=>Number.isFinite(n)) : [];
+    if (order.length){
+      const byId = new Map(state.fights.map(x=>[x.id, x]));
+      const curId = (state.fights[state.current] && state.fights[state.current].id) || null;
+      let matched = 0;
+      const reordered = [];
+      order.forEach(id=>{ const it = byId.get(id); if (it){ reordered.push(it); byId.delete(id); matched++; } });
+      if (matched === 0 && order.length === state.fights.length && order.every((n)=> Number.isInteger(n) && n>=0 && n<state.fights.length)){
+        // Fallback: treat numbers as indices into current list
+        order.forEach(idx=>{ const it = state.fights[idx]; if (it) reordered.push(it); });
+      } else {
+        byId.forEach(v=> reordered.push(v));
+      }
+      state.fights = reordered;
+      if (curId!=null){ const ni = state.fights.findIndex(x=>x.id===curId); state.current = ni>=0? ni : Math.min(state.current, state.fights.length-1); }
+    }
+  }
   if (msg.type === 'setStandby') state.standby = !!msg.on;
   if (msg.type === 'setInfoVisible') state.infoVisible = !!msg.on;
+  if (msg.type === 'setEventName') state.eventName = (msg.name||'').toString().slice(0,120);
+  if (msg.type === 'setEventFont') state.eventFont = (msg.font||'bebas').toString().slice(0,40);
+  if (msg.type === 'setEventColor') state.eventColor = (msg.color||'').toString().slice(0,20);
+  if (msg.type === 'setEventSize') {
+    const sz = Number(msg.size);
+    if (Number.isFinite(sz)) state.eventSize = Math.min(80, Math.max(6, Math.round(sz))); // tenths of rem (min 0.6rem, max 8.0rem)
+  }
+  if (msg.type === 'setFightsVisible') state.fightsVisible = !!msg.on;
+  if (msg.type === 'clearAllFights') {
+    state.fights = [];
+    state.current = 0;
+    console.log('[admin] All fights cleared');
+  }
+  if (msg.type === 'setEventMeta') {
+    if (msg.name!=null) state.eventName = (msg.name||'').toString().slice(0,120);
+    if (msg.font!=null) state.eventFont = (msg.font||'bebas').toString().slice(0,40);
+    if (msg.color!=null) state.eventColor = (msg.color||'').toString().slice(0,20);
+    if (msg.size!=null){
+      const sz = Number(msg.size);
+      if (Number.isFinite(sz)) state.eventSize = Math.min(80, Math.max(6, Math.round(sz)));
+    }
+    if (msg.image!=null) {
+      let v = '';
+      if (typeof msg.image === 'string') v = msg.image;
+      else if (msg.image && typeof msg.image === 'object') {
+        if (typeof msg.image.src === 'string') v = msg.image.src; else if (typeof msg.image.v === 'string') v = msg.image.v;
+      }
+      state.eventImage = v;
+    }
+    if (msg.imageSize!=null){
+      const isz = Number(msg.imageSize);
+      if (Number.isFinite(isz)) state.eventImageSize = Math.min(300, Math.max(40, Math.round(isz)));
+    }
+    if (msg.info!=null){
+      const info = (msg.info||'').toString();
+      state.eventInfo = info.slice(0, 800); // limit length
+    }
+    if (msg.bgColor!=null){
+      state.eventBgColor = (msg.bgColor||'').toString().slice(0,20);
+    }
+    if (msg.footnoteImage!=null){
+      let fv = '';
+      if (typeof msg.footnoteImage === 'string') fv = msg.footnoteImage;
+      else if (msg.footnoteImage && typeof msg.footnoteImage === 'object'){
+        if (typeof msg.footnoteImage.src === 'string') fv = msg.footnoteImage.src; else if (typeof msg.footnoteImage.v === 'string') fv = msg.footnoteImage.v;
+      }
+      state.eventFootnoteImage = fv;
+      console.log('[meta] footnoteImage received (HTTP) length=', state.eventFootnoteImage.length);
+    }
+    console.log('[meta] setEventMeta HTTP:', {name:state.eventName,font:state.eventFont,color:state.eventColor,size:state.eventSize,image: !!state.eventImage});
+  }
+  if (msg.type === 'setSocial') {
+    // validate shape { website:{enabled,value}, facebook:{...}, instagram:{...}, additional:{...} }
+    const incoming = msg.social && typeof msg.social === 'object' ? msg.social : {};
+    function sanitize(entry){
+      if (!entry || typeof entry !== 'object') return { enabled:false, value:'' };
+      return {
+        enabled: !!entry.enabled,
+        value: (entry.value||'').toString().slice(0,180) // limit length per field
+      };
+    }
+    state.social = {
+      website: sanitize(incoming.website),
+      facebook: sanitize(incoming.facebook),
+      instagram: sanitize(incoming.instagram),
+      additional: sanitize(incoming.additional)
+    };
+    console.log('[social] HTTP setSocial applied', state.social);
+  }
   if (msg.type === 'createFight') {
     // idempotency key
     const rid = msg.rid || (msg.data && msg.data.rid);
@@ -344,6 +610,9 @@ app.post('/admin/action', async (req, res) => {
     const exists = state.fights.some(f=> fightsEqual(f, newFight));
     if (!exists){
       state.fights.push(newFight);
+      // Ensure fights list becomes visible for viewers and resume live view
+      state.fightsVisible = true;
+      state.standby = false;
     } else {
       newFight = state.fights.find(f=> fightsEqual(f, newFight));
     }
@@ -405,8 +674,100 @@ wss.on('connection', (ws, req)=>{
         }
         if (msg.payload.type === 'setInfoVisible') state.infoVisible = !!msg.payload.on;
         if (msg.payload.type === 'setWinner'){ const f = state.fights[msg.payload.index]; if (f) f.winner = msg.payload.side; }
-        if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) delete f.winner; }
+        if (msg.payload.type === 'clearWinner'){ const f = state.fights[msg.payload.index]; if (f) { delete f.winner; delete f.method; } }
+        if (msg.payload.type === 'setWinMethod'){
+          const f = state.fights[msg.payload.index];
+          const m = (msg.payload.method||'').toString().trim();
+          if (!f){ console.warn('[admin-ws] setWinMethod: index out of range', msg.payload.index); }
+          else {
+            if (m) { f.method = m; console.log('[admin-ws] setWinMethod applied', { index: msg.payload.index, method: m, a: f.a, b: f.b }); }
+            else { delete f.method; console.log('[admin-ws] setWinMethod cleared', { index: msg.payload.index, a: f.a, b: f.b }); }
+          }
+        }
+        if (msg.payload.type === 'reorderFights'){
+          const order = Array.isArray(msg.payload.order) ? msg.payload.order.map(n=>Number(n)).filter(n=>Number.isFinite(n)) : [];
+          if (order.length){
+            const byId = new Map(state.fights.map(x=>[x.id, x]));
+            const curId = (state.fights[state.current] && state.fights[state.current].id) || null;
+            let matched = 0;
+            const reordered = [];
+            order.forEach(id=>{ const it = byId.get(id); if (it){ reordered.push(it); byId.delete(id); matched++; } });
+            if (matched === 0 && order.length === state.fights.length && order.every((n)=> Number.isInteger(n) && n>=0 && n<state.fights.length)){
+              // Fallback: treat numbers as indices into current list
+              order.forEach(idx=>{ const it = state.fights[idx]; if (it) reordered.push(it); });
+            } else {
+              byId.forEach(v=> reordered.push(v));
+            }
+            state.fights = reordered;
+            if (curId!=null){ const ni = state.fights.findIndex(x=>x.id===curId); state.current = ni>=0? ni : Math.min(state.current, state.fights.length-1); }
+          }
+        }
         if (msg.payload.type === 'setStandby') state.standby = !!msg.payload.on;
+  if (msg.payload.type === 'setEventName') state.eventName = (msg.payload.name||'').toString().slice(0,120);
+  if (msg.payload.type === 'setEventFont') state.eventFont = (msg.payload.font||'bebas').toString().slice(0,40);
+  if (msg.payload.type === 'setEventColor') state.eventColor = (msg.payload.color||'').toString().slice(0,20);
+  if (msg.payload.type === 'setEventSize') {
+    const sz = Number(msg.payload.size);
+    if (Number.isFinite(sz)) state.eventSize = Math.min(60, Math.max(6, Math.round(sz)));
+  }
+        if (msg.payload.type === 'setFightsVisible') state.fightsVisible = !!msg.payload.on;
+        if (msg.payload.type === 'clearAllFights') {
+          state.fights = [];
+          state.current = 0;
+          console.log('[admin-ws] All fights cleared');
+        }
+        if (msg.payload.type === 'setEventMeta') {
+          if (msg.payload.name!=null) state.eventName = (msg.payload.name||'').toString().slice(0,120);
+          if (msg.payload.font!=null) state.eventFont = (msg.payload.font||'bebas').toString().slice(0,40);
+          if (msg.payload.color!=null) state.eventColor = (msg.payload.color||'').toString().slice(0,20);
+          if (msg.payload.size!=null){
+            const sz = Number(msg.payload.size);
+            if (Number.isFinite(sz)) state.eventSize = Math.min(60, Math.max(6, Math.round(sz)));
+          }
+          if (msg.payload.image!=null) {
+            let v = '';
+            if (typeof msg.payload.image === 'string') v = msg.payload.image;
+            else if (msg.payload.image && typeof msg.payload.image === 'object'){
+              if (typeof msg.payload.image.src === 'string') v = msg.payload.image.src; else if (typeof msg.payload.image.v === 'string') v = msg.payload.image.v;
+            }
+            state.eventImage = v;
+          }
+          if (msg.payload.imageSize!=null){
+            const isz = Number(msg.payload.imageSize);
+            if (Number.isFinite(isz)) state.eventImageSize = Math.min(300, Math.max(40, Math.round(isz)));
+          }
+          if (msg.payload.info!=null){
+            const info = (msg.payload.info||'').toString();
+            state.eventInfo = info.slice(0,800);
+          }
+          if (msg.payload.bgColor!=null){
+            state.eventBgColor = (msg.payload.bgColor||'').toString().slice(0,20);
+          }
+          if (msg.payload.footnoteImage!=null){
+            let fv = '';
+            if (typeof msg.payload.footnoteImage === 'string') fv = msg.payload.footnoteImage;
+            else if (msg.payload.footnoteImage && typeof msg.payload.footnoteImage === 'object'){
+              if (typeof msg.payload.footnoteImage.src === 'string') fv = msg.payload.footnoteImage.src; else if (typeof msg.payload.footnoteImage.v === 'string') fv = msg.payload.footnoteImage.v;
+            }
+            state.eventFootnoteImage = fv;
+            console.log('[meta] footnoteImage received (WS) length=', state.eventFootnoteImage.length);
+          }
+          console.log('[meta] setEventMeta WS:', {name:state.eventName,font:state.eventFont,color:state.eventColor,size:state.eventSize,image: !!state.eventImage});
+        }
+        if (msg.payload.type === 'setSocial'){
+          const incoming = msg.payload.social && typeof msg.payload.social === 'object' ? msg.payload.social : {};
+          function sanitize(entry){
+            if (!entry || typeof entry !== 'object') return { enabled:false, value:'' };
+            return { enabled: !!entry.enabled, value: (entry.value||'').toString().slice(0,180) };
+          }
+          state.social = {
+            website: sanitize(incoming.website),
+            facebook: sanitize(incoming.facebook),
+            instagram: sanitize(incoming.instagram),
+            additional: sanitize(incoming.additional)
+          };
+          console.log('[social] WS setSocial applied', state.social);
+        }
         if (msg.payload.type === 'createFight') {
           // idempotency key
           const rid = msg.payload.rid || (msg.payload.data && msg.payload.data.rid);
@@ -421,7 +782,11 @@ wss.on('connection', (ws, req)=>{
           const bGym = (data.bGym||'').trim();
           const nextId = state.fights.reduce((m,f)=> Math.max(m, f.id||0), 0) + 1;
           const f = { id: nextId, a, b, weight, klass, aGym, bGym };
-          if (!state.fights.some(x=> fightsEqual(x, f))) state.fights.push(f);
+          if (!state.fights.some(x=> fightsEqual(x, f))){
+            state.fights.push(f);
+            state.fightsVisible = true; // make visible upon first addition
+            state.standby = false;      // resume live display
+          }
           if (rid){
             processedCreateIds.add(rid);
             if (processedCreateIds.size > MAX_CREATE_IDS){

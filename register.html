@@ -4,44 +4,118 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Klubbregistrering / Club Registration</title>
+  <link rel="icon" href="/thai_gala_mobile_site/logo_design.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <!-- Version stamp: v-register-match-landing-1 -->
   <style>
-    :root{--bg:#0e1117;--panel:#141a22;--accent:#ff6b4a;--border:#1f272f;--muted:#94a2b1}
+    :root{
+      /* Dark arena gradient palette (matching landing) */
+      --bg-grad-start:#0d1629;
+      --bg-grad-end:#1b2e45;
+      --grain:rgba(255,255,255,0.03);
+      --card:#f9fafb; /* white card */
+      --card-border:#dce3ec;
+      --text:#0f172a;
+      --muted:#5f6e80;
+      /* CTA reds (same as landing) */
+      --accent-red:#ff3131;
+      --accent-red-glow:rgba(255,49,49,0.45);
+      --accent-red-mid:#ff4232;
+      --accent-red-hot:#ff5d3a;
+      --accent-red-edge:#ff7845;
+      /* Language pills */
+      --lang-bg:#111418;
+      --lang-bg-hover:#1d242c;
+      --lang-active-outline:#ef233c;
+    }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    body{margin:0;font-family:Segoe UI,system-ui,Arial,sans-serif;background:linear-gradient(160deg,#0e1117,#10141c 55%,#0b0d11);color:#e8edf2;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:clamp(1rem,4vw,2.2rem)}
-    .wrap{width:min(900px,100%);display:flex;flex-direction:column;gap:1.4rem}
-    header{background:var(--panel);padding:1.3rem 1.5rem;border-radius:18px;border:1px solid var(--border);box-shadow:0 10px 35px -8px rgba(0,0,0,.5)}
-    h1{margin:0 0 .4rem;font-size:clamp(1.4rem,4vw,2.1rem);font-weight:800;letter-spacing:.5px}
+    html,body{height:100%}
+    body{
+      margin:0;display:flex;align-items:center;justify-content:center;padding:1.6rem;
+      background:
+        radial-gradient(1200px 800px at 20% 12%, rgba(19,34,53,0.45) 0%, rgba(19,34,53,0.12) 44%, rgba(10,15,31,0) 64%),
+        radial-gradient(1100px 760px at 82% 88%, rgba(12,20,36,0.50) 0%, rgba(10,15,31,0.22) 56%, rgba(10,15,31,0) 72%),
+        linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
+      position:relative;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;color:var(--text);
+    }
+    /* Gritty noise + vignette */
+    body::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:160px 160px;background-repeat:repeat;mix-blend-mode:overlay;opacity:.10;filter:contrast(118%)}
+    body::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.28) 100%)}
+
+    /* Logo top-left */
+    .site-logo{position:absolute;top:18px;left:24px;width:140px;max-width:30vw;height:auto;z-index:40;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.38));transition:transform .3s ease,filter .3s ease}
+    .site-logo:hover{transform:scale(1.05);filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5))}
+    @media (max-width:640px){.site-logo{width:110px;left:16px;top:16px}}
+
+    /* White content card */
+    .card{background:var(--card);border:1px solid var(--card-border);border-radius:18px;box-shadow:0 18px 40px -10px rgba(0,0,0,0.35),0 6px 18px rgba(0,0,0,0.20);width:min(960px,95vw);padding:1.4rem 1.6rem;position:relative}
+    header{padding:.2rem 0 1rem}
+    h1{margin:0 0 .2rem;font-weight:800;font-size:clamp(1.8rem,4.6vw,2.2rem);letter-spacing:.5px;text-transform:uppercase;font-family:'Bebas Neue','Montserrat',sans-serif;color:#08111c}
     p.lead{margin:.2rem 0 .4rem;color:var(--muted);line-height:1.35}
-  form{background:var(--panel);padding:1.3rem 1.5rem;border-radius:20px;border:1px solid var(--border);display:flex;flex-direction:column;gap:1.25rem}
-  .box-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem}
-  .field-box{position:relative;background:#18212a;border:1px solid #24313d;border-radius:16px;padding:1rem .95rem;display:flex;flex-direction:column;gap:.6rem;min-height:142px;box-shadow:0 4px 14px -6px rgba(0,0,0,.5)}
-  .field-box:hover{border-color:#2d3c49}
-  .field-box label{font-weight:600;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:#93a1af}
-  label.inline-label{font-weight:600;display:flex;flex-direction:column;gap:.45rem;font-size:.9rem}
-  input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.75rem .85rem;font-size:1rem;border-radius:12px;border:1px solid #2a3541;background:#0f161d;color:#f5f9fc;box-shadow:0 1px 2px rgba(0,0,0,.4) inset}
-    input:focus{outline:2px solid var(--accent);outline-offset:2px}
-    .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem}
-    .actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.4rem}
-    button{cursor:pointer;border:0;font-weight:700;background:var(--accent);color:#0b0d11;padding:.85rem 1.4rem;font-size:1rem;border-radius:14px;box-shadow:0 10px 25px -6px rgba(255,107,74,.5);transition:transform .12s ease}
-    button:active{transform:translateY(2px) scale(.97)}
-    .secondary{background:#222e38;color:#e7edf1;box-shadow:none}
-    .lang-switch{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.2rem}
-    .lang-switch button{background:#18212a;color:#d9e2ea;padding:.55rem .9rem;font-size:.85rem;font-weight:600;border-radius:10px;border:1px solid #24313d;box-shadow:none}
-    .lang-switch button.active{outline:2px solid var(--accent);outline-offset:2px}
-    footer{margin-top:.4rem;text-align:center;color:var(--muted);font-size:.75rem}
-    .success{display:none;margin:0;padding:.9rem 1rem;border-radius:14px;background:#15382a;color:#d2f6e3;font-weight:600;border:1px solid #1e4f3b}
-    /* Logo drop zone */
-    .logo-zone{background:#10171e;border:2px dashed #33424f;border-radius:18px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;gap:.7rem;cursor:pointer;transition:border-color .25s ease, background .25s ease}
-    .logo-zone.drag{border-color:var(--accent);background:#151e26}
+
+    /* Language pills styled like landing */
+    .lang-switch{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.4rem}
+    .lang-switch button{background:var(--lang-bg);color:#e5e9ef;border:1px solid rgba(255,255,255,0.08);padding:.55rem 1.05rem;border-radius:999px;cursor:pointer;font-weight:600;font-size:.9rem;letter-spacing:.4px;font-family:'Montserrat',sans-serif;display:inline-flex;align-items:center;gap:.4rem;transition:background .25s ease,box-shadow .25s ease,color .25s ease}
+    .lang-switch button:hover{background:var(--lang-bg-hover)}
+    .lang-switch button.active{box-shadow:0 0 0 2px var(--lang-active-outline),0 6px 16px -4px rgba(239,35,60,0.4)}
+
+    /* Form layout in a clean, bright style */
+    form{padding:.6rem 0 0;display:flex;flex-direction:column;gap:1.25rem}
+    .box-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.0rem}
+    .field-box{position:relative;background:#fff;border:1px solid var(--card-border);border-radius:14px;padding:.9rem .95rem;display:flex;flex-direction:column;gap:.6rem;min-height:132px;box-shadow:0 4px 14px -10px rgba(0,0,0,.12)}
+    .field-box:hover{border-color:#cfd8e3}
+    .field-box label{font-weight:700;font-size:.78rem;letter-spacing:.5px;text-transform:uppercase;color:#4b5563}
+    input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.7rem .85rem;font-size:1rem;border-radius:10px;border:1px solid #ccd6e2;background:#ffffff;color:var(--text);box-shadow:0 1px 1px rgba(0,0,0,.04) inset}
+    input:focus{outline:2px solid #ef233c;outline-offset:2px}
+
+    .actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.2rem}
+    /* Primary CTA button (match landing) */
+    #saveBtn.btn{appearance:none;border:0;padding:1rem 1.8rem;font-size:clamp(1.02rem,2.6vw,1.1rem);font-weight:700;letter-spacing:.3px;border-radius:999px;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;line-height:1;background:linear-gradient(160deg,#e91414 0%, #f32121 16%, #f13528 42%, #e74a30 74%, #e35a38 88%, #dc643c 100%);cursor:pointer;box-shadow:0 0 0 0 var(--accent-red-glow),0 12px 32px -6px var(--accent-red-glow);transition:box-shadow .25s ease,transform .15s ease,filter .25s ease;position:relative;overflow:hidden}
+    #saveBtn.btn::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,rgba(255,255,255,0.28) 0%,rgba(255,255,255,0.12) 30%,rgba(255,255,255,0.04) 46%,rgba(255,255,255,0) 60%);mix-blend-mode:overlay;opacity:.48;pointer-events:none;transition:opacity .3s ease,filter .3s ease}
+    #saveBtn.btn:hover{box-shadow:0 0 0 6px rgba(239,35,60,0.25),0 20px 50px -8px var(--accent-red-glow);filter:brightness(1.07)}
+    #saveBtn.btn:active{transform:translateY(2px)}
+
+    /* Secondary buttons */
+    .secondary{background:#eef2f7;color:#0f172a;border:1px solid #d3dde9;border-radius:999px;padding:.8rem 1.2rem;font-weight:700}
+    .secondary:hover{filter:brightness(0.98)}
+
+    footer{margin-top:.2rem;text-align:center;color:var(--muted);font-size:.8rem}
+    .success{display:none;margin:0;padding:.9rem 1rem;border-radius:14px;background:#15382a;color:#0df2a7;font-weight:700;border:1px solid #1e4f3b}
+
+    /* Logo drop zone inside white card */
+    /* Redesigned logo drop area */
+    .logo-zone{position:relative;background:linear-gradient(135deg,#f9fbfd 0%,#eef3f8 55%,#e6edf5 100%);border:2px dashed #c2d1e1;border-radius:16px;min-height:200px;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.2rem .9rem;gap:.85rem;cursor:pointer;transition:border-color .25s ease, background .35s ease, box-shadow .35s ease}
+    .logo-zone:hover{border-color:#b2c2d4;box-shadow:0 10px 28px -8px rgba(0,0,0,.18)}
+    .logo-zone.drag{border-color:#ef233c;background:linear-gradient(135deg,#f4f7fa,#e9f0f7);box-shadow:0 0 0 4px rgba(239,35,60,.15)}
     .logo-zone input{display:none}
-    .logo-preview{max-width:140px;max-height:100px;border-radius:10px;box-shadow:0 4px 12px -4px rgba(0,0,0,.6);display:none}
-    .logo-zone small{color:var(--muted);font-size:.75rem}
-    .remove-logo{display:none;background:#222e38;color:#e7edf1;border:0;border-radius:8px;padding:.4rem .7rem;font-size:.7rem;font-weight:600;cursor:pointer}
-    .remove-logo:hover{background:#2d3a46}
+    .logo-empty-icon{width:58px;height:58px;display:block;opacity:.85;filter:drop-shadow(0 3px 6px rgba(0,0,0,.15))}
+    .logo-prompt{margin:0;font-weight:700;font-size:.9rem;letter-spacing:.4px;color:#0f172a;text-align:center}
+    .logo-prompt .action{display:inline-block;margin-left:.35rem;padding:.4rem .85rem;border-radius:999px;background:#ef233c;color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.5px;text-decoration:none;box-shadow:0 6px 18px -6px rgba(239,35,60,.5);transition:filter .25s ease, box-shadow .25s ease}
+    .logo-prompt .action:hover{filter:brightness(1.06);box-shadow:0 8px 22px -6px rgba(239,35,60,.55)}
+    .logo-hint{color:#6b7280;font-size:.7rem;margin:0;font-weight:600;letter-spacing:.3px}
+    .logo-preview{max-width:160px;max-height:110px;border-radius:12px;box-shadow:0 6px 18px -8px rgba(0,0,0,.28);display:none;background:#fff;object-fit:contain;padding:.4rem;border:1px solid #d4dde7}
+    .logo-info{display:none;flex-direction:column;align-items:center;gap:.35rem;font-size:.7rem;color:#475569;font-weight:600}
+    .logo-remove{display:none;position:absolute;top:10px;right:10px;background:#fff;border:1px solid #d3dde9;border-radius:8px;padding:.35rem .55rem;font-size:.65rem;font-weight:700;color:#0f172a;cursor:pointer;line-height:1;display:flex;align-items:center;gap:.35rem;box-shadow:0 4px 14px -6px rgba(0,0,0,.18);transition:background .25s ease,filter .25s ease}
+    .logo-remove svg{width:14px;height:14px;stroke:#dc2626;stroke-width:2;fill:none}
+    .logo-remove:hover{filter:brightness(.95)}
+    .logo-zone.has-file{border-style:solid;border-color:#d1dae5}
+    .logo-zone.has-file:hover{box-shadow:0 12px 30px -10px rgba(0,0,0,.22)}
+
+    @media (max-width:640px){
+      .card{padding:1rem 1.1rem;border-radius:16px}
+      h1{font-size:clamp(1.6rem,7vw,2rem)}
+      .box-group{gap:.85rem}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <img src="thai_gala_mobile_site/logo_design.svg" alt="Logo" class="site-logo" />
+  <main class="card" aria-live="polite" role="region" aria-label="Club registration">
     <header>
       <h1 id="title">Klubbregistrering</h1>
       <p class="lead" id="lead">Fyll i din klubbinformation nedan för att skapa ditt fightcard.</p>
@@ -53,7 +127,7 @@
     </header>
 
     <form id="clubForm" novalidate>
-      <div class="success" id="successMsg">✔️ Tack! Sparat lokalt – fortsätt.<\/div>
+      <div class="success" id="successMsg">✔️ Tack! Sparat lokalt – fortsätt.</div>
       <div class="box-group">
         <div class="field-box" id="boxEmail">
           <label id="lblEmail">E‑postadress</label>
@@ -67,33 +141,41 @@
           <label id="lblSite">Hemsida</label>
           <input type="url" name="site" placeholder="https://" />
         </div>
+        <div class="field-box" id="boxPay">
+          <label id="lblPay">Betalning</label>
+          <input type="text" name="payment" placeholder="Swish / Bankgiro" />
+        </div>
         <div class="field-box" id="boxLogo">
           <label id="lblLogo">Bifoga logga</label>
           <div class="logo-zone" id="logoZone" tabindex="0" role="button" aria-label="Logo upload area">
+            <svg class="logo-empty-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 14a4 4 0 0 1 4-4h6l2-3h12l2 3h6a4 4 0 0 1 4 4v22a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V14z" fill="#fff" stroke="#c9d5e1" stroke-width="2"/><path d="M16 22h16M16 30h10" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>
             <img id="logoPreview" class="logo-preview" alt="Logo preview" />
-            <strong id="logoText">Släpp fil här eller klicka</strong>
-            <small id="logoHint">PNG / JPG / SVG</small>
+            <p id="logoText" class="logo-prompt">Släpp fil här eller <a href="#" id="logoPickLink" class="action">Välj fil</a></p>
+            <p id="logoHint" class="logo-hint">PNG / JPG / SVG • Max ~5MB</p>
+            <div id="logoInfo" class="logo-info"></div>
             <input type="file" name="logo" id="logoInput" accept="image/*" />
-            <button type="button" class="remove-logo" id="removeLogo">Ta bort</button>
+            <button type="button" class="logo-remove" id="removeLogo" aria-label="Ta bort logga">
+              <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>Ta bort
+            </button>
           </div>
         </div>
       </div>
       <div class="actions">
-        <button type="submit" id="saveBtn">Spara & fortsätt</button>
+        <button type="submit" id="saveBtn" class="btn">Spara & fortsätt</button>
         <button type="button" class="secondary" id="skipBtn">Hoppa över</button>
         <button type="button" class="secondary" id="toAdminBtn">Gå till admin</button>
       </div>
     </form>
 
     <footer id="foot">Data lagras lokalt i din webbläsare tills du öppnar admin.</footer>
-  </div>
+  </main>
 
   <script>
     (function(){
       const dict = {
-        sv:{ title:'Klubbregistrering', lead:'Fyll i din klubbinformation nedan för att skapa ditt fightcard.', email:'E‑postadress', club:'Klubbnamn', site:'Hemsida', logo:'Bifoga logga', save:'Spara & fortsätt', skip:'Hoppa över', admin:'Gå till admin', foot:'Data lagras lokalt i din webbläsare tills du öppnar admin.', ok:'✔️ Tack! Sparat lokalt – fortsätt.' },
-        en:{ title:'Club Registration', lead:'Enter your club details below to build your fight card.', email:'Email address', club:'Club name', site:'Website', logo:'Attach logo', save:'Save & continue', skip:'Skip', admin:'Go to admin', foot:'Data is stored locally until you open admin.', ok:'✔️ Saved locally – continue.' },
-        th:{ title:'ลงทะเบียนสโมสร', lead:'กรอกข้อมูลสโมสรของคุณเพื่อเริ่มสร้างไฟต์การ์ด.', email:'อีเมล', club:'ชื่อสโมสร', site:'เว็บไซต์', logo:'อัปโหลดโลโก้', save:'บันทึกและไปต่อ', skip:'ข้าม', admin:'ไปที่แอดมิน', foot:'ข้อมูลถูกเก็บภายในเบราว์เซอร์จนกว่าจะเปิดหน้าแอดมิน.', ok:'✔️ บันทึกแล้ว – ไปต่อ.' }
+  sv:{ title:'Klubbregistrering', lead:'Fyll i din klubbinformation nedan för att skapa ditt fightcard.', email:'E‑postadress', club:'Klubbnamn', site:'Hemsida', pay:'Betalning', logo:'Bifoga logga', save:'Spara & fortsätt', skip:'Hoppa över', admin:'Gå till admin', foot:'Data lagras lokalt i din webbläsare tills du öppnar admin.', ok:'✔️ Tack! Sparat lokalt – fortsätt.', pick:'klicka här' },
+  en:{ title:'Club Registration', lead:'Enter your club details below to build your fight card.', email:'Email address', club:'Club name', site:'Website', pay:'Payment', logo:'Attach logo', save:'Save & continue', skip:'Skip', admin:'Go to admin', foot:'Data is stored locally until you open admin.', ok:'✔️ Saved locally – continue.', pick:'click here' },
+  th:{ title:'ลงทะเบียนสโมสร', lead:'กรอกข้อมูลสโมสรของคุณเพื่อเริ่มสร้างไฟต์การ์ด.', email:'อีเมล', club:'ชื่อสโมสร', site:'เว็บไซต์', pay:'การชำระเงิน', logo:'อัปโหลดโลโก้', save:'บันทึกและไปต่อ', skip:'ข้าม', admin:'ไปที่แอดมิน', foot:'ข้อมูลถูกเก็บภายในเบราว์เซอร์จนกว่าจะเปิดหน้าแอดมิน.', ok:'✔️ บันทึกแล้ว – ไปต่อ.', pick:'คลิกที่นี่' }
       };
       const qs = new URLSearchParams(location.search);
       let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
@@ -108,7 +190,8 @@
   document.getElementById('lblClub').textContent = d.club;
   document.getElementById('lblSite').textContent = d.site;
   document.getElementById('lblLogo').textContent = d.logo;
-  document.getElementById('logoText').textContent = (lang==='sv'? 'Släpp fil här eller klicka': lang==='th'? 'วางไฟล์ที่นี่หรือคลิก': 'Drop file here or click');
+  document.getElementById('lblPay').textContent = d.pay;
+  document.getElementById('logoText').innerHTML = (lang==='sv'? 'Släpp fil här eller <a href="#" id="logoPickLink" style="color:var(--accent);text-decoration:underline;">'+d.pick+'</a>' : lang==='th'? 'วางไฟล์ที่นี่หรือ <a href="#" id="logoPickLink" style="color:var(--accent);text-decoration:underline;">'+d.pick+'</a>' : 'Drop file here or <a href="#" id="logoPickLink" style="color:var(--accent);text-decoration:underline;">'+d.pick+'</a>');
   document.getElementById('logoHint').textContent = (lang==='sv'? 'PNG / JPG / SVG': lang==='th'? 'PNG / JPG / SVG': 'PNG / JPG / SVG');
         document.getElementById('saveBtn').textContent = d.save;
         document.getElementById('skipBtn').textContent = d.skip;
@@ -122,24 +205,10 @@
 
       document.querySelectorAll('.lang-switch button').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.lang)));
 
-      const form = document.getElementById('clubForm');
-      form.addEventListener('submit', (e)=>{
-        e.preventDefault();
-        const fd = new FormData(form);
-        const data = Object.fromEntries(fd.entries());
-        // logo file name only stored (not uploading yet)
-        if (data.logo instanceof File){
-          data.logoName = data.logo.name;
-          try{
-            const reader = new FileReader();
-            reader.onload = () => {
-              try{ localStorage.setItem('lf_logo_data', reader.result); }catch(e){}
-            };
-            reader.readAsDataURL(data.logo);
-          }catch(e){}
-          delete data.logo;
-        }
-      // Drag & drop + click upload logic
+  const form = document.getElementById('clubForm');
+  // Choose API base: if page is served by the Node server (port 3000), use relative; otherwise use http://localhost:3000
+  const API_BASE = (/(:|\/)3000$/.test(location.origin) ? '' : 'http://localhost:3000');
+      // Logo drag/drop + picker logic (initialized immediately, not on submit)
       const zone = document.getElementById('logoZone');
       const input = document.getElementById('logoInput');
       const preview = document.getElementById('logoPreview');
@@ -148,32 +217,81 @@
         if (!file) return;
         const url = URL.createObjectURL(file);
         preview.src = url; preview.style.display='block';
-        removeBtn.style.display='inline-block';
+        removeBtn.style.display='flex';
+        zone.classList.add('has-file');
         zone.classList.remove('drag');
+        emptyIcon.style.display='none';
+        info.style.display='flex';
+        info.innerHTML = `<span>${file.name}</span><span>${(file.size/1024).toFixed(1)} KB</span>`;
         try{ localStorage.setItem('lf_logo_name', file.name); }catch(e){}
       }
-      zone.addEventListener('click', ()=> input.click());
+      function bindPickLink(){
+        const link = document.getElementById('logoPickLink');
+        if(link){ link.addEventListener('click', (ev)=>{ ev.preventDefault(); input.click(); }); }
+      }
+      zone.addEventListener('click', (ev)=>{ if(ev.target.id==='logoPickLink' || ev.target.closest('.action')) return; input.click(); });
       zone.addEventListener('keydown', (e)=>{ if (e.key==='Enter' || e.key===' ') { e.preventDefault(); input.click(); } });
       input.addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if (f) setLogo(f); });
       ;['dragenter','dragover'].forEach(ev=> zone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); zone.classList.add('drag'); }));
       ;['dragleave','drop'].forEach(ev=> zone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); if(ev==='drop'){ const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f){ input.files = e.dataTransfer.files; setLogo(f); } } zone.classList.remove('drag'); }));
-      removeBtn.addEventListener('click', ()=>{
+      removeBtn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
         preview.src=''; preview.style.display='none'; input.value=''; removeBtn.style.display='none';
+        info.style.display='none'; info.innerHTML=''; emptyIcon.style.display='block'; zone.classList.remove('has-file');
         try{ localStorage.removeItem('lf_logo_name'); localStorage.removeItem('lf_logo_data'); }catch(e){}
       });
       // Restore previous logo if any
       try{
         const prevData = localStorage.getItem('lf_logo_data');
-        if (prevData){ preview.src = prevData; preview.style.display='block'; removeBtn.style.display='inline-block'; }
+        if (prevData){
+          preview.src = prevData; preview.style.display='block'; removeBtn.style.display='flex';
+          zone.classList.add('has-file'); emptyIcon.style.display='none';
+        }
       }catch(e){}
+
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const fd = new FormData(form);
+        const data = Object.fromEntries(fd.entries());
+        if (data.logo instanceof File){
+          data.logoName = data.logo.name;
+          try{
+            const reader = new FileReader();
+            reader.onload = () => { try{ localStorage.setItem('lf_logo_data', reader.result); }catch(e){} };
+            reader.readAsDataURL(data.logo);
+          }catch(e){}
+          delete data.logo;
+        }
         try{ localStorage.setItem('lf_club', JSON.stringify(data)); }catch(err){ console.warn('localStorage save failed', err); }
-        const msg = document.getElementById('successMsg'); msg.style.display='block';
-        setTimeout(()=>{ msg.style.display='none'; location.href='/admin'; }, 900);
+        // Create unique card on the server (default TTL 48h)
+        const msg = document.getElementById('successMsg');
+        try{
+          const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
+          if(!resp.ok) throw new Error('Create failed: '+resp.status);
+          const out = await resp.json();
+          const viewer = (API_BASE? API_BASE: '') + out.viewerUrl;
+          const admin = (API_BASE? API_BASE: '') + out.adminUrl;
+          // Show links without auto redirect
+          msg.innerHTML = `✔️ Länk skapad · <a href="${viewer}" target="_blank" rel="noopener">visa fightcard</a> · <a href="${admin}" target="_blank" rel="noopener">öppna admin</a>`;
+          msg.style.display='block';
+          // Removed automatic redirect; user stays on this page and can choose links manually.
+        }catch(err){
+          console.warn(err);
+          msg.textContent = 'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).';
+          msg.style.display='block';
+        }
       });
       document.getElementById('skipBtn').addEventListener('click', ()=> location.href='/admin');
       document.getElementById('toAdminBtn').addEventListener('click', ()=> location.href='/admin');
 
       apply(lang);
+      // Re-bind pick link after each language switch
+  document.addEventListener('click', (e)=>{ if(e.target && e.target.id==='logoPickLink'){ e.preventDefault(); input.click(); }});
+  bindPickLink(); // initial bind
+
+  // Cache new elements
+  const emptyIcon = document.querySelector('.logo-empty-icon');
+  const info = document.getElementById('logoInfo');
     })();
   </script>
 </body>
