@@ -133,8 +133,7 @@ function updateNow(){
   let nowText = '';
   if (f && current !== 8) {
     const w = (f.weight || '').toString().trim();
-    const sep = w ? ' \u2014 ' : '';
-    nowText = `${f.a} vs ${f.b}${sep}${w}`;
+    nowText = `${f.a} vs ${f.b}${w ? ' ' + w : ''}`;
   }
   if (now) now.textContent = nowText;
   // highlight live
