@@ -430,6 +430,9 @@
         <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.6rem">
           <!-- Fight items injected here -->
         </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:.8rem">
+          <button id="saveCardBtn" class="btn-small" title="Save all changes">Save</button>
+        </div>
       </div>
       <!-- Preview pane removed per request -->
   </main>
@@ -919,6 +922,7 @@
     const showF = document.getElementById('showFights');
     const pauseBtn = document.getElementById('pauseFights');
     const playBtn = document.getElementById('playFights');
+    const saveCardBtn = document.getElementById('saveCardBtn');
     if (setW) setW.addEventListener('click', ()=>{ const index = getSelectedIndex(); const side = (document.getElementById('side')||{}).value || 'a'; sendAction({ type:'setWinner', index, side }); });
     if (setD) setD.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'setWinner', index, side:'draw' }); });
     if (clrW) clrW.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'clearWinner', index }); });
@@ -930,6 +934,10 @@
     if (showF) showF.addEventListener('click', ()=>{ sendAction({ type:'setFightsVisible', on:true }); });
     if (pauseBtn) pauseBtn.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:true }); });
     if (playBtn) playBtn.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:false }); });
+    if (saveCardBtn) saveCardBtn.addEventListener('click', async ()=>{
+      const r = await sendAction({ type:'save' });
+      if (r && r.ok) showFeedback('Card saved', true);
+    });
   })();
 
   document.getElementById('saveEvent').addEventListener('click', async ()=>{
