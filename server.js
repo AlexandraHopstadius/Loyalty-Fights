@@ -557,6 +557,8 @@ app.post('/admin/action', async (req, res) => {
     if (msg.info!=null){
       const info = (msg.info||'').toString();
       state.eventInfo = info.slice(0, 800); // limit length
+      // If non-empty info text was provided, ensure info box is visible for viewers
+      try{ if (state.eventInfo && state.eventInfo.trim()) state.infoVisible = true; }catch(_){ }
     }
     if (msg.bgColor!=null){
       state.eventBgColor = (msg.bgColor||'').toString().slice(0,20);
@@ -739,6 +741,8 @@ wss.on('connection', (ws, req)=>{
           if (msg.payload.info!=null){
             const info = (msg.payload.info||'').toString();
             state.eventInfo = info.slice(0,800);
+            // Auto-show info when non-empty text is saved via WS-admin as well
+            try{ if (state.eventInfo && state.eventInfo.trim()) state.infoVisible = true; }catch(_){ }
           }
           if (msg.payload.bgColor!=null){
             state.eventBgColor = (msg.payload.bgColor||'').toString().slice(0,20);
