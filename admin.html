@@ -424,7 +424,9 @@
       <h3 id="newFightControls">Card Management</h3>
       <button id="toggleCard" type="button" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
   <button id="newFightBtn" type="button" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
-    <button id="clearAllFights" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
+  <button id="clearAllFights" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
+  <button id="pauseFights" title="Pause fights (show Nu only)">Pause Fights</button>
+  <button id="playFights" title="Resume fights (show live Now)">Play</button>
         <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.6rem">
           <!-- Fight items injected here -->
         </div>
@@ -915,6 +917,8 @@
     const infoOff = document.getElementById('clearInfo');
     const hideF = document.getElementById('hideFights');
     const showF = document.getElementById('showFights');
+    const pauseBtn = document.getElementById('pauseFights');
+    const playBtn = document.getElementById('playFights');
     if (setW) setW.addEventListener('click', ()=>{ const index = getSelectedIndex(); const side = (document.getElementById('side')||{}).value || 'a'; sendAction({ type:'setWinner', index, side }); });
     if (setD) setD.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'setWinner', index, side:'draw' }); });
     if (clrW) clrW.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'clearWinner', index }); });
@@ -924,6 +928,8 @@
     if (infoOff) infoOff.addEventListener('click', ()=>{ sendAction({ type:'setInfoVisible', on:false }); });
     if (hideF) hideF.addEventListener('click', ()=>{ sendAction({ type:'setFightsVisible', on:false }); });
     if (showF) showF.addEventListener('click', ()=>{ sendAction({ type:'setFightsVisible', on:true }); });
+    if (pauseBtn) pauseBtn.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:true }); });
+    if (playBtn) playBtn.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:false }); });
   })();
 
   document.getElementById('saveEvent').addEventListener('click', async ()=>{

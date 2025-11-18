@@ -164,7 +164,9 @@ function updateNow(){
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
-    const showNow = !isStandby && !!nowText;
+    // Show the strip when paused (standby) to display the Nu label,
+    // or when we have a live nowText while playing.
+    const showNow = isStandby || (!!nowText);
     nowStrip.style.display = showNow ? '' : 'none';
     nowStrip.classList.toggle('red-frame', showNow);
     const label = nowStrip.firstElementChild;
