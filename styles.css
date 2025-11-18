@@ -233,7 +233,7 @@ body.boot *{ transition:none !important }
 
 /* Enlarged free-form info box lines injected into #eventInfoDisplay (distinct from schedule lines) */
 #eventInfoDisplay .event-line{font-size:1.32rem;letter-spacing:1.3px;font-weight:900;font-family:'Bebas Neue', Arial, sans-serif;line-height:1.08;margin:.25rem 0;}
-#eventInfoDisplay{padding-bottom:.9rem;}
+#eventInfoDisplay{padding-bottom:.35rem;}
 .fight-klass{color:var(--muted);text-align:center;font-size:0.95rem;margin-bottom:6px;font-weight:600}
   body{
     margin:0;
@@ -312,12 +312,12 @@ body.updating .fight-main{opacity:0}
   font-weight:700;
 }
 /* bottom vs label removed; using win-method pill instead */
-.now-strip{display:flex;gap:.5rem;align-items:center;justify-content:center;padding:.6rem 1rem;margin:.38rem auto .7rem;max-width:620px;border-radius:18px;background:linear-gradient(140deg, rgba(82,15,18,0.58), rgba(54,8,10,0.52));border:1px solid rgba(255,255,255,0.04);box-shadow:0 3px 10px -4px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.35) inset;background-clip:padding-box}
+.now-strip{display:flex;gap:.5rem;align-items:center;justify-content:center;padding:.6rem 1rem;margin:.1rem auto .4rem;max-width:620px;border-radius:18px;background:linear-gradient(140deg, rgba(82,15,18,0.58), rgba(54,8,10,0.52));border:1px solid rgba(255,255,255,0.04);box-shadow:0 3px 10px -4px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.35) inset;background-clip:padding-box}
   .controls button{flex:1;padding:.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--card)}
 .now-match{font-weight:700;letter-spacing:.5px;text-align:center}
   .modal-content{background:var(--card);padding:1rem;border-radius:12px;max-width:360px;width:90%;text-align:center}
 .controls{display:flex;gap:.5rem;padding:1rem}
-  .now-strip{display:flex;gap:.5rem;align-items:center;justify-content:center;padding:.6rem 1rem;margin:.38rem auto .7rem;max-width:620px;border-radius:18px;background:linear-gradient(140deg, rgba(82,15,18,0.58), rgba(54,8,10,0.52));border:1px solid rgba(255,255,255,0.04);box-shadow:0 3px 10px -4px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.35) inset}
+  .now-strip{display:flex;gap:.5rem;align-items:center;justify-content:center;padding:.6rem 1rem;margin:.1rem auto .4rem;max-width:620px;border-radius:18px;background:linear-gradient(140deg, rgba(82,15,18,0.58), rgba(54,8,10,0.52));border:1px solid rgba(255,255,255,0.04);box-shadow:0 3px 10px -4px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.35) inset}
 
 /* red frame for the live 'Nu' strip and the active fight card */
 .now-strip.red-frame{border:3px solid #ef233c; box-shadow:0 8px 18px rgba(0,0,0,0.24); border-radius:18px; background-clip:padding-box}
@@ -350,9 +350,7 @@ body.standby .fight-card.live,
 body.standby .fight-card.red-frame {
   transform:none !important;
 }
-body.standby .now-strip {
-  display: none !important;
-}
+/* Do not forcibly hide the now-strip in standby; logic handled in JS */
 
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center}
