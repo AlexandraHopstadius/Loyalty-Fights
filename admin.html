@@ -190,6 +190,12 @@
     .fightItem.drop-after{box-shadow:0 3px 0 0 #ef233c inset}
     .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:.4rem}
     .fightButtons button{font-size:.85rem;padding:.55rem .6rem}
+    /* Card Management primary buttons layout */
+    .card-manage-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.2rem 0 .2rem}
+    @media (max-width:900px){
+      .card-manage-actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+      .card-manage-actions button{width:100%}
+    }
     /* Win method row */
     .method-row{display:flex;align-items:center;gap:.45rem;margin-top:.25rem;flex-wrap:wrap}
     .method-label{display:none}
@@ -423,10 +429,12 @@
   <div class="card" aria-labelledby="newFightControls">
       <h3 id="newFightControls">Card Management</h3>
       <button id="toggleCard" type="button" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
-  <button id="newFightBtn" type="button" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
-  <button id="clearAllFights" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
-  <button id="pauseFights" title="Pause fights (show Nu only)">Pause Fights</button>
-  <button id="playFights" title="Resume fights (show live Now)">Play</button>
+  <div class="card-manage-actions">
+    <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
+    <button id="clearAllFights" class="btn-small" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
+    <button id="pauseFights" class="btn-small" title="Pause fights (show Nu only)">Pause Fights</button>
+    <button id="playFights" class="btn-small" title="Resume fights (show live Now)">Play</button>
+  </div>
         <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.6rem">
           <!-- Fight items injected here -->
         </div>
