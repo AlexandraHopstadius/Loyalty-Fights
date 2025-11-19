@@ -129,12 +129,20 @@ function updateNow(){
 
   const now = document.getElementById('nowDisplay');
   const f = fights[current];
-  // Build desired Now text; hide strip entirely unless there is a live fight text
-  let nowText = '';
-  if (f && current !== 8) {
-    const w = (f.weight || '').toString().trim();
-    // Removed em dash separator; show weight with simple space when present.
-    nowText = w ? `${f.a} vs ${f.b} ${w}` : `${f.a} vs ${f.b}`;
+    // Build two-line Now content: first line "A vs B", second line is weight
+    let topLine = '';
+    let weightLine = '';
+    if (f && current !== 8){
+      topLine = `${(f.a||'').toString()} vs ${(f.b||'').toString()}`;
+      weightLine = (f.weight || '').toString().trim();
+    }
+    if (now){
+      if (topLine){
+        const esc = s => (s||'').toString().replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        now.innerHTML = `<div>${esc(topLine)}</div>` + (weightLine ? `<div class="now-weight">${esc(weightLine)}</div>` : '');
+      } else {
+        now.textContent = '';
+      }
   }
   if (now) now.textContent = nowText;
   // highlight live
@@ -165,8 +173,8 @@ function updateNow(){
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
     // Show the strip when paused (standby) to display the Nu label,
-    // or when we have a live nowText while playing.
-    const showNow = isStandby || (!!nowText);
+    // or when we have a live topLine while playing.
+    const showNow = isStandby || (!!topLine);
     nowStrip.style.display = showNow ? '' : 'none';
     nowStrip.classList.toggle('red-frame', showNow);
     const label = nowStrip.firstElementChild;

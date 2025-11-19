@@ -315,6 +315,8 @@ body.updating .fight-main{opacity:0}
 .now-strip{display:flex;gap:.5rem;align-items:center;justify-content:center;padding:.6rem 1rem;margin:0 auto .3rem;max-width:620px;border-radius:18px;background:linear-gradient(140deg, rgba(82,15,18,0.58), rgba(54,8,10,0.52));border:1px solid rgba(255,255,255,0.04);box-shadow:0 3px 10px -4px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.35) inset;background-clip:padding-box}
   .controls button{flex:1;padding:.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--card)}
 .now-match{font-weight:700;letter-spacing:.5px;text-align:center}
+/* weight on its own line under Now */
+.now-match .now-weight{display:block;opacity:.96}
   .modal-content{background:var(--card);padding:1rem;border-radius:12px;max-width:360px;width:90%;text-align:center}
 .controls{display:flex;gap:.5rem;padding:1rem}
   .now-strip{display:flex;gap:.5rem;align-items:center;justify-content:center;padding:.6rem 1rem;margin:0 auto .3rem;max-width:620px;border-radius:18px;background:linear-gradient(140deg, rgba(82,15,18,0.58), rgba(54,8,10,0.52));border:1px solid rgba(255,255,255,0.04);box-shadow:0 3px 10px -4px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.35) inset}
