@@ -196,11 +196,11 @@
     .fightItem.drop-after{box-shadow:0 3px 0 0 #ef233c inset}
     .fightButtons{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.4rem;align-items:center}
     .fightButtons button{font-size:.85rem;padding:.55rem .6rem}
+    .clear-remove-stack{display:flex;flex-direction:column;gap:.3rem;align-items:stretch}
     @media (max-width:600px){
-      .fightButtons{grid-template-columns:1fr 1fr 1fr;gap:.3rem;margin-bottom:.4rem}
+      .fightButtons{grid-template-columns:1fr 1fr 1fr auto;gap:.3rem;margin-bottom:.4rem}
       .fightButtons button{padding:.6rem .5rem;font-size:.8rem;min-height:44px}
       .fightItem .method-row{margin-top:.6rem}
-      .fightItem .btn-circle-danger{margin-top:.4rem;align-self:flex-start}
     }
     /* Card Management primary buttons layout */
     .card-manage-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.2rem 0 .2rem}
@@ -786,19 +786,19 @@
       const bBtn = document.createElement('button'); bBtn.textContent = 'B'; bBtn.className='smallBtn'; bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
   const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
       const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); delete localWinMethods[i]; sendAction({type:'clearWinner', index:i}); sendAction({type:'setWinMethod', index:i, method:''}); });
-  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr);
+      btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn);
+      // Vertical stack: Remove above Clear
+      const stack = document.createElement('div'); stack.className = 'clear-remove-stack';
+      const remove = document.createElement('button');
+      remove.className = 'btn-circle-danger fight-remove';
+      remove.setAttribute('aria-label','Remove fight');
+      remove.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='#ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='6' x2='18' y2='18'/><line x1='18' y1='6' x2='6' y2='18'/></svg>";
+      remove.style.background='linear-gradient(160deg,var(--accent-red) 0%, var(--accent-red-mid) 50%, var(--accent-red-hot) 100%)';
+      remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){} } }});
+      stack.appendChild(remove);
+      stack.appendChild(clr);
+      btns.appendChild(stack);
       div.appendChild(btns);
-    // Top-right remove button
-    const remove = document.createElement('button');
-    remove.className = 'btn-circle-danger fight-remove';
-    remove.setAttribute('aria-label','Remove fight');
-    remove.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='#ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='6' x2='18' y2='18'/><line x1='18' y1='6' x2='6' y2='18'/></svg>";
-    remove.style.position='absolute';
-    remove.style.top='10px';
-    remove.style.right='12px';
-    remove.style.background='linear-gradient(160deg,var(--accent-red) 0%, var(--accent-red-mid) 50%, var(--accent-red-hot) 100%)';
-    remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){} } }});
-    div.appendChild(remove);
       // Always show method selector so it doesn't disappear if winner is unset
       {
         const row = document.createElement('div'); row.className = 'method-row';
