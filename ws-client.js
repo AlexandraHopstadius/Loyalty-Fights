@@ -62,6 +62,8 @@
       // set standby flag (optional)
       if (typeof payload.standby === 'boolean'){
         try{ window.standby = !!payload.standby; }catch(e){ /* ignore */ }
+        // Fallback immediate hide of now-strip when entering standby (pause)
+        try{ if (window.standby){ const ns = document.querySelector('.now-strip'); if (ns) ns.style.display='none'; } }catch(_){ }
       }
       // set infoVisible flag (optional)
       if (typeof payload.infoVisible === 'boolean'){

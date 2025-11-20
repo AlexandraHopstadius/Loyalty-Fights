@@ -70,7 +70,7 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <!-- SheetJS for .xlsx/.xls parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-  <script src="fightcard.js?v=20251120"></script>
+  <script src="fightcard.js?v=20251122"></script>
   <!-- Viewer WebSocket client: lightweight external file that listens for {type:'state'} broadcasts
        and applies them to the renderer (preserves compact HTML). -->
   <script>
@@ -78,7 +78,7 @@
     // Falls back to localhost:3000 if opened from file:// or another origin.
     window.SERVER_ORIGIN = window.SERVER_ORIGIN || (location.origin.startsWith('http') ? location.origin : 'http://localhost:3000');
   </script>
-  <script src="ws-client.js?v=20251119"></script>
+  <script src="ws-client.js?v=20251122"></script>
   <script>
     // Maintain year stamp only when element exists
     (function(){
