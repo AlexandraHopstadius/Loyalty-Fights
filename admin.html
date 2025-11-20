@@ -202,6 +202,12 @@
       .card-manage-actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
       .card-manage-actions button{width:100%}
     }
+    /* Slightly widen fight item panel on narrow phones */
+    @media (max-width:600px){
+      .card[aria-labelledby="newFightControls"]{padding-left:.55rem;padding-right:.55rem}
+      /* Allow white fight item to extend closer to card edges */
+      .fightItem{margin-left:-.15rem;margin-right:-.15rem}
+    }
     /* Win method row */
     .method-row{display:flex;align-items:center;gap:.45rem;margin-top:.25rem;flex-wrap:wrap}
     @media (max-width:600px){
