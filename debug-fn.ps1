@@ -131,17 +131,23 @@ while ($true) {
       Invoke-AdminFn -action 'debug' -payload @{ }
     }
     'w' {
-      $fight_id = Read-Host "fight id (example: fight_123)"
-      $winner = Read-Host "winner (e.g., red or blue or null)"
-      Invoke-AdminFn -action 'setWinner' -payload @{ fight_id = $fight_id; winner = $winner }
+      $fight_id = Read-Host "Fight numeric id (example: 3)"
+      $winnerRaw = Read-Host "Winner side (a | b | draw | null)"
+      $winner = $winnerRaw.Trim().ToLower()
+      if ($winner -eq 'null') { $winner = $null }
+      elseif ($winner -in @('a','b','draw')) { } else { Write-Host "Invalid winner value; use a, b, draw or null." -ForegroundColor Yellow; continue }
+      Invoke-AdminFn -action 'setWinner' -payload @{ id = $fight_id; winner = $winner }
     }
     'c' {
-      $fight_id = Read-Host "fight id to set current (example: fight_123)"
-      Invoke-AdminFn -action 'setCurrent' -payload @{ fight_id = $fight_id }
+      $currentIdx = Read-Host "Set current fight index (0-based, example: 0)"
+      Invoke-AdminFn -action 'setCurrent' -payload @{ current = $currentIdx }
     }
     's' {
-      $state = Read-Host "state (example: preview, live, finished)"
-      Invoke-AdminFn -action 'setState' -payload @{ state = $state }
+      $cur = Read-Host "Current index (0-based)"
+      $standby = Read-Host "Standby (true/false)"
+      $infoVis = Read-Host "Info visible (true/false)"
+      $payloadState = @{ current = [int]$cur; standby = ($standby -match '^(true|1)$'); infoVisible = ($infoVis -notmatch '^(false|0)$') }
+      Invoke-AdminFn -action 'setState' -payload @{ state = $payloadState }
     }
     'q' {
       Write-Host "Exiting. Password remains only in this session memory until the process closes." -ForegroundColor Cyan

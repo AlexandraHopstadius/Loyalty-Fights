@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fightcard Admin (Supabase example)</title>
+  <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px}button{margin:4px}</style>
+</head>
+<body>
+  <h1>Fightcard Admin (Supabase)</h1>
+  <p>Paste your Supabase project URL and anon/service keys into the inputs below for testing. Do NOT expose the <strong>service_role</strong> key in production clients.</p>
+
+  <label>Supabase URL: <input id="supabaseUrl" size="50" placeholder="https://xyzcompany.supabase.co"></label><br>
+  <label>Anon key: <input id="supabaseAnonKey" size="60" placeholder="anon key"></label>
+  <label style="margin-left:12px"><input id="rememberAnon" type="checkbox"> Remember ANON (testing only)</label><br>
+  <label>Optional (service_role key for server-side only): <input id="supabaseServiceRole" size="80" placeholder="service_role (never expose)"></label><br>
+  <label>Edge Function URL: <input id="adminFunctionUrl" size="80" placeholder="https://.../functions/v1/admin-proxy" value="https://hbtjzniqvtxtdtejxusw.supabase.co/functions/v1/admin-proxy"></label><br>
+  <label>Admin password (for Edge Function): <input id="adminPassword" type="password" size="60" placeholder="enter admin password for Edge Function"></label>
+  <label style="margin-left:12px"><input id="rememberAdminPw" type="checkbox"> Remember password (testing only)</label>
+  <label style="margin-left:12px"><input id="showAdminPw" type="checkbox"> Show</label>
+  <br>
+
+  <button id="btnLogin">Sign in (magic link)</button>
+  <button id="btnLoad">Load fights</button>
+  <button id="btnDebug">Debug function</button>
+  <div id="status"></div>
+
+  <div id="fights"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+  <script>
+    // Minimal admin sample. This is a demonstration-only UI.
+    let supabase, serviceRoleKey;
+    const status = document.getElementById('status');
+    // Testing helper: optionally remember admin password in localStorage (do NOT use in production)
+  const pwInput = document.getElementById('adminPassword');
+    const rememberPw = document.getElementById('rememberAdminPw');
+  const showPw = document.getElementById('showAdminPw');
+    // Testing helper: optionally remember anon key in localStorage (do NOT use in production)
+    const anonInput = document.getElementById('supabaseAnonKey');
+    const rememberAnon = document.getElementById('rememberAnon');
+    try {
+      const remembered = localStorage.getItem('lf_admin_pw_remember') === '1';
+      if (rememberPw) rememberPw.checked = remembered;
+      if (remembered) {
+        const saved = localStorage.getItem('lf_admin_pw');
+        if (saved && pwInput) pwInput.value = saved;
+      }
+      if (rememberPw) rememberPw.addEventListener('change', ()=>{
+        if (rememberPw.checked) {
+          localStorage.setItem('lf_admin_pw_remember','1');
+          if (pwInput) localStorage.setItem('lf_admin_pw', (pwInput.value || '').trim());
+        } else {
+          localStorage.removeItem('lf_admin_pw_remember');
+          localStorage.removeItem('lf_admin_pw');
+        }
+      });
+      if (pwInput) pwInput.addEventListener('input', ()=>{
+        if (rememberPw && rememberPw.checked) {
+          localStorage.setItem('lf_admin_pw', (pwInput.value || '').trim());
+        }
+      });
+      if (showPw && pwInput) showPw.addEventListener('change', ()=>{
+        pwInput.type = showPw.checked ? 'text' : 'password';
+      });
+      // ANON remember support
+      const rememberedAnon = localStorage.getItem('lf_anon_remember') === '1';
+      if (rememberAnon) rememberAnon.checked = rememberedAnon;
+      if (rememberedAnon) {
+        const savedAnon = localStorage.getItem('lf_anon');
+        if (savedAnon && anonInput) anonInput.value = savedAnon;
+      }
+      if (rememberAnon) rememberAnon.addEventListener('change', ()=>{
+        if (rememberAnon.checked) {
+          localStorage.setItem('lf_anon_remember','1');
+          if (anonInput) localStorage.setItem('lf_anon', (anonInput.value || ''));
+        } else {
+          localStorage.removeItem('lf_anon_remember');
+          localStorage.removeItem('lf_anon');
+        }
+      });
+      if (anonInput) anonInput.addEventListener('input', ()=>{
+        if (rememberAnon && rememberAnon.checked) {
+          localStorage.setItem('lf_anon', anonInput.value || '');
+        }
+      });
+    } catch (e) {
+      console.warn('localStorage not available', e);
+    }
+    document.getElementById('btnLogin').addEventListener('click', async ()=>{
+      const url = document.getElementById('supabaseUrl').value.trim();
+      const anon = document.getElementById('supabaseAnonKey').value.trim();
+      serviceRoleKey = document.getElementById('supabaseServiceRole').value.trim();
+      if (!url || !anon) return alert('Specify URL and anon key');
+      supabase = window.supabase.createClient(url, anon);
+      // sign-in via magic link; prompt for email
+      const email = prompt('Admin email (must be an admin account):');
+      if (!email) return;
+      const { error } = await supabase.auth.signInWithOtp({ email });
+      if (error) status.textContent = 'Error sending magic link: ' + error.message; else status.textContent = 'Magic link sent — complete sign-in from email.';
+    });
+
+    document.getElementById('btnLoad').addEventListener('click', async ()=>{
+      if (!supabase) return alert('Initialize with Supabase URL + anon key first');
+      const { data } = await supabase.from('fights').select('*').order('ord', {ascending:true});
+      renderFights(data || []);
+    });
+
+    document.getElementById('btnDebug').addEventListener('click', async ()=>{
+      const fnUrl = document.getElementById('adminFunctionUrl').value.trim();
+      const adminPw = (document.getElementById('adminPassword').value || '').trim();
+      if (!fnUrl) { alert('Provide the Edge Function URL'); return; }
+      const headers = { 'Content-Type': 'application/json' };
+      if (adminPw) headers['x-admin-password'] = adminPw;
+      const anon = (document.getElementById('supabaseAnonKey').value || '').trim();
+      if (anon) { headers['Authorization'] = 'Bearer ' + anon; headers['apikey'] = anon; }
+      try {
+        const r = await fetch(fnUrl, { method: 'POST', headers, body: JSON.stringify({ action: 'debug' }) });
+        const j = await r.json().catch(()=>({}));
+        status.textContent = 'Debug: ' + (r.ok ? JSON.stringify(j) : (j && j.error? JSON.stringify(j) : (r.status + ' ' + r.statusText)));
+      } catch (e){
+        status.textContent = 'Debug call failed: ' + e.message;
+      }
+    });
+
+    function renderFights(list){
+      const out = document.getElementById('fights'); out.innerHTML = '';
+      (list||[]).forEach(f=>{
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${f.ord}. ${f.a}</strong> vs <strong>${f.b}</strong> (${f.weight||''}) <button data-id="${f.id}" data-action="setA">A wins</button> <button data-id="${f.id}" data-action="setB">B wins</button> <button data-id="${f.id}" data-action="clear">Clear</button>`;
+        out.appendChild(div);
+      });
+      out.addEventListener('click', async (ev)=>{
+        const btn = ev.target.closest('button'); if (!btn) return;
+        const id = btn.dataset.id; const action = btn.dataset.action;
+        if (!id) return;
+        const winner = action === 'setA'? 'a' : (action === 'setB'? 'b' : null);
+        await setWinner(Number(id), winner);
+      });
+    }
+
+    async function setWinner(id, winner){
+      if (!supabase) return alert('init supabase first');
+      // Prefer calling the Edge Function if the admin provides its URL.
+      const fnUrl = document.getElementById('adminFunctionUrl').value.trim();
+      const adminPwRaw = document.getElementById('adminPassword').value;
+      if (fnUrl){
+        // call the Edge Function (it will use the SERVICE_ROLE server-side)
+        const payload = { action: 'setWinner', id: id, winner: winner };
+        const headers = { 'Content-Type': 'application/json' };
+        const adminPw = (adminPwRaw || '').trim();
+        if (adminPw) headers['x-admin-password'] = adminPw;
+        // If the project requires JWT to invoke Functions, add ANON key as Authorization/apikey
+        const anon = (document.getElementById('supabaseAnonKey').value || '').trim();
+        if (anon) {
+          headers['Authorization'] = 'Bearer ' + anon;
+          headers['apikey'] = anon;
+        }
+        try {
+          const r = await fetch(fnUrl, { method: 'POST', headers, body: JSON.stringify(payload) });
+          const j = await r.json();
+          console.log('edge function response', j);
+          status.textContent = r.ok ? 'Patched via Edge Function.' : ('Edge function error: ' + (j && j.error? JSON.stringify(j) : r.status + ' ' + r.statusText));
+        } catch (e){
+          status.textContent = 'Edge Function call failed: ' + e.message;
+        }
+        return;
+      }
+
+      // Fallback: demo-only direct service_role REST (do NOT paste service_role in production clients)
+      if (serviceRoleKey){
+        const url = (document.getElementById('supabaseUrl').value.replace(/\/+$/,'') + "/rest/v1/fights?id=eq." + id);
+        const body = winner ? { winner } : { winner: null };
+        const res = await fetch(url, {
+          method: 'PATCH',
+          headers: { 'apikey': serviceRoleKey, 'Authorization': 'Bearer ' + serviceRoleKey, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+          body: JSON.stringify(body)
+        });
+        const j = await res.json(); console.log('patched', j); status.textContent = 'Patched via service_role (demo).';
+        return;
+      }
+
+      // Otherwise try to update directly (requires the logged-in user to have is_admin claim via RLS)
+      const session = await supabase.auth.getSession();
+      if (!session || !session.data || !session.data.session) return alert('Sign in first and ensure that your account has admin privileges.');
+      const { error } = await supabase.from('fights').update({ winner }).eq('id', id);
+      if (error) status.textContent = 'Update error: ' + error.message; else status.textContent = 'Updated.';
+    }
+
+  </script>
+</body>
+</html>

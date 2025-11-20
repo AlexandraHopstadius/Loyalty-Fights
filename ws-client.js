@@ -18,8 +18,8 @@
   // Cache last known methods to survive state broadcasts that lack them
   const recentMethods = Object.create(null);
 
-  // Start in standby until we confirm a live connection
-  try{ window.standby = true; }catch(e){ /* ignore */ }
+  // Start in active (not standby) so Now/Nu strip shows by default until user pauses
+  try{ window.standby = false; }catch(e){ /* ignore */ }
 
   // Small helper to prevent visible flicker: disable transitions while applying updates
   function beginDomUpdate(){ try{ document.body && document.body.classList.add('updating'); }catch(_){} }
@@ -62,8 +62,6 @@
       // set standby flag (optional)
       if (typeof payload.standby === 'boolean'){
         try{ window.standby = !!payload.standby; }catch(e){ /* ignore */ }
-        // Fallback immediate hide of now-strip when entering standby (pause)
-        try{ if (window.standby){ const ns = document.querySelector('.now-strip'); if (ns) ns.style.display='none'; } }catch(_){ }
       }
       // set infoVisible flag (optional)
       if (typeof payload.infoVisible === 'boolean'){

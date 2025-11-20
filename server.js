@@ -454,6 +454,16 @@ app.use(function(req, res, next){
   next();
 });
 
+// Lightweight request logger to help trace missing responses
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const ms = Date.now() - start;
+    try { console.log(`[http] ${req.method} ${req.originalUrl} -> ${res.statusCode} ${ms}ms`); } catch(_){}
+  });
+  next();
+});
+
 // simple token check for admin route (token in query string)
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'letmein';
 
@@ -882,3 +892,10 @@ if (process.env.GITHUB_TOKEN && process.env.GITHUB_REPO){
 } else {
   console.log('GitHub auto-commit not configured (set GITHUB_TOKEN and GITHUB_REPO to enable)');
 }
+
+// Final error handler to ensure JSON response instead of silent failure
+app.use((err, req, res, next) => {
+  console.error('[express-error]', err && err.stack ? err.stack : err);
+  if (res.headersSent) return next(err);
+  try { res.status(500).json({ error: err && err.message ? err.message : String(err) }); } catch(_) { try { res.end(); } catch(_){} }
+});

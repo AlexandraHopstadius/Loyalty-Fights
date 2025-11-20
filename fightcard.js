@@ -144,7 +144,7 @@ function updateNow(){
         now.textContent = '';
       }
   }
-  if (now) now.textContent = nowText;
+  // Remove stray nowText assignment (variable not defined) to prevent clearing content
   // highlight live
   // remove live/red-frame from all cards first, then add back to the live card
   const isStandby = !!window.standby;
@@ -172,9 +172,8 @@ function updateNow(){
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
-    // Show the strip only while playing (not on standby) and when we have a live match line.
-    // Requirement change: hide the now-strip when fights are paused.
-    const showNow = !isStandby && (!!topLine);
+    // Show strip whenever NOT paused (standby false). Hide only when user pauses fights.
+    const showNow = !isStandby;
     nowStrip.style.display = showNow ? '' : 'none';
     nowStrip.classList.toggle('red-frame', showNow);
     const label = nowStrip.firstElementChild;
