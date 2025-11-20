@@ -86,7 +86,7 @@
     /* Demo link: moved further down and slightly more left */
     .sub-cta{margin-top:2.0rem;width:min(94vw,700px);display:flex;justify-content:center;}
     .sub-cta .link-secondary{display:inline-block;margin-left:-42px;}
-    .link-secondary{color:#d9e9ff;background:linear-gradient(160deg,#0f2238 0%, #12304b 40%, #163a59 70%, #1e4d72 100%);border:1px solid rgba(30,77,114,0.65);padding:.38rem .75rem;border-radius:999px;text-decoration:none;font-weight:600;font-size:.78rem;letter-spacing:.25px;line-height:1.1;position:relative;overflow:hidden;box-shadow:0 3px 12px -6px rgba(0,0,0,0.55),0 0 0 1px rgba(59,130,246,0.25);transition:box-shadow .3s ease,filter .25s ease,background .35s ease,color .35s ease}
+    .link-secondary{color:#d9e9ff;background:linear-gradient(160deg,#0f2238 0%, #12304b 40%, #163a59 70%, #1e4d72 100%);border:1px solid rgba(30,77,114,0.65);padding:.50rem 1.05rem;border-radius:999px;text-decoration:none;font-weight:600;font-size:.88rem;letter-spacing:.3px;line-height:1.15;position:relative;overflow:hidden;box-shadow:0 4px 16px -6px rgba(0,0,0,0.6),0 0 0 1px rgba(59,130,246,0.30);transition:box-shadow .3s ease,filter .25s ease,background .35s ease,color .35s ease}
     .link-secondary::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0.12) 32%,rgba(255,255,255,0) 58%);mix-blend-mode:overlay;opacity:.45;pointer-events:none;transition:opacity .35s ease,filter .35s ease}
     .link-secondary:hover{filter:brightness(1.06);box-shadow:0 6px 22px -6px rgba(0,0,0,0.6),0 0 0 3px rgba(59,130,246,0.35)}
     .link-secondary:hover::before{opacity:.7;filter:blur(.4px)}
@@ -154,6 +154,22 @@
       :root{--card-visual-height:320px}
       .card{padding:0.8rem 1.2rem;padding-bottom:.4rem;border-radius:14px}
     }
+    /* Demo modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1000}
+    .modal-backdrop[aria-hidden="false"]{display:flex}
+    .modal-content{border-radius:12px;box-shadow:0 22px 60px rgba(0,0,0,0.55),0 6px 24px -8px rgba(0,0,0,0.5);max-width:min(96vw,1000px);width:100%;max-height:90vh;position:relative;overflow:hidden;
+      background:
+        radial-gradient(900px 600px at 18% 14%, rgba(19,34,53,0.55) 0%, rgba(19,34,53,0.18) 44%, rgba(10,15,31,0) 70%),
+        radial-gradient(1000px 640px at 82% 86%, rgba(12,20,36,0.55) 0%, rgba(10,15,31,0.25) 56%, rgba(10,15,31,0) 78%),
+        linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
+      backdrop-filter:blur(4px);}
+    .modal-content::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:160px 160px;mix-blend-mode:overlay;opacity:.12;filter:contrast(120%)}
+    .modal-inner{max-height:90vh;overflow:auto;padding:0}
+    .modal-inner img{display:block;width:100%;height:auto}
+    .modal-inner{max-height:90vh;overflow:auto}
+    .modal-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:none;border-radius:999px;background:rgba(0,0,0,0.65);color:#fff;font-size:22px;line-height:1;cursor:pointer}
+    .modal-close:hover{background:rgba(0,0,0,0.8)}
+    .modal-inner img,.modal-inner object{display:block;width:100%;height:auto}
   </style>
 </head>
 <body>
@@ -179,12 +195,22 @@
     <div class="sub-cta"><a id="demoLink" class="link-secondary" href="/index.html" target="_blank" rel="noopener">View a demo fight card</a></div>
   </main>
 
+  <!-- Demo SVG Modal -->
+  <div id="demoModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Demo">
+    <div class="modal-content">
+      <button type="button" class="modal-close" aria-label="Close demo">&times;</button>
+      <div class="modal-inner">
+        <img id="demoSvg" src="demo.svg" alt="Demo fight card" />
+      </div>
+    </div>
+  </div>
+
   <script>
     (function(){
       const t = {
-        en:{ title:'Create your fightcard here!', subtitle:'', cta:'Create your fightcard here!', demo:'View a demo fight card' },
-        sv:{ title:'Skapa ditt fightcard här!', subtitle:'', cta:'Skapa ditt fightcard här!', demo:'Visa ett demo fightcard' },
-        th:{ title:'สร้างไฟต์การ์ดของคุณที่นี่!', subtitle:'', cta:'สร้างไฟต์การ์ดที่นี่!', demo:'ดูตัวอย่างไฟต์การ์ด' }
+        en:{ title:'Create your fightcard here!', subtitle:'', cta:'Create your fightcard here!', demo:'Wow does it work?' },
+        sv:{ title:'Skapa ditt fightcard här!', subtitle:'', cta:'Skapa ditt fightcard här!', demo:'Hur funkar det?' },
+        th:{ title:'สร้างไฟต์การ์ดของคุณที่นี่!', subtitle:'', cta:'สร้างไฟต์การ์ดที่นี่!', demo:'มันทำงานยังไง?' }
       };
       const q = new URLSearchParams(location.search);
       let lang = (q.get('lang')||navigator.language||'en').toLowerCase();
@@ -226,10 +252,74 @@
           if (ov){ ov.textContent = ''; ov.style.display = 'none'; }
           if (ov2){ ov2.textContent = ''; ov2.style.display = 'none'; }
         }
+        // Swap demo SVG based on language (Swedish uses demo_swe.svg)
+        const demoImgEl = document.getElementById('demoSvg');
+        if (demoImgEl){
+          const previous = demoImgEl.getAttribute('src');
+          const targetSrc = (l === 'sv') ? 'demo_swe.svg' : (l === 'th') ? 'demo_thai.svg' : 'demo.svg';
+          if (previous !== targetSrc){
+            demoImgEl.setAttribute('src', targetSrc);
+          }
+          // Alt text adjustments
+          if (l === 'sv'){
+            demoImgEl.setAttribute('alt','Exempel på svenskt fightcard demo');
+          } else if (l === 'th') {
+            demoImgEl.setAttribute('alt','ตัวอย่างเดโมไฟต์การ์ด');
+          } else {
+            demoImgEl.setAttribute('alt','Demo fight card example');
+          }
+        }
       }
 
       document.querySelectorAll('.lang').forEach(btn=> btn.addEventListener('click', ()=> apply(btn.dataset.lang)));
   document.getElementById('go').addEventListener('click', ()=>{ location.href = '/register'; });
+
+      // Demo modal wiring
+      const demoLink = document.getElementById('demoLink');
+      const demoModal = document.getElementById('demoModal');
+      const closeBtn = demoModal.querySelector('.modal-close');
+      function openModal(){
+        demoModal.setAttribute('aria-hidden','false');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeModal(){
+        demoModal.setAttribute('aria-hidden','true');
+        document.body.style.overflow = '';
+      }
+      if (demoLink){
+        demoLink.addEventListener('click', function(ev){
+          ev.preventDefault();
+          openModal();
+        });
+      }
+      closeBtn.addEventListener('click', closeModal);
+      demoModal.addEventListener('click', function(ev){
+        if (ev.target === demoModal) closeModal();
+      });
+      window.addEventListener('keydown', function(ev){
+        if (ev.key === 'Escape' && demoModal.getAttribute('aria-hidden') === 'false') closeModal();
+      });
+
+      // Fallback if SVG fails or is empty
+      const demoImg = document.getElementById('demoSvg');
+      function markMissing(){
+        if (!demoImg) return;
+        const holder = document.createElement('div');
+        holder.style.padding='2rem';
+        holder.style.color='#fff';
+        holder.style.font='600 1rem Montserrat, sans-serif';
+        holder.style.textAlign='center';
+        holder.textContent='Demo SVG not found or empty. Please provide demo.svg.';
+        demoImg.replaceWith(holder);
+      }
+      demoImg.addEventListener('error', markMissing);
+      // If file loaded but is effectively empty (0 natural width/height after load), swap message
+      demoImg.addEventListener('load', ()=>{
+        // Heuristic: empty SVG often renders 0x0 or very small; adjust as needed
+        if (demoImg.naturalWidth === 0 || demoImg.naturalHeight === 0){
+          markMissing();
+        }
+      });
 
       apply(lang);
     })();
