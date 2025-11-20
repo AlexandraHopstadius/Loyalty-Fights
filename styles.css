@@ -129,6 +129,8 @@ body{
 }
 /* Hide main content before first state is applied */
 body.boot .fight-main{ opacity:0 }
+/* Hide headline during initial boot to avoid size/color flicker */
+body.boot .event-title{ visibility:hidden }
 body.boot *{ transition:none !important }
 .site-header{
   padding:1.2rem;
@@ -322,7 +324,7 @@ body.updating .fight-main{opacity:0}
   .now-strip{display:flex;gap:.5rem;align-items:center;justify-content:center;padding:.6rem 1rem;margin:0 auto .3rem;max-width:620px;border-radius:18px;background:linear-gradient(140deg, rgba(82,15,18,0.58), rgba(54,8,10,0.52));border:1px solid rgba(255,255,255,0.04);box-shadow:0 3px 10px -4px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.35) inset}
 
 /* red frame for the live 'Nu' strip and the active fight card */
-.now-strip.red-frame{border:3px solid #ef233c; box-shadow:0 8px 18px rgba(0,0,0,0.24); border-radius:18px; background-clip:padding-box}
+.now-strip.red-frame{border:2px solid #ef233c; box-shadow:0 6px 14px rgba(0,0,0,0.22); border-radius:18px; background-clip:padding-box}
 .fight-card.live{border:4px solid #ef233c; box-shadow:0 18px 36px rgba(0,0,0,0.26)}
 .fight-card.live .weight-label{color:var(--accent)}
 /* First live fight gets a slightly larger presence */
@@ -352,7 +354,8 @@ body.standby .fight-card.live,
 body.standby .fight-card.red-frame {
   transform:none !important;
 }
-/* Do not forcibly hide the now-strip in standby; logic handled in JS */
+/* Hide now-strip when in standby (pause) state */
+body.standby .now-strip{ display:none !important }
 
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center}

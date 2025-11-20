@@ -172,9 +172,9 @@ function updateNow(){
   // ensure the now strip shows a red frame while a match is live
   const nowStrip = document.querySelector('.now-strip');
   if (nowStrip){
-    // Show the strip when paused (standby) to display the Nu label,
-    // or when we have a live topLine while playing.
-    const showNow = isStandby || (!!topLine);
+    // Show the strip only while playing (not on standby) and when we have a live match line.
+    // Requirement change: hide the now-strip when fights are paused.
+    const showNow = !isStandby && (!!topLine);
     nowStrip.style.display = showNow ? '' : 'none';
     nowStrip.classList.toggle('red-frame', showNow);
     const label = nowStrip.firstElementChild;

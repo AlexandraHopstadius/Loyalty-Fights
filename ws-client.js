@@ -91,6 +91,7 @@
       }
       if (typeof payload.eventBgColor === 'string'){
         try{ window.eventBgColor = payload.eventBgColor; }catch(e){}
+        try{ localStorage.setItem('eventBgColor', window.eventBgColor); }catch(_){ }
       }
       if (typeof payload.eventFootnoteImage === 'string'){
         try{
@@ -99,6 +100,7 @@
       }
         if (typeof payload.eventSize === 'number'){
           try{ window.eventSize = payload.eventSize; }catch(e){}
+          try{ localStorage.setItem('eventSize', String(window.eventSize)); }catch(_){ }
         }
       // social object
       if (payload.social && typeof payload.social === 'object'){
@@ -165,6 +167,7 @@
             if (typeof window.eventBgColor === 'string'){
               applyBgTint(window.eventBgColor);
               try{ document.documentElement.style.setProperty('--bg', window.eventBgColor); }catch(_){ }
+              try{ localStorage.setItem('eventBgColor', window.eventBgColor); }catch(_){ }
           }
         }catch(e){}
         // reflect fightsVisible change live
@@ -249,6 +252,7 @@
           if (msg.type === 'setEventFont') { window.eventFont = (msg.font||'bebas').toString(); }
           if (msg.type === 'setEventColor') { window.eventColor = (msg.color||'').toString(); }
           if (msg.type === 'setEventSize') { const sz = Number(msg.size); if (Number.isFinite(sz)) window.eventSize = Math.min(60, Math.max(20, Math.round(sz))); }
+          try{ if (typeof window.eventSize === 'number') localStorage.setItem('eventSize', String(window.eventSize)); }catch(_){ }
           if (/^setEvent(Name|Font|Color|Size|Meta)$/.test(msg.type)) {
             beginDomUpdate();
             try{
@@ -260,6 +264,7 @@
                 t.textContent = (window.eventName||'').trim();
                 if (window.eventColor) t.style.color = window.eventColor;
                 if (typeof window.eventSize === 'number') t.style.fontSize = (window.eventSize/10).toFixed(1)+'rem';
+                try{ localStorage.setItem('eventSize', String(window.eventSize)); }catch(_){ }
                 const font = (window.eventFont||'bebas').toLowerCase();
                 document.body.classList.remove('font-bebas','font-anton','font-oswald','font-montserrat','font-poppins','font-playfair','font-impact');
                 document.body.classList.add('font-'+(font||'bebas'));
@@ -289,6 +294,7 @@
                 if (typeof window.eventBgColor === 'string' && window.eventBgColor && window.eventBgColor.toLowerCase() !== '#000000'){
                   applyBgTint(window.eventBgColor);
                   try{ document.documentElement.style.setProperty('--bg', window.eventBgColor); }catch(_){ }
+                  try{ localStorage.setItem('eventBgColor', window.eventBgColor); }catch(_){ }
                 }
               }
             }catch(e){}
@@ -317,6 +323,7 @@
                 t.textContent = (window.eventName||'').trim();
                 if (window.eventColor) t.style.color = window.eventColor;
                 if (typeof window.eventSize === 'number') t.style.fontSize = (window.eventSize/10).toFixed(1)+'rem';
+                try{ localStorage.setItem('eventSize', String(window.eventSize)); }catch(_){ }
                 const font = (window.eventFont||'bebas').toLowerCase();
                 document.body.classList.remove('font-bebas','font-anton','font-oswald','font-montserrat','font-poppins','font-playfair','font-impact');
                 document.body.classList.add('font-'+(font||'bebas'));
@@ -347,6 +354,7 @@
                 if (typeof window.eventBgColor === 'string' && window.eventBgColor && window.eventBgColor.toLowerCase() !== '#000000'){
                   applyBgTint(window.eventBgColor);
                   try{ document.documentElement.style.setProperty('--bg', window.eventBgColor); }catch(_){ }
+                  try{ localStorage.setItem('eventBgColor', window.eventBgColor); }catch(_){ }
                 }
               }
             }catch(e){}
