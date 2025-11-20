@@ -186,6 +186,8 @@
       background:#fff5f5;
       border:3px solid #ef233c; /* uniform thickness all around */
       box-shadow:0 10px 26px -10px rgba(239,35,60,0.38);
+      border-radius:20px; /* match card radius */
+      padding:.75rem .9rem; /* add horizontal space so side borders appear like top/bottom */
     }
     /* Drag and drop cues */
     .fightItem{cursor:grab}
@@ -206,11 +208,9 @@
       .card-manage-actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
       .card-manage-actions button{width:100%}
     }
-    /* Slightly widen fight item panel on narrow phones */
+    /* Slightly widen fight item panel on narrow phones (keep even side borders) */
     @media (max-width:600px){
       .card[aria-labelledby="newFightControls"]{padding-left:.55rem;padding-right:.55rem}
-      /* Allow white fight item to extend closer to card edges */
-      .fightItem{margin-left:-.15rem;margin-right:-.15rem}
     }
     /* Win method row */
     .method-row{display:flex;align-items:center;gap:.45rem;margin-top:.25rem;flex-wrap:wrap}
