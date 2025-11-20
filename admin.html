@@ -194,7 +194,7 @@
     .fightItem.dragging{opacity:.55;cursor:grabbing}
     .fightItem.drop-before{box-shadow:0 -3px 0 0 #ef233c inset}
     .fightItem.drop-after{box-shadow:0 3px 0 0 #ef233c inset}
-    .fightButtons{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:.4rem;align-items:center}
+    .fightButtons{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.4rem;align-items:center}
     .fightButtons button{font-size:.85rem;padding:.55rem .6rem}
     @media (max-width:600px){
       .fightButtons{grid-template-columns:1fr 1fr 1fr;gap:.3rem;margin-bottom:.4rem}
@@ -450,19 +450,19 @@
   <div class="card" aria-labelledby="newFightControls">
       <h3 id="newFightControls">Card Management</h3>
       <button id="toggleCard" type="button" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
-        <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.6rem">
-          <!-- Fight items injected here -->
-        </div>
-  <div class="card-manage-actions" style="margin-top:1.1rem">
-    <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
-    <button id="clearAllFights" class="btn-small" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
-    <button id="pauseFights" class="btn-small" title="Pause fights (show Nu only)">Pause Fights</button>
-    <button id="playFights" class="btn-small" title="Resume fights (show live Now)">Play</button>
-  </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:1.1rem">
-          <button id="saveCardBtn" class="btn-small" title="Save all changes">Save</button>
-        </div>
+      <div class="card-manage-actions" style="margin:.65rem 0 .9rem">
+        <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
+        <button id="clearAllFights" class="btn-small" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
+        <button id="pauseFights" class="btn-small" title="Pause fights (show Nu only)">Pause Fights</button>
+        <button id="playFights" class="btn-small" title="Resume fights (show live Now)">Play</button>
       </div>
+      <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.4rem">
+        <!-- Fight items injected here -->
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:.95rem">
+        <button id="saveCardBtn" class="btn-small" title="Save all changes">Save</button>
+      </div>
+  </div>
       <!-- Preview pane removed per request -->
   </main>
   <!-- Static fight creation modal (hidden by default) -->
@@ -786,13 +786,19 @@
       const bBtn = document.createElement('button'); bBtn.textContent = 'B'; bBtn.className='smallBtn'; bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
   const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
       const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); delete localWinMethods[i]; sendAction({type:'clearWinner', index:i}); sendAction({type:'setWinMethod', index:i, method:''}); });
+  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr);
+      div.appendChild(btns);
+    // Top-right remove button
     const remove = document.createElement('button');
-    remove.className = 'btn-circle-danger';
+    remove.className = 'btn-circle-danger fight-remove';
     remove.setAttribute('aria-label','Remove fight');
     remove.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='#ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='6' x2='18' y2='18'/><line x1='18' y1='6' x2='6' y2='18'/></svg>";
+    remove.style.position='absolute';
+    remove.style.top='10px';
+    remove.style.right='12px';
+    remove.style.background='linear-gradient(160deg,var(--accent-red) 0%, var(--accent-red-mid) 50%, var(--accent-red-hot) 100%)';
     remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){} } }});
-  btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr); btns.appendChild(remove);
-      div.appendChild(btns);
+    div.appendChild(remove);
       // Always show method selector so it doesn't disappear if winner is unset
       {
         const row = document.createElement('div'); row.className = 'method-row';
