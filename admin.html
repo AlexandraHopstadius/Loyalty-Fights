@@ -446,16 +446,16 @@
   <div class="card" aria-labelledby="newFightControls">
       <h3 id="newFightControls">Card Management</h3>
       <button id="toggleCard" type="button" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
-  <div class="card-manage-actions">
+        <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.6rem">
+          <!-- Fight items injected here -->
+        </div>
+  <div class="card-manage-actions" style="margin-top:1.1rem">
     <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
     <button id="clearAllFights" class="btn-small" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
     <button id="pauseFights" class="btn-small" title="Pause fights (show Nu only)">Pause Fights</button>
     <button id="playFights" class="btn-small" title="Resume fights (show live Now)">Play</button>
   </div>
-        <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.6rem">
-          <!-- Fight items injected here -->
-        </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:.8rem">
+        <div style="display:flex;justify-content:flex-end;margin-top:1.1rem">
           <button id="saveCardBtn" class="btn-small" title="Save all changes">Save</button>
         </div>
       </div>
