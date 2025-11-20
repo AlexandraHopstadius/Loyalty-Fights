@@ -849,7 +849,9 @@
         // Optimistically mark as current for immediate feedback
         try{ if (state){ state.current = i; } }catch(_){ }
         try{ renderFightList(); }catch(_){ }
+        // Set selected fight as current and resume (show Nu strip)
         sendAction({type:'setCurrent', index:i});
+        sendAction({type:'setStandby', on:false});
       });
       container.appendChild(div);
       // Enable drag on the whole item; disable on inner buttons
@@ -904,7 +906,7 @@
     const setBtn = document.getElementById('setCurrent');
     const prevBtn = document.getElementById('prev');
     const nextBtn = document.getElementById('next');
-    if (setBtn) setBtn.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'setCurrent', index }); });
+    if (setBtn) setBtn.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'setCurrent', index }); sendAction({ type:'setStandby', on:false }); });
     if (prevBtn) prevBtn.addEventListener('click', ()=>{ const val = Math.max(0, getSelectedIndex()-1); if (idxEl) idxEl.value = val; sendAction({ type:'setCurrent', index:val }); });
     if (nextBtn) nextBtn.addEventListener('click', ()=>{ const val = getSelectedIndex()+1; if (idxEl) idxEl.value = val; sendAction({ type:'setCurrent', index:val }); });
   })();
