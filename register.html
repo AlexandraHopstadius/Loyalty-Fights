@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Klubbregistrering / Club Registration</title>
-  <link rel="icon" href="/thai_gala_mobile_site/logo_design.svg" type="image/svg+xml">
+  <link rel="icon" href="/logo_design.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
@@ -85,7 +85,26 @@
     .secondary:hover{filter:brightness(0.98)}
 
     footer{margin-top:.2rem;text-align:center;color:var(--muted);font-size:.8rem}
-    .success{display:none;margin:0;padding:.9rem 1rem;border-radius:14px;background:#15382a;color:#0df2a7;font-weight:700;border:1px solid #1e4f3b}
+    .success{display:none;margin:0;padding:1rem 1.35rem;border-radius:999px;background:linear-gradient(145deg,#0c2750,#0f3668);color:#f5f7ff;font-weight:700;border:1px solid rgba(12,39,80,0.65);box-shadow:0 18px 38px -16px rgba(7,22,48,0.85),0 8px 26px -18px rgba(15,54,104,0.7);align-items:center;gap:.65rem;letter-spacing:.16px;font-size:.95rem;line-height:1.2;display:flex;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;flex-wrap:wrap}
+    .success::before{content:'✔';font-size:1.05rem;color:#0f3668;background:#f5f7ff;width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px -10px rgba(255,255,255,0.5)}
+    .success a{color:#8bd4ff;font-weight:700;text-decoration-color:rgba(139,212,255,0.45);text-underline-offset:3px}
+    .success a:hover{color:#d7f0ff;text-decoration-color:currentColor}
+    .success .qr-link{background:rgba(255,255,255,0.14);color:#f5f7ff;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:.3rem .85rem;font-size:.86rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;margin-left:.35rem;transition:background .25s ease,box-shadow .25s ease,transform .15s ease;border:none;cursor:pointer;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif}
+    .success .qr-link:hover{background:rgba(255,255,255,0.28);box-shadow:0 6px 18px -10px rgba(255,255,255,0.65);transform:translateY(-1px)}
+
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1000}
+    .modal-backdrop[aria-hidden="false"]{display:flex}
+    .modal-content{border-radius:12px;box-shadow:0 22px 60px rgba(0,0,0,0.55),0 6px 24px -8px rgba(0,0,0,0.5);max-width:min(96vw,420px);width:100%;position:relative;overflow:hidden;
+      background:
+        radial-gradient(900px 600px at 18% 14%, rgba(19,34,53,0.55) 0%, rgba(19,34,53,0.18) 44%, rgba(10,15,31,0) 70%),
+        radial-gradient(1000px 640px at 82% 86%, rgba(12,20,36,0.55) 0%, rgba(10,15,31,0.25) 56%, rgba(10,15,31,0) 78%),
+        linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
+      backdrop-filter:blur(4px)}
+    .modal-inner{padding:1.6rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+    .modal-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:none;border-radius:999px;background:rgba(0,0,0,0.65);color:#fff;font-size:22px;line-height:1;cursor:pointer}
+    .modal-close:hover{background:rgba(0,0,0,0.8)}
+    #qrCodeImg{width:230px;height:230px;object-fit:contain;border-radius:16px;background:#fff;padding:.6rem;box-shadow:0 18px 46px -20px rgba(0,0,0,0.65)}
+    #qrHint{margin:0;color:#cfd8ee;font-size:.88rem;font-weight:600;text-align:center}
 
     /* Logo drop zone inside white card */
     /* Redesigned logo drop area */
@@ -114,7 +133,7 @@
   </style>
 </head>
 <body>
-  <img src="thai_gala_mobile_site/logo_design.svg" alt="Logo" class="site-logo" />
+  <img src="logo_design.svg" alt="Logo" class="site-logo" />
   <main class="card" aria-live="polite" role="region" aria-label="Club registration">
     <header>
       <h1 id="title">Klubbregistrering</h1>
@@ -127,7 +146,7 @@
     </header>
 
     <form id="clubForm" novalidate>
-      <div class="success" id="successMsg">✔️ Tack! Sparat lokalt – fortsätt.</div>
+      <div class="success" id="successMsg">Tack! Sparat lokalt – fortsätt.</div>
       <div class="box-group">
         <div class="field-box" id="boxEmail">
           <label id="lblEmail">E‑postadress</label>
@@ -170,17 +189,34 @@
     <footer id="foot">Data lagras lokalt i din webbläsare tills du öppnar admin.</footer>
   </main>
 
+  <!-- QR Modal -->
+  <div id="qrModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-label="QR code viewer">
+    <div class="modal-content">
+      <button type="button" class="modal-close" aria-label="Close QR">&times;</button>
+      <div class="modal-inner">
+        <img id="qrCodeImg" alt="QR code" />
+        <p id="qrHint">Skanna koden för att öppna fightcard.</p>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function(){
       const dict = {
-  sv:{ title:'Klubbregistrering', lead:'Fyll i din klubbinformation nedan för att skapa ditt fightcard.', email:'E‑postadress', club:'Klubbnamn', site:'Hemsida', pay:'Betalning', logo:'Bifoga logga', save:'Spara & fortsätt', skip:'Hoppa över', admin:'Gå till admin', foot:'Data lagras lokalt i din webbläsare tills du öppnar admin.', ok:'✔️ Tack! Sparat lokalt – fortsätt.', pick:'klicka här' },
-  en:{ title:'Club Registration', lead:'Enter your club details below to build your fight card.', email:'Email address', club:'Club name', site:'Website', pay:'Payment', logo:'Attach logo', save:'Save & continue', skip:'Skip', admin:'Go to admin', foot:'Data is stored locally until you open admin.', ok:'✔️ Saved locally – continue.', pick:'click here' },
-  th:{ title:'ลงทะเบียนสโมสร', lead:'กรอกข้อมูลสโมสรของคุณเพื่อเริ่มสร้างไฟต์การ์ด.', email:'อีเมล', club:'ชื่อสโมสร', site:'เว็บไซต์', pay:'การชำระเงิน', logo:'อัปโหลดโลโก้', save:'บันทึกและไปต่อ', skip:'ข้าม', admin:'ไปที่แอดมิน', foot:'ข้อมูลถูกเก็บภายในเบราว์เซอร์จนกว่าจะเปิดหน้าแอดมิน.', ok:'✔️ บันทึกแล้ว – ไปต่อ.', pick:'คลิกที่นี่' }
+  sv:{ title:'Klubbregistrering', lead:'Fyll i din klubbinformation nedan för att skapa ditt fightcard.', email:'E‑postadress', club:'Klubbnamn', site:'Hemsida', pay:'Betalning', logo:'Bifoga logga', save:'Spara & fortsätt', skip:'Hoppa över', admin:'Gå till admin', foot:'Data lagras lokalt i din webbläsare tills du öppnar admin.', ok:'Tack! Sparat lokalt – fortsätt.', pick:'klicka här', linkPrefix:'Länk skapad', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).' },
+  en:{ title:'Club Registration', lead:'Enter your club details below to build your fight card.', email:'Email address', club:'Club name', site:'Website', pay:'Payment', logo:'Attach logo', save:'Save & continue', skip:'Skip', admin:'Go to admin', foot:'Data is stored locally until you open admin.', ok:'Saved locally – continue.', pick:'click here', linkPrefix:'Link ready', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).' },
+  th:{ title:'ลงทะเบียนสโมสร', lead:'กรอกข้อมูลสโมสรของคุณเพื่อเริ่มสร้างไฟต์การ์ด.', email:'อีเมล', club:'ชื่อสโมสร', site:'เว็บไซต์', pay:'การชำระเงิน', logo:'อัปโหลดโลโก้', save:'บันทึกและไปต่อ', skip:'ข้าม', admin:'ไปที่แอดมิน', foot:'ข้อมูลถูกเก็บภายในเบราว์เซอร์จนกว่าจะเปิดหน้าแอดมิน.', ok:'บันทึกแล้ว – ไปต่อ.', pick:'คลิกที่นี่', linkPrefix:'สร้างลิงก์แล้ว', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).' }
       };
       const qs = new URLSearchParams(location.search);
       let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
       if (lang.startsWith('en')) lang='en'; else if (lang.startsWith('th')) lang='th'; else lang='sv';
       try{ const stored = localStorage.getItem('lf_lang'); if(stored) lang = stored; }catch(e){}
+
+      const qrModal = document.getElementById('qrModal');
+      const qrImg = document.getElementById('qrCodeImg');
+      const qrHintEl = document.getElementById('qrHint');
+      const qrCloseBtn = qrModal ? qrModal.querySelector('.modal-close') : null;
+      let lastViewerUrl = '';
 
       function apply(l){
         const d = dict[l] || dict.sv; lang = l;
@@ -198,6 +234,8 @@
         document.getElementById('toAdminBtn').textContent = d.admin;
         document.getElementById('foot').textContent = d.foot;
         document.getElementById('successMsg').textContent = d.ok;
+        if (qrHintEl) qrHintEl.textContent = d.qrHint;
+        if (qrImg) qrImg.alt = d.qrAlt;
         document.querySelectorAll('.lang-switch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===l));
         document.documentElement.lang = l;
         try{ localStorage.setItem('lf_lang', l); }catch(e){}
@@ -271,18 +309,31 @@
           const out = await resp.json();
           const viewer = (API_BASE? API_BASE: '') + out.viewerUrl;
           const admin = (API_BASE? API_BASE: '') + out.adminUrl;
+          const strings = dict[lang] || dict.sv;
+          lastViewerUrl = viewer;
           // Show links without auto redirect
-          msg.innerHTML = `✔️ Länk skapad · <a href="${viewer}" target="_blank" rel="noopener">visa fightcard</a> · <a href="${admin}" target="_blank" rel="noopener">öppna admin</a>`;
-          msg.style.display='block';
+          msg.innerHTML = `${strings.linkPrefix} · <a href="${viewer}" target="_blank" rel="noopener">${strings.viewLink}</a> · <a href="${admin}" target="_blank" rel="noopener">${strings.adminLink}</a> · <button type="button" class="qr-link">${strings.qrLink}</button>`;
+          msg.style.display='flex';
+          wireQrLink(msg);
           // Removed automatic redirect; user stays on this page and can choose links manually.
         }catch(err){
           console.warn(err);
-          msg.textContent = 'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).';
-          msg.style.display='block';
+          const strings = dict[lang] || dict.sv;
+          lastViewerUrl = '';
+          msg.textContent = strings.linkFail;
+          msg.style.display='flex';
         }
       });
       document.getElementById('skipBtn').addEventListener('click', ()=> location.href='/admin');
       document.getElementById('toAdminBtn').addEventListener('click', ()=> location.href='/admin');
+
+      if (qrCloseBtn) qrCloseBtn.addEventListener('click', closeQrModal);
+      if (qrModal){
+        qrModal.addEventListener('click', (ev)=>{ if (ev.target === qrModal) closeQrModal(); });
+      }
+      window.addEventListener('keydown', (ev)=>{
+        if (ev.key === 'Escape' && qrModal && qrModal.getAttribute('aria-hidden') === 'false'){ closeQrModal(); }
+      });
 
       apply(lang);
       // Re-bind pick link after each language switch
@@ -292,6 +343,32 @@
   // Cache new elements
   const emptyIcon = document.querySelector('.logo-empty-icon');
   const info = document.getElementById('logoInfo');
+
+  function openQrModal(){
+    if (!qrModal || !qrImg || !lastViewerUrl) return;
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=' + encodeURIComponent(lastViewerUrl);
+    qrImg.src = qrUrl;
+    qrModal.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeQrModal(){
+    if (!qrModal) return;
+    qrModal.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+
+  function wireQrLink(container){
+    if (!container) return;
+    const trigger = container.querySelector('.qr-link');
+    if (trigger){
+      trigger.addEventListener('click', (ev)=>{
+        ev.preventDefault();
+        if (!lastViewerUrl) return;
+        openQrModal();
+      });
+    }
+  }
     })();
   </script>
 </body>
