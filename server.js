@@ -46,7 +46,7 @@ function slugifyClubName(name){
   return s.slice(0,40);
 }
 
-const RESERVED_SLUGS = new Set(['admin','register','start','state','health','whoami','cards','c','styles.css','fightcard.js','ws-client.js']);
+const RESERVED_SLUGS = new Set(['admin','register','reg','start','state','health','whoami','cards','c','styles.css','fightcard.js','ws-client.js']);
 
 function defaultState(){
   return { current: 0, fights: [], standby: false, infoVisible: true };
@@ -71,17 +71,8 @@ function createCard({ club, wantClubSlug }, ttlHours = 48){
   let slug;
   if (slugCandidate){
     slug = slugCandidate;
-    // ensure uniqueness; append short random suffix if already taken
     if (cards.has(slug)){
-      let attempt = 0;
-      while(cards.has(slug) && attempt < 5){
-        slug = slugCandidate + '-' + generateSlug(4).toLowerCase();
-        attempt++;
-      }
-      if (cards.has(slug)){
-        // fallback to random slug completely
-        slug = generateSlug(8);
-      }
+      console.log('[cards] Reusing existing slug; overwriting previous card:', slug);
     }
   } else {
     do { slug = generateSlug(8); } while(cards.has(slug));
@@ -414,22 +405,40 @@ app.get('/', (req, res, next) => {
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 // Nice landing page shortcut
 app.get('/start', (req, res) => res.sendFile(path.join(__dirname, 'create.html')));
-app.get('/register', (req, res) => {
-  // Force fresh load of the latest form markup & assets
+function serveNoCacheHtml(res, filename){
   res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
   res.set('Pragma','no-cache');
   res.set('Expires','0');
-  res.sendFile(path.join(__dirname, 'register.html'));
+  res.sendFile(path.join(__dirname, filename));
+}
+
+app.get('/register', (req, res) => {
+  serveNoCacheHtml(res, 'register_1.html');
 });
+
+app.get('/reg', (req, res) => {
+  serveNoCacheHtml(res, 'register.html');
+});
+
+function serveViewerForSlug(slug, res){
+  const rec = cards.get(slug);
+  if (!rec) return false;
+  if (new Date(rec.expiresAt) < new Date()){
+    res.status(410).send('Link expired');
+    return true;
+  }
+  res.set('Cache-Control','no-store');
+  res.sendFile(path.join(__dirname, 'index.html'));
+  return true;
+}
 
 // Viewer/Admin routes for a specific card slug
 app.get('/c/:slug', (req, res) => {
-  const { slug } = req.params;
-  const rec = cards.get(slug);
-  if (!rec) return res.status(404).send('Not found');
-  if (new Date(rec.expiresAt) < new Date()) return res.status(410).send('Link expired');
-  res.set('Cache-Control','no-store');
-  return res.sendFile(path.join(__dirname, 'index.html'));
+  const slug = req.params.slug;
+  if (!slug) return res.status(404).send('Not found');
+  const target = `/${encodeURIComponent(slug)}`;
+  console.log(`[routing] Legacy /c redirect -> ${target}`);
+  return res.redirect(301, target);
 });
 app.get('/admin/:slug', (req, res) => {
   const { slug } = req.params;
@@ -438,6 +447,10 @@ app.get('/admin/:slug', (req, res) => {
   if (new Date(rec.expiresAt) < new Date()) return res.status(410).send('Link expired');
   res.set('Cache-Control','no-store');
   return res.sendFile(path.join(__dirname, 'admin.html'));
+});
+app.get('/:slug', (req, res, next) => {
+  if (serveViewerForSlug(req.params.slug, res)) return;
+  return next();
 });
 
 // serve static files
@@ -477,7 +490,7 @@ app.post('/cards', (req, res) => {
     const club = req.body && req.body.club ? req.body.club : {};
     const wantClubSlug = !!(req.body && req.body.useClubSlug);
   const { slug, record } = createCard({ club, wantClubSlug }, ttl);
-    const viewerUrl = `/c/${slug}`;
+    const viewerUrl = `/${slug}`;
     const adminUrl = `/admin/${slug}?token=${encodeURIComponent(process.env.ADMIN_TOKEN || 'letmein')}`;
   return res.json({ ok:true, slug, expiresAt: record.expiresAt, viewerUrl, adminUrl, clubSlugRequested: wantClubSlug });
   }catch(e){
