@@ -46,7 +46,7 @@ function slugifyClubName(name){
   return s.slice(0,40);
 }
 
-const RESERVED_SLUGS = new Set(['admin','register','reg','start','state','health','whoami','cards','c','styles.css','fightcard.js','ws-client.js']);
+const RESERVED_SLUGS = new Set(['admin','register','reg','card','start','state','health','whoami','cards','c','styles.css','fightcard.js','ws-client.js']);
 
 function defaultState(){
   return { current: 0, fights: [], standby: false, infoVisible: true };
@@ -379,16 +379,21 @@ state.current = 0;
 })();
 
 // Announce which home page this service will serve at '/'
-if ((process.env.HOME_PAGE || '').toLowerCase() === 'admin') {
-  console.log('[routing] HOME_PAGE=admin -> serving admin.html at /');
-} else if ((process.env.HOME_PAGE || '').toLowerCase() === 'viewer') {
-  console.log('[routing] HOME_PAGE=viewer -> serving index.html at /');
-} else {
-  console.log('[routing] HOME_PAGE not set -> default Express static will serve /index.html');
-}
+(function logHomePage(){
+  const home = (process.env.HOME_PAGE || '').toLowerCase();
+  if (home === 'admin') {
+    console.log('[routing] HOME_PAGE=admin -> serving admin.html at /');
+  } else if (home === 'viewer') {
+    console.log('[routing] HOME_PAGE=viewer -> serving index.html at /');
+  } else if (home === 'register') {
+    console.log('[routing] HOME_PAGE=register -> serving register.html at /');
+  } else {
+    console.log('[routing] HOME_PAGE not set -> defaulting to register.html at /');
+  }
+})();
 
 // Explicit root routing so Render proxies and browser caches can't bypass it
-app.get('/', (req, res, next) => {
+app.get('/', (req, res) => {
   try {
     const home = (process.env.HOME_PAGE || '').toLowerCase();
     if (home === 'admin') {
@@ -397,14 +402,19 @@ app.get('/', (req, res, next) => {
     if (home === 'viewer') {
       return res.sendFile(path.join(__dirname, 'index.html'));
     }
+    if (home === 'register') {
+      return serveNoCacheHtml(res, 'register.html');
+    }
   } catch (_) { /* ignore and fall through */ }
-  return next(); // fall back to static middleware (which will serve index.html)
+  return serveNoCacheHtml(res, 'register.html');
 });
 
 // Always provide a dedicated /admin path as well
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 // Nice landing page shortcut
 app.get('/start', (req, res) => res.sendFile(path.join(__dirname, 'create.html')));
+// Generic viewer entry point
+app.get('/card', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 function serveNoCacheHtml(res, filename){
   res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
   res.set('Pragma','no-cache');
