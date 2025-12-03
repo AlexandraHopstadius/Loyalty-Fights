@@ -93,18 +93,12 @@
     input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.7rem .85rem;font-size:1rem;border-radius:10px;border:1px solid #ccd6e2;background:#ffffff;color:var(--text);box-shadow:0 1px 1px rgba(0,0,0,.04) inset}
     input:focus{outline:2px solid #ef233c;outline-offset:2px}
 
-      .success{display:none;margin:0;padding:1rem 1.35rem;border-radius:999px;background:linear-gradient(145deg,#0c2750,#0f3668);color:#f5f7ff;font-weight:700;border:1px solid rgba(12,39,80,0.65);box-shadow:0 18px 38px -16px rgba(7,22,48,0.85),0 8px 26px -18px rgba(15,54,104,0.7);letter-spacing:.16px;font-size:.95rem;line-height:1.2;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif}
-      .success.is-visible{display:flex;flex-direction:column;gap:.9rem;align-items:flex-start}
-      .success-line{display:flex;align-items:center;gap:.65rem;width:100%}
-      .success-icon{width:36px;height:36px;border-radius:12px;background:#f5f7ff;color:#0f3668;display:flex;align-items:center;justify-content:center;font-size:1.05rem;box-shadow:0 8px 18px -10px rgba(255,255,255,0.5);flex-shrink:0}
-      .success-text{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
-      .success-text a{color:#8bd4ff;font-weight:700;text-decoration-color:rgba(139,212,255,0.45);text-underline-offset:3px}
-      .success-text a:hover{color:#d7f0ff;text-decoration-color:currentColor}
-      .success-actions{display:flex;flex-direction:column;gap:.45rem;width:100%}
-      @media (min-width:520px){.success-actions{flex-direction:row}}
-      .success .qr-link,.success .pdf-link{background:rgba(255,255,255,0.14);color:#f5f7ff;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:.45rem 1rem;font-size:.86rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;transition:background .25s ease,box-shadow .25s ease,transform .15s ease;border:none;cursor:pointer;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;width:100%}
-      .success .qr-link:hover,.success .pdf-link:hover{background:rgba(255,255,255,0.28);box-shadow:0 6px 18px -10px rgba(255,255,255,0.65);transform:translateY(-1px)}
-      .success .qr-link:disabled,.success .pdf-link:disabled{opacity:.6;cursor:wait;box-shadow:none;transform:none}
+    .success{display:none;margin:0;padding:1rem 1.35rem;border-radius:999px;background:linear-gradient(145deg,#0c2750,#0f3668);color:#f5f7ff;font-weight:700;border:1px solid rgba(12,39,80,0.65);box-shadow:0 18px 38px -16px rgba(7,22,48,0.85),0 8px 26px -18px rgba(15,54,104,0.7);align-items:center;gap:.65rem;letter-spacing:.16px;font-size:.95rem;line-height:1.2;display:flex;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;flex-wrap:wrap}
+    .success::before{content:'✔';font-size:1.05rem;color:#0f3668;background:#f5f7ff;width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px -10px rgba(255,255,255,0.5)}
+    .success a{color:#8bd4ff;font-weight:700;text-decoration-color:rgba(139,212,255,0.45);text-underline-offset:3px}
+    .success a:hover{color:#d7f0ff;text-decoration-color:currentColor}
+    .success .qr-link{background:rgba(255,255,255,0.14);color:#f5f7ff;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:.3rem .85rem;font-size:.86rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;margin-left:.35rem;transition:background .25s ease,box-shadow .25s ease,transform .15s ease;border:none;cursor:pointer;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif}
+    .success .qr-link:hover{background:rgba(255,255,255,0.28);box-shadow:0 6px 18px -10px rgba(255,255,255,0.65);transform:translateY(-1px)}
 
       /* Demo modal (copied from create.html for consistent styling) */
       .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1000}
@@ -121,12 +115,8 @@
       .modal-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:none;border-radius:999px;background:rgba(0,0,0,0.65);color:#fff;font-size:22px;line-height:1;cursor:pointer}
       .modal-close:hover{background:rgba(0,0,0,0.8)}
     .qr-modal .modal-inner{padding:1.6rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
-    .qr-frame{width:420px;height:420px;max-width:90vw;max-height:80vh;background:url('qr_code.png') center/contain no-repeat;display:flex;align-items:flex-start;justify-content:center;padding:3rem;position:relative;margin-top:3rem}
-    #qrCodeImg{width:100%;height:100%;max-width:220px;max-height:220px;object-fit:contain;border-radius:18px;background:#fff;padding:.6rem;margin-top:7.5rem}
+    #qrCodeImg{width:230px;height:230px;object-fit:contain;border-radius:16px;background:#fff;padding:.6rem;box-shadow:0 18px 46px -20px rgba(0,0,0,0.65)}
     #qrHint{margin:0;color:#cfd8ee;font-size:.88rem;font-weight:600;text-align:center}
-    #qrDownloadBtn{border:none;border-radius:999px;padding:.55rem 1.35rem;font-weight:700;font-size:.9rem;background:#fff;color:#0f3668;box-shadow:0 10px 24px -12px rgba(15,54,104,0.8);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
-    #qrDownloadBtn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 16px 30px -12px rgba(15,54,104,0.85)}
-    #qrDownloadBtn:disabled{opacity:.6;cursor:wait;box-shadow:none;transform:none}
     /* Logo drop zone inside white card */
     /* Redesigned logo drop area */
     .logo-zone{position:relative;background:linear-gradient(135deg,#f9fbfd 0%,#eef3f8 55%,#e6edf5 100%);border:2px dashed #c2d1e1;border-radius:16px;min-height:200px;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.2rem .9rem;gap:.85rem;cursor:pointer;transition:border-color .25s ease, background .35s ease, box-shadow .35s ease}
@@ -147,42 +137,16 @@
     .logo-zone.has-file:hover{box-shadow:0 12px 30px -10px rgba(0,0,0,.22)}
 
     @media (max-width:640px){
-      body{padding:1.1rem}
       .card{padding:1rem 1.1rem;border-radius:16px}
       h1{font-size:clamp(1.6rem,7vw,2rem)}
-      .hero-list-row{flex-direction:column;gap:.45rem}
+      .box-group{gap:.85rem}
+      .hero-list-row{flex-direction:column;gap:.4rem}
       .hero-text-icon{width:30px;margin:-2px 0 0}
-      .hero-list li{font-size:1rem}
-      .panel-top{justify-content:center}
-    }
-
-    @media (max-width:520px){
-      body{padding:.8rem}
-      .card{padding:.85rem 1rem}
-      .site-logo{width:92px;left:12px;top:12px}
-      .lang-switch{justify-content:center;width:100%}
-      .lang-switch button{flex:1 1 110px;justify-content:center}
-      .box-group{grid-template-columns:1fr}
-      .cta-lower{width:100%}
-      .cta{width:100%;text-align:center}
-      .success{border-radius:18px}
-      .success .qr-link,.success .pdf-link{width:100%}
-      .modal-content{max-width:95vw}
-    }
-
-    @media (max-width:420px){
-      body{padding:.6rem}
-      h1{font-size:1.5rem}
-      .hero-list li{font-size:.95rem}
-      input[type="text"],input[type="email"],input[type="url"],input[type="file"]{font-size:.95rem}
-      .cta{font-size:1rem;padding:.9rem 1.4rem}
-      .qr-frame{width:100%;height:auto;max-width:320px;padding:2.5rem 1.5rem;margin-top:2.5rem}
-      #qrCodeImg{max-width:180px;margin-top:4.5rem}
     }
   </style>
 </head>
 <body>
-  <img src="logo_design.svg" alt="Fightcard logo" class="site-logo" />
+  <img src="fightcard_logo_online.svg" alt="Fightcard logo" class="site-logo" />
   <main class="card" aria-live="polite" role="region" aria-label="Club registration">
     <div class="panel-top">
       <div class="lang-switch" aria-label="Språk / Language">
@@ -210,11 +174,11 @@
       <div class="box-group">
         <div class="field-box" id="boxEmail">
           <label id="lblEmail">E‑postadress</label>
-          <input type="email" name="email" placeholder="name@club.com" autocomplete="email" required />
+          <input type="email" name="email" placeholder="namn@klubb.se" autocomplete="email" required />
         </div>
         <div class="field-box" id="boxClub">
           <label id="lblClub">Klubbnamn</label>
-          <input type="text" name="club" placeholder="Enter the name of your gym/club here" required />
+          <input type="text" name="club" placeholder="Loyalty Muay Thai" required />
         </div>
       </div>
       <div class="cta-lower">
@@ -239,10 +203,7 @@
     <div class="modal-content qr-modal">
       <button type="button" class="modal-close" aria-label="Close QR">&times;</button>
       <div class="modal-inner">
-        <div class="qr-frame">
-          <img id="qrCodeImg" alt="QR code" />
-        </div>
-        <button type="button" id="qrDownloadBtn" disabled>Download QR</button>
+        <img id="qrCodeImg" alt="QR code" />
         <p id="qrHint">Skanna koden för att öppna fightcard.</p>
       </div>
     </div>
@@ -251,9 +212,9 @@
   <script>
     (function(){
       const dict = {
-        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Spara & fortsätt', info:'Hur funkar det?', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länk skapad', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod' },
-        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS INSTANTLY!', bullet2:'UPDATE MATCHES LIVE AND SHARE EVERYTHING WITH THE AUDIENCE AND CLUBS.', cta:'Save & continue', info:'How does it work?', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Link ready', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code' },
-        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'บันทึกและไปต่อ', info:'มันทำงานอย่างไร?', email:'อีเมล', emailPlaceholder:'name@club.com', club:'ชื่อสโมสร', clubPlaceholder:'กรอกชื่อยิมหรือสโมสรของคุณที่นี่', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'สร้างลิงก์แล้ว', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด', qrDownload:'ดาวน์โหลด QR', pdfLink:'ดาวน์โหลด PDF', pdfGenerating:'กำลังสร้าง...', pdfTitle:'ลิงก์ไฟต์การ์ด', pdfToken:'รหัสผู้ดูแล (โทเคน)', pdfViewer:'ลิงก์ไฟต์การ์ด', pdfAdmin:'ลิงก์ผู้ดูแล', pdfQr:'คิวอาร์โค้ด' }
+        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Spara & fortsätt', info:'Hur funkar det?', email:'E‑postadress', club:'Klubbnamn', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länk skapad', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.' },
+        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS INSTANTLY!', bullet2:'UPDATE MATCHES LIVE AND SHARE EVERYTHING WITH THE AUDIENCE AND CLUBS.', cta:'Save & continue', info:'How does it work?', email:'Email address', club:'Club name', ok:'Saved locally – continue.', linkPrefix:'Link ready', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.' },
+        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'บันทึกและไปต่อ', info:'มันทำงานอย่างไร?', email:'อีเมล', club:'ชื่อสโมสร', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'สร้างลิงก์แล้ว', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด' }
       };
       const qs = new URLSearchParams(location.search);
       let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
@@ -263,21 +224,8 @@
       const qrModal = document.getElementById('qrModal');
       const qrImg = document.getElementById('qrCodeImg');
       const qrHintEl = document.getElementById('qrHint');
-      const qrDownloadBtn = document.getElementById('qrDownloadBtn');
       const qrCloseBtn = qrModal ? qrModal.querySelector('.modal-close') : null;
-      if (qrDownloadBtn){
-        qrDownloadBtn.dataset.href = '';
-        qrDownloadBtn.disabled = true;
-      }
-      const PDF_TOKEN = 'letmein';
-      const DEFAULT_FILE_BASENAME = 'fightcard-links';
       let lastViewerUrl = '';
-      let lastAdminUrl = '';
-      let lastSlug = '';
-      let lastClubName = '';
-      let cachedQrDataUrl = '';
-      let cachedQrSource = '';
-      let jsPdfLoader = null;
 
       function apply(l){
         const d = dict[l] || dict.sv; lang = l;
@@ -290,12 +238,8 @@
         setText('heroCta', d.cta);
         setText('heroInfoBtn', d.info);
         setText('successMsg', d.ok);
-        refreshSuccessMessage(d);
-        if (emailInput) emailInput.placeholder = d.emailPlaceholder || 'name@club.com';
-        if (clubInput) clubInput.placeholder = d.clubPlaceholder || 'Enter the name of your gym/club here';
         if (qrHintEl) qrHintEl.textContent = d.qrHint;
         if (qrImg) qrImg.alt = d.qrAlt;
-        if (qrDownloadBtn) qrDownloadBtn.textContent = d.qrDownload || 'Download QR';
         document.querySelectorAll('.lang-switch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===l));
         document.documentElement.lang = l;
         try{ localStorage.setItem('lf_lang', l); }catch(e){}
@@ -312,37 +256,18 @@
         }
       }
 
-      async function openQrModal(){
+      function openQrModal(){
         if (!qrModal || !qrImg || !lastViewerUrl) return;
-        try{
-          if (qrDownloadBtn){
-            qrDownloadBtn.disabled = true;
-            qrDownloadBtn.dataset.href = '';
-          }
-          qrImg.src = '';
-          qrModal.setAttribute('aria-hidden','false');
-          document.body.style.overflow = 'hidden';
-          const dataUrl = await getQrDataUrl(lastViewerUrl);
-          qrImg.src = dataUrl;
-          if (qrDownloadBtn){
-            qrDownloadBtn.disabled = false;
-            qrDownloadBtn.dataset.href = dataUrl;
-          }
-        }catch(err){
-          console.warn('Failed to show QR modal', err);
-          closeQrModal();
-        }
+        const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=' + encodeURIComponent(lastViewerUrl);
+        qrImg.src = qrUrl;
+        qrModal.setAttribute('aria-hidden','false');
+        document.body.style.overflow = 'hidden';
       }
 
       function closeQrModal(){
         if (!qrModal) return;
         qrModal.setAttribute('aria-hidden','true');
         document.body.style.overflow = '';
-        if (qrImg) qrImg.src = '';
-        if (qrDownloadBtn){
-          qrDownloadBtn.disabled = true;
-          qrDownloadBtn.dataset.href = '';
-        }
       }
 
       function wireQrLink(container){
@@ -357,205 +282,6 @@
         }
       }
 
-      function wireQrDownload(){
-        if (!qrDownloadBtn) return;
-        qrDownloadBtn.addEventListener('click', (ev)=>{
-          ev.preventDefault();
-          const href = qrDownloadBtn.dataset.href;
-          if (!href) return;
-          const nameBase = sanitizeFilename((lastSlug || lastClubName || DEFAULT_FILE_BASENAME) + '-qr') || DEFAULT_FILE_BASENAME;
-          const tmp = document.createElement('a');
-          tmp.href = href;
-          tmp.download = `${nameBase}.png`;
-          document.body.appendChild(tmp);
-          tmp.click();
-          document.body.removeChild(tmp);
-        });
-      }
-
-      function wirePdfLink(container, strings){
-        if (!container) return;
-        const trigger = container.querySelector('.pdf-link');
-        if (!trigger) return;
-        trigger.addEventListener('click', async (ev)=>{
-          ev.preventDefault();
-          if (!lastViewerUrl || !lastAdminUrl) return;
-          const fallback = strings && strings.pdfGenerating ? strings.pdfGenerating : 'Generating...';
-          const original = trigger.textContent;
-          trigger.disabled = true;
-          trigger.textContent = fallback;
-          try{
-            await downloadPdf(strings || dict.sv);
-          }catch(err){
-            console.warn('PDF export failed', err);
-          }finally{
-            trigger.disabled = false;
-            trigger.textContent = original;
-          }
-        });
-      }
-
-      function renderSuccessMessage(strings){
-        if (!successMsgEl || !lastViewerUrl || !lastAdminUrl) return;
-        const qrBtnLabel = strings.qrLink || 'View QR code';
-        const pdfBtnLabel = strings.pdfLink || 'Download PDF';
-        const viewerHref = escapeAttr(lastViewerUrl);
-        const adminHref = escapeAttr(lastAdminUrl);
-        const prefix = escapeHtml(strings.linkPrefix || 'Link ready');
-        const viewerLabel = escapeHtml(strings.viewLink || 'view fightcard');
-        const adminLabel = escapeHtml(strings.adminLink || 'open admin');
-        const linkText = `${prefix} · <a href="${viewerHref}" target="_blank" rel="noopener">${viewerLabel}</a> · <a href="${adminHref}" target="_blank" rel="noopener">${adminLabel}</a>`;
-        successMsgEl.innerHTML = `
-          <div class="success-line">
-            <span class="success-icon" aria-hidden="true">✔</span>
-            <span class="success-text">${linkText}</span>
-          </div>
-          <div class="success-actions">
-            <button type="button" class="qr-link">${qrBtnLabel}</button>
-            <button type="button" class="pdf-link">${pdfBtnLabel}</button>
-          </div>`;
-        successMsgEl.classList.add('is-visible','has-links');
-        wireQrLink(successMsgEl);
-        wirePdfLink(successMsgEl, strings);
-      }
-
-      function refreshSuccessMessage(strings){
-        if (!successMsgEl) return;
-        if (successMsgEl.classList.contains('has-links') && lastViewerUrl && lastAdminUrl){
-          renderSuccessMessage(strings);
-        }
-      }
-
-      async function downloadPdf(strings){
-        const jsPDF = await ensureJsPdf();
-        if (!jsPDF) throw new Error('PDF library unavailable');
-        const doc = new jsPDF();
-        const heading = (strings && strings.pdfTitle) || 'Fightcard links';
-        const tokenLabel = (strings && strings.pdfToken) || 'Admin Password (Token)';
-        const viewerLabel = (strings && strings.pdfViewer) || 'Fightcard link';
-        const adminLabel = (strings && strings.pdfAdmin) || 'Admin link';
-        const qrLabel = (strings && strings.pdfQr) || 'QR code';
-        const pageWidth = doc.internal.pageSize.getWidth();
-        let cursorY = 16;
-        const logoMeta = await getLogoImage();
-        if (logoMeta){
-          const ratio = logoMeta.height && logoMeta.width ? (logoMeta.height / logoMeta.width) : 1;
-          let logoWidth = Math.min(pageWidth * 0.5, 80);
-          let logoHeight = logoWidth * ratio;
-          const maxHeight = 42;
-          if (logoHeight > maxHeight){
-            logoHeight = maxHeight;
-            logoWidth = logoHeight / (ratio || 1);
-          }
-          const logoX = (pageWidth - logoWidth) / 2;
-          doc.addImage(logoMeta.dataUrl, 'PNG', logoX, cursorY - 8, logoWidth, logoHeight);
-          cursorY += logoHeight + 2;
-        }
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(16);
-        doc.text(heading, pageWidth / 2, cursorY, { align:'center' });
-        cursorY += 14;
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(12);
-        doc.text(`${tokenLabel}: ${PDF_TOKEN}`, 14, cursorY);
-        cursorY += 10;
-        doc.text(`${viewerLabel}:`, 14, cursorY);
-        cursorY += 6;
-        doc.text(lastViewerUrl, 14, cursorY, { maxWidth: 180 });
-        cursorY += 12;
-        doc.text(`${adminLabel}:`, 14, cursorY);
-        cursorY += 6;
-        doc.text(lastAdminUrl, 14, cursorY, { maxWidth: 180 });
-        cursorY += 14;
-        doc.text(`${qrLabel}:`, 14, cursorY);
-        const qrData = await getQrDataUrl(lastViewerUrl);
-        if (qrData){
-          doc.addImage(qrData, 'PNG', 14, cursorY + 4, 60, 60);
-        }
-        const safeName = sanitizeFilename(lastSlug || lastClubName || DEFAULT_FILE_BASENAME) || DEFAULT_FILE_BASENAME;
-        doc.save(`${safeName}.pdf`);
-      }
-
-      function sanitizeFilename(input){
-        const base = (input || DEFAULT_FILE_BASENAME).toString().toLowerCase();
-        const cleaned = base.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        return cleaned || DEFAULT_FILE_BASENAME;
-      }
-
-      function ensureJsPdf(){
-        if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
-        if (!jsPdfLoader){
-          jsPdfLoader = new Promise((resolve, reject)=>{
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
-            script.async = true;
-            script.onload = () => resolve(window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : null);
-            script.onerror = () => reject(new Error('Failed to load PDF generator'));
-            document.head.appendChild(script);
-          });
-        }
-        return jsPdfLoader;
-      }
-
-      async function getQrDataUrl(url){
-        if (!url) return '';
-        if (cachedQrDataUrl && cachedQrSource === url) return cachedQrDataUrl;
-        const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=' + encodeURIComponent(url);
-        const resp = await fetch(qrUrl);
-        if (!resp.ok) throw new Error('QR fetch failed');
-        const blob = await resp.blob();
-        const dataUrl = await blobToDataUrl(blob);
-        cachedQrDataUrl = dataUrl;
-        cachedQrSource = url;
-        return dataUrl;
-      }
-
-      let logoDataCache = null;
-      async function getLogoImage(){
-        if (logoDataCache) return logoDataCache;
-        try{
-          const resp = await fetch('logo_design.png');
-          if (!resp.ok) return null;
-          const blob = await resp.blob();
-          const dataUrl = await blobToDataUrl(blob);
-          const size = await getImageSize(dataUrl);
-          logoDataCache = { dataUrl, width: size.width, height: size.height };
-          return logoDataCache;
-        }catch(err){
-          console.warn('Logo load failed', err);
-          return null;
-        }
-      }
-
-      function blobToDataUrl(blob){
-        return new Promise((resolve, reject)=>{
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => reject(reader.error || new Error('Failed to read blob'));
-          reader.readAsDataURL(blob);
-        });
-      }
-
-      function getImageSize(src){
-        return new Promise((resolve, reject)=>{
-          const img = new Image();
-          img.onload = () => resolve({ width: img.naturalWidth || 1, height: img.naturalHeight || 1 });
-          img.onerror = () => reject(new Error('Failed to load image'));
-          img.src = src;
-        });
-      }
-
-      function escapeHtml(str){
-        return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      }
-
-      function escapeAttr(str){
-        return escapeHtml(str).replace(/"/g,'&quot;');
-      }
-
-      const emailInput = document.querySelector('input[name="email"]');
-      const clubInput = document.querySelector('input[name="club"]');
-      const successMsgEl = document.getElementById('successMsg');
       const form = document.getElementById('clubForm');
       document.querySelectorAll('.lang-switch button').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.lang)));
 
@@ -595,7 +321,6 @@
           if (qrModal && qrModal.getAttribute('aria-hidden') === 'false') closeQrModal();
         }
       });
-      wireQrDownload();
 
       // Choose API base: if page is served by the Node server (port 3000), use relative; otherwise use http://localhost:3000
       const API_BASE = (/(:|\/)3000$/.test(location.origin) ? '' : 'http://localhost:3000');
@@ -663,9 +388,7 @@
         }
         try{ localStorage.setItem('lf_club', JSON.stringify(data)); }catch(err){ console.warn('localStorage save failed', err); }
         // Create unique card on the server (default TTL 48h)
-        if (!successMsgEl) return;
-        successMsgEl.classList.remove('is-visible','has-links');
-        successMsgEl.textContent = (dict[lang] && dict[lang].ok) ? dict[lang].ok : 'Saved locally – continue.';
+        const msg = document.getElementById('successMsg');
         try{
           const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
           if(!resp.ok) throw new Error('Create failed: '+resp.status);
@@ -674,29 +397,17 @@
           const admin = (API_BASE? API_BASE: '') + out.adminUrl;
           const strings = dict[lang] || dict.sv;
           lastViewerUrl = viewer;
-          lastAdminUrl = admin;
-          const rawViewerPath = (out.viewerUrl || '').toString();
-          const pathParts = rawViewerPath.split('/').filter(Boolean);
-          lastSlug = pathParts.length ? pathParts[pathParts.length - 1] : rawViewerPath.replace(/^\/+/, '');
-          lastClubName = data.club || '';
-          cachedQrDataUrl = '';
-          cachedQrSource = '';
-          renderSuccessMessage(strings);
+          // Show links without auto redirect
+          msg.innerHTML = `${strings.linkPrefix} · <a href="${viewer}" target="_blank" rel="noopener">${strings.viewLink}</a> · <a href="${admin}" target="_blank" rel="noopener">${strings.adminLink}</a> · <button type="button" class="qr-link">${strings.qrLink}</button>`;
+          msg.style.display='flex';
+          wireQrLink(msg);
           // Removed automatic redirect; user stays on this page and can choose links manually.
         }catch(err){
           console.warn(err);
           const strings = dict[lang] || dict.sv;
           lastViewerUrl = '';
-          lastAdminUrl = '';
-          lastSlug = '';
-          lastClubName = '';
-          cachedQrDataUrl = '';
-          cachedQrSource = '';
-          if (successMsgEl){
-            successMsgEl.classList.remove('has-links');
-            successMsgEl.textContent = strings.linkFail;
-            successMsgEl.classList.add('is-visible');
-          }
+          msg.textContent = strings.linkFail;
+          msg.style.display='flex';
         }
       });
       const demoImg = document.getElementById('demoSvg');
