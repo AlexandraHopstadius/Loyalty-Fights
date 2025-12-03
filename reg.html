@@ -148,18 +148,24 @@
 
     @media (max-width:640px){
       body{padding:1.1rem}
-      .card{padding:1rem 1.1rem;border-radius:16px}
-      h1{font-size:clamp(1.6rem,7vw,2rem)}
-      .hero-list-row{flex-direction:column;gap:.45rem}
-      .hero-text-icon{width:30px;margin:-2px 0 0}
-      .hero-list li{font-size:1rem}
-      .panel-top{justify-content:center}
+      .card{padding:1rem 1.1rem;border-radius:16px;margin-top:0}
+      .site-logo{position:static;display:block;margin:0 auto 1rem;width:125px;max-width:60vw;left:auto;top:auto}
+      h1{font-size:clamp(1.6rem,7vw,2rem);text-align:center}
+      .hero{align-items:flex-start}
+      .hero-copy{align-items:center;text-align:center}
+      .hero-list-row{flex-direction:column;gap:.45rem;width:100%}
+      .hero-text-icon{width:34px;margin:0 auto}
+      .hero-list{align-items:center}
+      .hero-list li{font-size:1rem;text-align:center}
+      .info-btn{width:100%;text-align:center;justify-content:center}
+      .panel-top{justify-content:center;margin-top:.6rem}
+      .lang-switch{width:100%;justify-content:center;gap:.4rem}
     }
 
     @media (max-width:520px){
       body{padding:.8rem}
       .card{padding:.85rem 1rem}
-      .site-logo{width:92px;left:12px;top:12px}
+      .site-logo{width:110px}
       .lang-switch{justify-content:center;width:100%}
       .lang-switch button{flex:1 1 110px;justify-content:center}
       .box-group{grid-template-columns:1fr}
