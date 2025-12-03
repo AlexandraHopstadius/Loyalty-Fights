@@ -386,9 +386,9 @@ state.current = 0;
   } else if (home === 'viewer') {
     console.log('[routing] HOME_PAGE=viewer -> serving index.html at /');
   } else if (home === 'register') {
-    console.log('[routing] HOME_PAGE=register -> serving register.html at /');
+    console.log('[routing] HOME_PAGE=register -> serving reg.html at /');
   } else {
-    console.log('[routing] HOME_PAGE not set -> defaulting to register.html at /');
+    console.log('[routing] HOME_PAGE not set -> defaulting to reg.html at /');
   }
 })();
 
@@ -403,10 +403,10 @@ app.get('/', (req, res) => {
       return res.sendFile(path.join(__dirname, 'index.html'));
     }
     if (home === 'register') {
-      return serveNoCacheHtml(res, 'register.html');
+      return serveNoCacheHtml(res, 'reg.html');
     }
   } catch (_) { /* ignore and fall through */ }
-  return serveNoCacheHtml(res, 'register.html');
+  return serveNoCacheHtml(res, 'reg.html');
 });
 
 // Always provide a dedicated /admin path as well
@@ -427,7 +427,7 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/reg', (req, res) => {
-  serveNoCacheHtml(res, 'register.html');
+  serveNoCacheHtml(res, 'reg.html');
 });
 
 function serveViewerForSlug(slug, res){
