@@ -34,7 +34,7 @@
       --lang-active-outline:#ef233c;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%}
+    html,body{min-height:100vh}
     body{
       margin:0;display:flex;align-items:center;justify-content:center;padding:1.6rem;
       background:
@@ -59,7 +59,7 @@
     .hero-list-row{display:flex;align-items:flex-start;gap:.5rem}
     .hero-text-icon{width:38px;max-width:8vw;height:auto;flex-shrink:0;margin:-4px 0 0;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.1))}
     .hero-copy{display:flex;flex-direction:column;gap:.6rem}
-    h1{margin:0;font-weight:800;font-size:clamp(2rem,6vw,2.8rem);letter-spacing:0;text-transform:uppercase;font-family:'Bebas Neue','Montserrat',sans-serif;color:#08111c}
+    h1{margin:0 0 .4rem;font-weight:800;font-size:clamp(2.4rem,7vw,3.4rem);letter-spacing:0;text-transform:uppercase;font-family:'Bebas Neue','Montserrat',sans-serif;color:#08111c}
     .hero-list{list-style:none;margin:.4rem 0 1.2rem;padding:0;display:flex;flex-direction:column;gap:.65rem}
     .hero-list li{position:relative;padding-left:0;font-size:1.08rem;font-weight:800;letter-spacing:-.04rem;color:#0f172a;line-height:1.18}
     .cta{appearance:none;border:0;padding:1rem 2.6rem;border-radius:999px;font-size:clamp(1.05rem,3vw,1.15rem);font-weight:800;letter-spacing:.04rem;text-transform:none;color:#fff;cursor:pointer;background:linear-gradient(120deg,#ff3a2f 0%,#ff4a33 55%,#ff4a33 100%);box-shadow:0 10px 32px -12px rgba(255,70,70,0.65);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
@@ -155,13 +155,14 @@
       body{padding:calc(env(safe-area-inset-top,0px) + 1.4rem) 1.1rem 1.1rem;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100%}
       .card{padding:1rem 1.1rem;border-radius:16px;margin-top:0}
       .site-logo{width:135px;max-width:60vw;margin:0 auto 1.4rem}
-      h1{font-size:clamp(1.6rem,7vw,2rem);text-align:center}
+      h1{font-size:clamp(2rem,8vw,2.6rem);text-align:center;margin-bottom:.6rem}
       .hero{align-items:flex-start}
       .hero-copy{align-items:center;text-align:center}
-      .hero-list-row{flex-direction:row;align-items:flex-start;gap:.55rem;width:100%;justify-content:center}
-      .hero-text-icon{width:38px;margin:0}
-      .hero-list{align-items:flex-start}
-      .hero-list li{font-size:1rem;text-align:left}
+      .hero-list-row{flex-direction:column;gap:.85rem;width:100%}
+      .hero-text-icon{display:none}
+      .hero-list{align-items:flex-start;gap:.85rem;width:100%}
+      .hero-list li{font-size:1rem;text-align:left;display:flex;align-items:center;gap:.45rem}
+      .hero-list li::before{content:'';display:inline-block;width:24px;height:24px;border-radius:8px;border:2px solid #1e3a8a;background:#fff;box-shadow:0 6px 14px rgba(0,0,0,0.12);flex-shrink:0;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ff3131" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>');background-repeat:no-repeat;background-position:center}
       .info-btn{width:100%;text-align:center;justify-content:center}
       .panel-top{justify-content:center;margin-top:.6rem}
       .lang-switch{width:100%;justify-content:center;gap:.4rem}
@@ -184,7 +185,7 @@
 
     @media (max-width:420px){
       body{padding:.6rem}
-      h1{font-size:1.5rem}
+      h1{font-size:1.85rem;margin-bottom:.5rem}
       .hero-list li{font-size:.95rem}
       input[type="text"],input[type="email"],input[type="url"],input[type="file"]{font-size:.95rem}
       .cta{font-size:1rem;padding:.9rem 1.4rem}
