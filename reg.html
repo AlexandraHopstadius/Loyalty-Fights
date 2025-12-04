@@ -146,10 +146,15 @@
     .logo-zone.has-file{border-style:solid;border-color:#d1dae5}
     .logo-zone.has-file:hover{box-shadow:0 12px 30px -10px rgba(0,0,0,.22)}
 
+    @media (max-width:768px){
+      body{flex-direction:column;align-items:center;justify-content:flex-start}
+      .site-logo{position:static;display:block;margin:0 auto 1.2rem;left:auto;top:auto}
+    }
+
     @media (max-width:640px){
-      body{padding:1.4rem 1.1rem 1.1rem}
+      body{padding:calc(env(safe-area-inset-top,0px) + 1.4rem) 1.1rem 1.1rem;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100%}
       .card{padding:1rem 1.1rem;border-radius:16px;margin-top:0}
-      .site-logo{position:static;display:block;margin:0 auto 1.4rem;width:135px;max-width:60vw;left:auto;top:auto}
+      .site-logo{width:135px;max-width:60vw;margin:0 auto 1.4rem}
       h1{font-size:clamp(1.6rem,7vw,2rem);text-align:center}
       .hero{align-items:flex-start}
       .hero-copy{align-items:center;text-align:center}
