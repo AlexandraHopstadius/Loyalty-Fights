@@ -158,13 +158,14 @@
       h1{font-size:clamp(1.6rem,7vw,2rem);text-align:center}
       .hero{align-items:flex-start}
       .hero-copy{align-items:center;text-align:center}
-      .hero-list-row{flex-direction:column;gap:.45rem;width:100%}
-      .hero-text-icon{width:34px;margin:0 auto}
-      .hero-list{align-items:center}
-      .hero-list li{font-size:1rem;text-align:center}
+      .hero-list-row{flex-direction:row;align-items:flex-start;gap:.55rem;width:100%;justify-content:center}
+      .hero-text-icon{width:38px;margin:0}
+      .hero-list{align-items:flex-start}
+      .hero-list li{font-size:1rem;text-align:left}
       .info-btn{width:100%;text-align:center;justify-content:center}
       .panel-top{justify-content:center;margin-top:.6rem}
       .lang-switch{width:100%;justify-content:center;gap:.4rem}
+      .lang-switch button{flex:1 1 33%;min-width:0;text-align:center}
     }
 
     @media (max-width:520px){
@@ -172,7 +173,7 @@
       .card{padding:.85rem 1rem}
       .site-logo{width:118px;margin-bottom:1.1rem}
       .lang-switch{justify-content:center;width:100%}
-      .lang-switch button{flex:1 1 110px;justify-content:center}
+      .lang-switch button{flex:1 1 calc(33% - .4rem);justify-content:center}
       .box-group{grid-template-columns:1fr}
       .cta-lower{width:100%}
       .cta{width:100%;text-align:center}
