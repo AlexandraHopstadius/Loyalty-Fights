@@ -34,7 +34,12 @@
       --lang-active-outline:#ef233c;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html{min-height:100vh;background-color:#050a16}
+    html{min-height:100vh;
+      background:
+        radial-gradient(1200px 800px at 20% 12%, rgba(19,34,53,0.45) 0%, rgba(19,34,53,0.12) 44%, rgba(10,15,31,0) 64%),
+        radial-gradient(1100px 760px at 82% 88%, rgba(12,20,36,0.50) 0%, rgba(10,15,31,0.22) 56%, rgba(10,15,31,0) 72%),
+        linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
+      background-attachment:fixed}
     body{min-height:100vh}
     body{
       margin:0;display:flex;align-items:center;justify-content:center;padding:1.6rem;
