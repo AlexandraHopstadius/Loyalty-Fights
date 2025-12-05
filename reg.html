@@ -37,7 +37,7 @@
     html{min-height:100vh;background:#03060e}
     body{margin:0;background:#03060e;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;color:var(--text)}
     .arena-bg{
-      min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:1.6rem 1.6rem 3.4rem;position:relative;z-index:0;
+      min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:1.6rem 1.6rem 6rem;position:relative;z-index:0;
       background:
         radial-gradient(1200px 800px at 20% 12%, rgba(19,34,53,0.45) 0%, rgba(19,34,53,0.12) 44%, rgba(10,15,31,0) 64%),
         radial-gradient(1100px 760px at 82% 88%, rgba(12,20,36,0.50) 0%, rgba(10,15,31,0.22) 56%, rgba(10,15,31,0) 72%),
@@ -152,7 +152,7 @@
     }
 
     @media (max-width:640px){
-      .arena-bg{padding:calc(env(safe-area-inset-top,0px) + 1.4rem) 1.1rem calc(1.1rem + 1.8rem);flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh}
+      .arena-bg{padding:calc(env(safe-area-inset-top,0px) + 1.4rem) 1.1rem calc(3.2rem + env(safe-area-inset-bottom,0px));flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh}
       .card{padding:1rem 1.1rem;border-radius:16px;margin-top:0}
       .site-logo{width:135px;max-width:60vw;margin:0 auto 1.4rem}
       h1{font-size:clamp(2rem,8vw,2.6rem);text-align:center;margin-bottom:.6rem}
@@ -170,7 +170,7 @@
     }
 
     @media (max-width:520px){
-      .arena-bg{padding:1rem .8rem 2rem}
+      .arena-bg{padding:1rem .8rem 4rem}
       .card{padding:.85rem 1rem}
       .site-logo{width:118px;margin-bottom:1.1rem}
       .lang-switch{justify-content:center;width:100%}
@@ -184,7 +184,7 @@
     }
 
     @media (max-width:420px){
-      .arena-bg{padding:.6rem .6rem 1.8rem}
+      .arena-bg{padding:.6rem .6rem 3.5rem}
       h1{font-size:1.85rem;margin-bottom:.5rem}
       .hero-list li{font-size:.95rem}
       input[type="text"],input[type="email"],input[type="url"],input[type="file"]{font-size:.95rem}
