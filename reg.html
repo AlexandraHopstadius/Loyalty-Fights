@@ -614,7 +614,9 @@
       wireQrDownload();
 
       // Choose API base: if page is served by the Node server (port 3000), use relative; otherwise use http://localhost:3000
-      const API_BASE = (/(:|\/)3000$/.test(location.origin) ? '' : 'http://localhost:3000');
+      const API_BASE = (/(:|\/)3000$/.test(location.origin)
+        ? ''
+        : 'https://loyalty-fights-1.onrender.com');
       const zone = document.getElementById('logoZone');
       const input = document.getElementById('logoInput');
       const preview = document.getElementById('logoPreview');
