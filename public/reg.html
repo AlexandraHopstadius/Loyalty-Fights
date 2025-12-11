@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Klubbregistrering / Club Registration</title>
-  <link rel="icon" href="/logo_design.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/logo_design.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
@@ -121,7 +121,7 @@
       .modal-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:none;border-radius:999px;background:rgba(0,0,0,0.65);color:#fff;font-size:22px;line-height:1;cursor:pointer}
       .modal-close:hover{background:rgba(0,0,0,0.8)}
     .qr-modal .modal-inner{padding:1.6rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
-    .qr-frame{width:420px;height:420px;max-width:90vw;max-height:80vh;background:url('qr_code.png') center/contain no-repeat;display:flex;align-items:flex-start;justify-content:center;padding:3rem;position:relative;margin-top:3rem}
+    .qr-frame{width:420px;height:420px;max-width:90vw;max-height:80vh;background:url('assets/qr_code.png') center/contain no-repeat;display:flex;align-items:flex-start;justify-content:center;padding:3rem;position:relative;margin-top:3rem}
     #qrCodeImg{width:100%;height:100%;max-width:220px;max-height:220px;object-fit:contain;border-radius:18px;background:#fff;padding:.6rem;margin-top:7.5rem}
     #qrHint{margin:0;color:#cfd8ee;font-size:.88rem;font-weight:600;text-align:center}
     #qrDownloadBtn{border:none;border-radius:999px;padding:.55rem 1.35rem;font-weight:700;font-size:.9rem;background:#fff;color:#0f3668;box-shadow:0 10px 24px -12px rgba(15,54,104,0.8);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
@@ -196,7 +196,7 @@
 </head>
 <body>
   <div class="arena-bg">
-    <img src="logo_design.svg" alt="Fightcard logo" class="site-logo" />
+    <img src="assets/logo_design.svg" alt="Fightcard logo" class="site-logo" />
     <main class="card" aria-live="polite" role="region" aria-label="Club registration">
     <div class="panel-top">
       <div class="lang-switch" aria-label="Språk / Language">
@@ -209,7 +209,7 @@
       <div class="hero-copy">
         <h1 id="heroTitle">Create your fightcard here!</h1>
         <div class="hero-list-row">
-          <img src="text.svg" alt="Checklist" class="hero-text-icon" />
+          <img src="assets/text.svg" alt="Checklist" class="hero-text-icon" />
           <ul class="hero-list">
             <li id="heroBullet1">CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS INSTANTLY!</li>
             <li id="heroBullet2">UPDATE MATCHES LIVE AND SHARE EVERYTHING WITH THE AUDIENCE AND CLUBS.</li>
@@ -243,7 +243,7 @@
     <div class="modal-content">
       <button type="button" class="modal-close" aria-label="Close demo">&times;</button>
       <div class="modal-inner">
-        <img id="demoSvg" src="demo.svg" alt="Demo fight card" />
+        <img id="demoSvg" src="assets/demo.svg" alt="Demo fight card" />
       </div>
     </div>
   </div>
@@ -318,7 +318,7 @@
 
         const demoImgEl = document.getElementById('demoSvg');
         if (demoImgEl){
-          const nextSrc = (l === 'sv') ? 'demo_swe.svg' : (l === 'th') ? 'demo_thai.svg' : 'demo.svg';
+          const nextSrc = (l === 'sv') ? 'assets/demo_swe.svg' : (l === 'th') ? 'assets/demo_thai.svg' : 'assets/demo.svg';
           if (demoImgEl.getAttribute('src') !== nextSrc){
             demoImgEl.setAttribute('src', nextSrc);
           }
@@ -530,7 +530,7 @@
       async function getLogoImage(){
         if (logoDataCache) return logoDataCache;
         try{
-          const resp = await fetch('logo_design.png');
+          const resp = await fetch('assets/logo_design.png');
           if (!resp.ok) return null;
           const blob = await resp.blob();
           const dataUrl = await blobToDataUrl(blob);
@@ -613,10 +613,17 @@
       });
       wireQrDownload();
 
-      // Choose API base: if page is served by the Node server (port 3000), use relative; otherwise use http://localhost:3000
-      const API_BASE = (/(:|\/)3000$/.test(location.origin)
-        ? ''
-        : 'https://loyalty-fights-1.onrender.com');
+      // Use same-origin API so fightcard.eu (or any host) serves both UI and data
+      const API_BASE = '';
+      const ORIGIN = (window.location && window.location.origin && window.location.origin !== 'null')
+        ? window.location.origin.replace(/\/$/, '')
+        : '';
+      function toAbsoluteUrl(path){
+        if (!path) return ORIGIN;
+        if (/^https?:/i.test(path)) return path;
+        const normalized = path.startsWith('/') ? path : '/' + path;
+        return ORIGIN ? (ORIGIN + normalized) : normalized;
+      }
       const zone = document.getElementById('logoZone');
       const input = document.getElementById('logoInput');
       const preview = document.getElementById('logoPreview');
@@ -688,8 +695,8 @@
           const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
           if(!resp.ok) throw new Error('Create failed: '+resp.status);
           const out = await resp.json();
-          const viewer = (API_BASE? API_BASE: '') + out.viewerUrl;
-          const admin = (API_BASE? API_BASE: '') + out.adminUrl;
+          const viewer = toAbsoluteUrl(out.viewerUrl);
+          const admin = toAbsoluteUrl(out.adminUrl);
           const strings = dict[lang] || dict.sv;
           lastViewerUrl = viewer;
           lastAdminUrl = admin;

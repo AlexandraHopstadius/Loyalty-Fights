@@ -9,6 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const fs = require('fs');
+const PUBLIC_DIR = path.join(__dirname, 'public');
 const STATE_FILE = path.join(__dirname, 'fights.json');
 // Disable legacy file-based fight persistence so default fights never reappear.
 const DISABLE_FILE = true;
@@ -397,10 +398,10 @@ app.get('/', (req, res) => {
   try {
     const home = (process.env.HOME_PAGE || '').toLowerCase();
     if (home === 'admin') {
-      return res.sendFile(path.join(__dirname, 'admin.html'));
+      return res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
     }
     if (home === 'viewer') {
-      return res.sendFile(path.join(__dirname, 'index.html'));
+      return res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
     }
     if (home === 'register') {
       return serveNoCacheHtml(res, 'reg.html');
@@ -410,16 +411,16 @@ app.get('/', (req, res) => {
 });
 
 // Always provide a dedicated /admin path as well
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'admin.html')));
 // Nice landing page shortcut
-app.get('/start', (req, res) => res.sendFile(path.join(__dirname, 'create.html')));
+app.get('/start', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'create.html')));
 // Generic viewer entry point
-app.get('/card', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/card', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
 function serveNoCacheHtml(res, filename){
   res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
   res.set('Pragma','no-cache');
   res.set('Expires','0');
-  res.sendFile(path.join(__dirname, filename));
+  res.sendFile(path.join(PUBLIC_DIR, filename));
 }
 
 app.get('/register', (req, res) => {
@@ -430,6 +431,9 @@ app.get('/reg', (req, res) => {
   serveNoCacheHtml(res, 'reg.html');
 });
 
+// Serve static files (HTML/CSS/JS/images)
+app.use(express.static(PUBLIC_DIR));
+
 function serveViewerForSlug(slug, res){
   const rec = cards.get(slug);
   if (!rec) return false;
@@ -438,7 +442,7 @@ function serveViewerForSlug(slug, res){
     return true;
   }
   res.set('Cache-Control','no-store');
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
   return true;
 }
 
@@ -456,17 +460,8 @@ app.get('/admin/:slug', (req, res) => {
   if (!rec) return res.status(404).send('Not found');
   if (new Date(rec.expiresAt) < new Date()) return res.status(410).send('Link expired');
   res.set('Cache-Control','no-store');
-  return res.sendFile(path.join(__dirname, 'admin.html'));
+  return res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
 });
-app.get('/:slug', (req, res, next) => {
-  if (serveViewerForSlug(req.params.slug, res)) return;
-  return next();
-});
-
-// serve static files
-// serve static files
-app.use(express.static(path.join(__dirname)));
-
 // Very small CORS helper so fetch() from a different origin (e.g., GitHub Pages)
 app.use(function(req, res, next){
   // In production you should restrict this to your static host (e.g., https://your-site.github.io)
@@ -882,6 +877,12 @@ app.get('/whoami', async (req, res)=>{
     homePage: (process.env.HOME_PAGE||''),
     db: { configured: dbConfigured, hasPool: !!pool, error: dbError }
   });
+});
+
+// Catch-all route for viewer slugs → viewer
+app.get('/:slug', (req, res, next) => {
+  if (serveViewerForSlug(req.params.slug, res)) return;
+  return next();
 });
 
 // Start server

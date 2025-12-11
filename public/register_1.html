@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Klubbregistrering / Club Registration</title>
-  <link rel="icon" href="/logo_design.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/logo_design.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
@@ -133,7 +133,7 @@
   </style>
 </head>
 <body>
-  <img src="logo_design.svg" alt="Logo" class="site-logo" />
+  <img src="assets/logo_design.svg" alt="Logo" class="site-logo" />
   <main class="card" aria-live="polite" role="region" aria-label="Club registration">
     <header>
       <h1 id="title">Klubbregistrering</h1>
@@ -244,8 +244,17 @@
       document.querySelectorAll('.lang-switch button').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.lang)));
 
   const form = document.getElementById('clubForm');
-  // Choose API base: if page is served by the Node server (port 3000), use relative; otherwise use http://localhost:3000
-  const API_BASE = (/(:|\/)3000$/.test(location.origin) ? '' : 'http://localhost:3000');
+  // Use same-origin API so fightcard.eu (or any host) serves both UI and data
+  const API_BASE = '';
+  const ORIGIN = (window.location && window.location.origin && window.location.origin !== 'null')
+    ? window.location.origin.replace(/\/$/, '')
+    : '';
+  function toAbsoluteUrl(path){
+    if (!path) return ORIGIN;
+    if (/^https?:/i.test(path)) return path;
+    const normalized = path.startsWith('/') ? path : '/' + path;
+    return ORIGIN ? (ORIGIN + normalized) : normalized;
+  }
       // Logo drag/drop + picker logic (initialized immediately, not on submit)
       const zone = document.getElementById('logoZone');
       const input = document.getElementById('logoInput');
@@ -307,8 +316,8 @@
           const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
           if(!resp.ok) throw new Error('Create failed: '+resp.status);
           const out = await resp.json();
-          const viewer = (API_BASE? API_BASE: '') + out.viewerUrl;
-          const admin = (API_BASE? API_BASE: '') + out.adminUrl;
+          const viewer = toAbsoluteUrl(out.viewerUrl);
+          const admin = toAbsoluteUrl(out.adminUrl);
           const strings = dict[lang] || dict.sv;
           lastViewerUrl = viewer;
           // Show links without auto redirect
