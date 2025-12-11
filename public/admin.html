@@ -655,6 +655,8 @@
           if (state.eventImage){ pv.src = state.eventImage; pv.style.display = 'inline-block'; }
           else { pv.src=''; pv.style.display='none'; }
         }
+        const imgInput = document.getElementById('eventImage');
+        if (imgInput) imgInput.dataset.cleared = 'false';
       }catch(e){}
     }catch(e){}
 
@@ -665,6 +667,8 @@
         if (state.eventFootnoteImage){ fpv.src = state.eventFootnoteImage; fpv.style.display='inline-block'; }
         else { fpv.src=''; fpv.style.display='none'; }
       }
+      const footInput = document.getElementById('eventFootnote');
+      if (footInput) footInput.dataset.cleared = 'false';
     }catch(_){ }
 
     // reflect fightsVisible button emphasis safely
@@ -919,6 +923,11 @@
     const clearBtn = document.getElementById('clearFootnoteBtn');
     if (!fileInput) return;
 
+    function markCleared(flag){
+      if (fileInput && fileInput.dataset){ fileInput.dataset.cleared = flag ? 'true' : 'false'; }
+    }
+    markCleared(false);
+
     function showPreviewFromFile(f){
       if (!f) { nameEl && (nameEl.textContent=''); if(preview){ preview.src=''; preview.style.display='none'; } return; }
       nameEl && (nameEl.textContent = f.name);
@@ -930,6 +939,7 @@
         preview.classList.add('modern-thumb');
       };
       reader.readAsDataURL(f);
+      markCleared(false);
     }
 
     if (attachBtn) attachBtn.addEventListener('click', ()=> fileInput.click());
@@ -942,6 +952,7 @@
 
     if (clearBtn) clearBtn.addEventListener('click', ()=>{
       try{ fileInput.value = ''; }catch(e){}
+      markCleared(true);
       showPreviewFromFile(null);
     });
   })();
@@ -996,6 +1007,8 @@
   const bgColor = document.getElementById('eventBgColor').value || '';
     const fileInput = document.getElementById('eventImage');
     const file = fileInput && fileInput.files && fileInput.files[0];
+    const imageCleared = !!(fileInput && fileInput.dataset && fileInput.dataset.cleared === 'true');
+    let shouldClearImage = false;
     let imageData = null;
     if (file){
       imageData = await new Promise((resolve)=>{
@@ -1007,10 +1020,14 @@
       // update preview immediately
   const pv = document.getElementById('eventImagePreview');
   if (pv && imageData){ pv.src = imageData; pv.style.display='inline-block'; pv.classList.add('thumb'); }
+    } else if (imageCleared){
+      shouldClearImage = true;
     }
     // footnote image
     const footInput = document.getElementById('eventFootnote');
     const footFile = footInput && footInput.files && footInput.files[0];
+    const footCleared = !!(footInput && footInput.dataset && footInput.dataset.cleared === 'true');
+    let shouldClearFootnote = false;
     let footnoteData = null;
     if (footFile){
       footnoteData = await new Promise((resolve)=>{
@@ -1022,13 +1039,16 @@
   const fpv = document.getElementById('eventFootnotePreview');
   if (fpv && footnoteData){ fpv.src = footnoteData; fpv.style.display='inline-block'; fpv.classList.add('thumb'); }
       console.log('[admin] footnoteImage selected length', footnoteData ? footnoteData.length : 0);
+    } else if (footCleared){
+      shouldClearFootnote = true;
     }
     // use unified action, optionally including image data URL
     const payload = { type:'setEventMeta', name, font, color, size, imageSize, info, bgColor };
     if (imageData!=null) payload.image = imageData;
+    else if (shouldClearImage) payload.image = '';
     if (footnoteData!=null) payload.footnoteImage = footnoteData;
+    else if (shouldClearFootnote) payload.footnoteImage = '';
     else {
-      // if preview already showing but no new file selected, keep existing (no clear logic yet)
       if (state && state.eventFootnoteImage){ payload.footnoteImage = state.eventFootnoteImage; }
     }
     sendAction(payload);
@@ -1263,6 +1283,11 @@
     const uploadZone = document.getElementById('eventUploadZone');
     if (!fileInput) return;
 
+    function markCleared(flag){
+      if (fileInput && fileInput.dataset){ fileInput.dataset.cleared = flag ? 'true' : 'false'; }
+    }
+    markCleared(false);
+
     function showPreviewFromFile(f){
       if (!f) { nameEl && (nameEl.textContent=''); if(preview){ preview.src=''; preview.style.display='none'; } return; }
       nameEl && (nameEl.textContent = f.name);
@@ -1275,6 +1300,7 @@
         try{ if (sizeInput && typeof sizeInput.value !== 'undefined'){ preview.style.maxHeight = (parseInt(sizeInput.value,10)/10).toFixed(1)+'rem'; } }catch(e){}
       };
       reader.readAsDataURL(f);
+      markCleared(false);
     }
 
     // clicking the visible zone or button opens file picker
@@ -1312,6 +1338,7 @@
 
     if (clearBtn) clearBtn.addEventListener('click', ()=>{
       try{ fileInput.value = ''; }catch(e){}
+      markCleared(true);
       showPreviewFromFile(null);
     });
 

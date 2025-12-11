@@ -12,14 +12,35 @@
   <script>
     // Early apply of persisted background color & headline size to prevent flicker.
     (function(){
+      function slugKey(){
+        try {
+          var path = (window.location && window.location.pathname) ? window.location.pathname : '/';
+          var slug = path.replace(/^\/+/, '').replace(/[^a-z0-9_-]+/gi,'-');
+          return slug || 'root';
+        } catch(_) {
+          return 'root';
+        }
+      }
+      function storageKey(name){ return 'lf_'+slugKey()+'_'+name; }
+      function getItem(name){
+        try { return localStorage.getItem(storageKey(name)); } catch(_){ return null; }
+      }
+      function setHelpers(){
+        try {
+          window.__viewerStorageGet = getItem;
+          window.__viewerStorageSet = function(name, value){ try{ localStorage.setItem(storageKey(name), value); }catch(_){ } };
+          window.__viewerStorageRemove = function(name){ try{ localStorage.removeItem(storageKey(name)); }catch(_){ } };
+        }catch(_){ }
+      }
+      setHelpers();
       try {
-        var bg = localStorage.getItem('eventBgColor');
+        var bg = getItem('eventBgColor');
         if (bg && /^#?[0-9a-fA-F]{6}$/.test(bg.replace('#',''))) {
           document.addEventListener('DOMContentLoaded', function(){
             if (document.body) document.body.style.background = bg.startsWith('#')? bg : ('#'+bg);
           });
         }
-        var size = localStorage.getItem('eventSize'); // tenths of rem
+        var size = getItem('eventSize'); // tenths of rem
         if (size && /^(\d+)$/.test(size)) {
           var n = parseInt(size,10);
           if (Number.isFinite(n) && n>=6 && n<=80){ // 0.6rem .. 8.0rem range in tenths
