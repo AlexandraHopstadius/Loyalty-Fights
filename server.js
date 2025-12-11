@@ -24,7 +24,7 @@ let pool = null; // pg Pool (if configured)
 
 // Ephemeral multi-card support (in-memory). Each card has its own state and expiry.
 // For production, back this with a DB table.
-const cards = new Map(); // slug -> { club, createdAt, expiresAt, state }
+const cards = new Map(); // slug -> { club, createdAt, expiresAt, state, adminToken }
 
 function generateSlug(len = 8){
   const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -53,6 +53,17 @@ function defaultState(){
   return { current: 0, fights: [], standby: false, infoVisible: true };
 }
 
+function getActiveCard(slug){
+  if (!slug) return null;
+  const rec = cards.get(slug);
+  if (!rec) return null;
+  if (new Date(rec.expiresAt) < new Date()){
+    cards.delete(slug);
+    return null;
+  }
+  return rec;
+}
+
 function createCard({ club, wantClubSlug }, ttlHours = 48){
   let slugCandidate = null;
   if (wantClubSlug){
@@ -71,16 +82,22 @@ function createCard({ club, wantClubSlug }, ttlHours = 48){
   }
   let slug;
   if (slugCandidate){
-    slug = slugCandidate;
-    if (cards.has(slug)){
-      console.log('[cards] Reusing existing slug; overwriting previous card:', slug);
+    const active = getActiveCard(slugCandidate);
+    if (active){
+      const err = new Error('Club slug already reserved');
+      err.code = 'SLUG_RESERVED';
+      err.slug = slugCandidate;
+      err.reservedUntil = active.expiresAt;
+      throw err;
     }
+    slug = slugCandidate;
   } else {
-    do { slug = generateSlug(8); } while(cards.has(slug));
+    do { slug = generateSlug(8); } while(getActiveCard(slug));
   }
   const now = new Date();
   const expiresAt = new Date(now.getTime() + Math.max(1, ttlHours) * 3600 * 1000);
-  const rec = { club: club || {}, createdAt: now.toISOString(), expiresAt: expiresAt.toISOString(), state: defaultState() };
+  const adminToken = `${slug.toLowerCase()}123`;
+  const rec = { club: club || {}, createdAt: now.toISOString(), expiresAt: expiresAt.toISOString(), state: defaultState(), adminToken };
   cards.set(slug, rec);
   return { slug, record: rec };
 }
@@ -482,8 +499,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// simple token check for admin route (token in query string)
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'letmein';
+// simple token check for legacy admin connections
+const DEFAULT_ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'letmein';
 
 // endpoint for admin to post actions (ws handles broadcasts too)
 // Increase JSON payload limit to allow data URLs for event images
@@ -496,16 +513,26 @@ app.post('/cards', (req, res) => {
     const wantClubSlug = !!(req.body && req.body.useClubSlug);
   const { slug, record } = createCard({ club, wantClubSlug }, ttl);
     const viewerUrl = `/${slug}`;
-    const adminUrl = `/admin/${slug}?token=${encodeURIComponent(process.env.ADMIN_TOKEN || 'letmein')}`;
-  return res.json({ ok:true, slug, expiresAt: record.expiresAt, viewerUrl, adminUrl, clubSlugRequested: wantClubSlug });
+    const adminUrl = `/admin/${slug}?token=${encodeURIComponent(record.adminToken)}`;
+  return res.json({ ok:true, slug, expiresAt: record.expiresAt, viewerUrl, adminUrl, adminToken: record.adminToken, clubSlugRequested: wantClubSlug });
   }catch(e){
+    if (e && e.code === 'SLUG_RESERVED'){
+      return res.status(409).json({ ok:false, code:'slug_reserved', message:'Club name is already in use. Please try again later.', slug:e.slug, reservedUntil:e.reservedUntil });
+    }
     return res.status(500).json({ ok:false, error: e && e.message ? e.message : String(e) });
   }
 });
 
 app.post('/admin/action', async (req, res) => {
-  const token = req.query.token;
-  if (token !== ADMIN_TOKEN) return res.status(401).json({ error: 'unauthorized' });
+  const slug = (req.query && req.query.slug ? String(req.query.slug) : '').trim();
+  const token = (req.query && req.query.token ? String(req.query.token) : '').trim();
+  if (!slug) return res.status(400).json({ error: 'missing slug', code:'missing_slug' });
+  const rec = getActiveCard(slug);
+  if (!rec) return res.status(404).json({ error: 'card not found or expired', code:'card_missing' });
+  const expected = (rec.adminToken || `${slug.toLowerCase()}123`).toLowerCase();
+  if (!token || token.toLowerCase() !== expected){
+    return res.status(401).json({ error: 'unauthorized', code:'bad_token' });
+  }
   const msg = req.body;
   // broadcast the incoming command immediately (so connected admin clients see it)
   broadcast(msg);
@@ -692,7 +719,7 @@ wss.on('connection', (ws, req)=>{
         return;
       }
       // allow admin via ws if token present in query
-      if (msg && msg.type === 'admin' && msg.token === ADMIN_TOKEN){
+      if (msg && msg.type === 'admin' && msg.token === DEFAULT_ADMIN_TOKEN){
         // mark this ws as an admin connection (so we can detect admin disconnects)
         if (!ws._isAdmin){ ws._isAdmin = true; adminCount++; }
         // forward admin command

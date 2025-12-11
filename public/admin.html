@@ -509,6 +509,14 @@
   function closeFightModal(){ const m = document.getElementById('fightModal'); if(m) m.style.display='none'; }
   // simplified admin UI with explicit connect and clear feedback
   const urlToken = new URLSearchParams(location.search).get('token') || '';
+  function extractSlug(){
+    try{
+      const parts = (location.pathname || '').split('/').filter(Boolean);
+      if (parts.length >= 2 && parts[0].toLowerCase() === 'admin') return parts[1];
+    }catch(_){ }
+    return '';
+  }
+  const activeSlug = extractSlug();
   const tokenInput = document.getElementById('tokenInput');
   const statusEl = document.getElementById('status');
   const toggleCompactBtn = document.getElementById('toggleCompact');
@@ -539,7 +547,8 @@
     return Math.max(1, Math.min(15, v));
   }
 
-  tokenInput.value = urlToken;
+  const defaultToken = urlToken || (activeSlug ? (activeSlug.toLowerCase() + '123') : (window.DEFAULT_ADMIN_TOKEN || 'letmein'));
+  tokenInput.value = defaultToken;
 
   let ws = null;
   let state = null;
@@ -878,13 +887,17 @@
     let token = tokenInput.value.trim();
     if(!token){
       console.warn('[admin] Missing token; using default token fallback');
-      token = (window.DEFAULT_ADMIN_TOKEN || 'letmein');
+      token = activeSlug ? (activeSlug.toLowerCase() + '123') : (window.DEFAULT_ADMIN_TOKEN || 'letmein');
+    }
+    if (!activeSlug){
+      showFeedback('Missing slug in URL', false);
+      return null;
     }
     // Do NOT send over WebSocket to avoid duplicate processing on server
     // All actions are sent via HTTP POST with optional idempotency keys where relevant
     // always POST for immediate feedback and server-side validation
     try{
-      const target = (window.SERVER_ORIGIN || '') + '/admin/action?token=' + encodeURIComponent(token);
+      const target = (window.SERVER_ORIGIN || '') + '/admin/action?slug=' + encodeURIComponent(activeSlug) + '&token=' + encodeURIComponent(token);
       // attach an idempotency key for create actions
       if (payload.type === 'createFight' && !payload.rid){
         try{ payload.rid = (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('rid_'+Date.now()+'_'+Math.random().toString(36).slice(2)); }catch(_){ payload.rid = 'rid_'+Date.now(); }

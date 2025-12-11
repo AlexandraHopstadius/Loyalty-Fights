@@ -105,6 +105,8 @@
       .success .qr-link,.success .pdf-link{background:rgba(255,255,255,0.14);color:#f5f7ff;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:.45rem 1rem;font-size:.86rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;transition:background .25s ease,box-shadow .25s ease,transform .15s ease;border:none;cursor:pointer;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;width:100%}
       .success .qr-link:hover,.success .pdf-link:hover{background:rgba(255,255,255,0.28);box-shadow:0 6px 18px -10px rgba(255,255,255,0.65);transform:translateY(-1px)}
       .success .qr-link:disabled,.success .pdf-link:disabled{opacity:.6;cursor:wait;box-shadow:none;transform:none}
+      .success-note{font-size:.85rem;color:#e0e7ff;font-weight:700;margin-top:.4rem}
+      .success-note code{background:rgba(255,255,255,0.15);color:#fff;padding:.1rem .45rem;border-radius:6px;font-weight:800;letter-spacing:.04rem}
 
       /* Demo modal (copied from create.html for consistent styling) */
       .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1000}
@@ -267,9 +269,9 @@
   <script>
     (function(){
       const dict = {
-        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Spara & fortsätt', info:'Hur funkar det?', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länk skapad', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod' },
-        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS!', bullet2:'UPDATE FIGHTS LIVE AND SHARE EVERYTHING WITH THE AUDIENCE.', cta:'Save & continue', info:'How does it work?', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Link ready', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code' },
-        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'บันทึกและไปต่อ', info:'มันทำงานอย่างไร?', email:'อีเมล', emailPlaceholder:'name@club.com', club:'ชื่อสโมสร', clubPlaceholder:'กรอกชื่อยิมหรือสโมสรของคุณที่นี่', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'สร้างลิงก์แล้ว', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด', qrDownload:'ดาวน์โหลด QR', pdfLink:'ดาวน์โหลด PDF', pdfGenerating:'กำลังสร้าง...', pdfTitle:'ลิงก์ไฟต์การ์ด', pdfToken:'รหัสผู้ดูแล (โทเคน)', pdfViewer:'ลิงก์ไฟต์การ์ด', pdfAdmin:'ลิงก์ผู้ดูแล', pdfQr:'คิวอาร์โค้ด' }
+        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Spara & fortsätt', info:'Hur funkar det?', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länk skapad', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', slugTaken:'Det klubbnamnet är redan reserverat i 48 timmar. Välj ett annat namn eller försök igen senare.', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod' },
+        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS!', bullet2:'UPDATE FIGHTS LIVE AND SHARE EVERYTHING WITH THE AUDIENCE.', cta:'Save & continue', info:'How does it work?', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Link ready', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', slugTaken:'That club name is already reserved for another event. Please try a different name or check back in 48 hours.', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code' },
+        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'บันทึกและไปต่อ', info:'มันทำงานอย่างไร?', email:'อีเมล', emailPlaceholder:'name@club.com', club:'ชื่อสโมสร', clubPlaceholder:'กรอกชื่อยิมหรือสโมสรของคุณที่นี่', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'สร้างลิงก์แล้ว', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', slugTaken:'ชื่อนี้ถูกจองไว้แล้ว 48 ชั่วโมง กรุณาเลือกชื่ออื่นหรือลองใหม่ภายหลัง.', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด', qrDownload:'ดาวน์โหลด QR', pdfLink:'ดาวน์โหลด PDF', pdfGenerating:'กำลังสร้าง...', pdfTitle:'ลิงก์ไฟต์การ์ด', pdfToken:'รหัสผู้ดูแล (โทเคน)', pdfViewer:'ลิงก์ไฟต์การ์ด', pdfAdmin:'ลิงก์ผู้ดูแล', pdfQr:'คิวอาร์โค้ด' }
       };
       const qs = new URLSearchParams(location.search);
       let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
@@ -285,12 +287,13 @@
         qrDownloadBtn.dataset.href = '';
         qrDownloadBtn.disabled = true;
       }
-      const PDF_TOKEN = 'letmein';
+      const PDF_TOKEN_FALLBACK = 'letmein';
       const DEFAULT_FILE_BASENAME = 'fightcard-links';
       let lastViewerUrl = '';
       let lastAdminUrl = '';
       let lastSlug = '';
       let lastClubName = '';
+      let lastAdminToken = PDF_TOKEN_FALLBACK;
       let cachedQrDataUrl = '';
       let cachedQrSource = '';
       let jsPdfLoader = null;
@@ -421,6 +424,7 @@
         const viewerLabel = escapeHtml(strings.viewLink || 'view fightcard');
         const adminLabel = escapeHtml(strings.adminLink || 'open admin');
         const linkText = `${prefix} · <a href="${viewerHref}" target="_blank" rel="noopener">${viewerLabel}</a> · <a href="${adminHref}" target="_blank" rel="noopener">${adminLabel}</a>`;
+        const tokenNote = lastAdminToken ? `<div class="success-note">${escapeHtml(strings.pdfToken || 'Admin Password (Token)')}: <code>${escapeHtml(lastAdminToken)}</code></div>` : '';
         successMsgEl.innerHTML = `
           <div class="success-line">
             <span class="success-icon" aria-hidden="true">✔</span>
@@ -429,7 +433,8 @@
           <div class="success-actions">
             <button type="button" class="qr-link">${qrBtnLabel}</button>
             <button type="button" class="pdf-link">${pdfBtnLabel}</button>
-          </div>`;
+          </div>
+          ${tokenNote}`;
         successMsgEl.classList.add('is-visible','has-links');
         wireQrLink(successMsgEl);
         wirePdfLink(successMsgEl, strings);
@@ -473,7 +478,8 @@
         cursorY += 14;
         doc.setFont('helvetica','normal');
         doc.setFontSize(12);
-        doc.text(`${tokenLabel}: ${PDF_TOKEN}`, 14, cursorY);
+        const tokenValue = lastAdminToken || PDF_TOKEN_FALLBACK;
+        doc.text(`${tokenLabel}: ${tokenValue}`, 14, cursorY);
         cursorY += 10;
         doc.text(`${viewerLabel}:`, 14, cursorY);
         cursorY += 6;
@@ -693,17 +699,36 @@
         successMsgEl.textContent = (dict[lang] && dict[lang].ok) ? dict[lang].ok : 'Saved locally – continue.';
         try{
           const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
-          if(!resp.ok) throw new Error('Create failed: '+resp.status);
-          const out = await resp.json();
+          const bodyText = await resp.text();
+          let out = null;
+          try{ out = bodyText ? JSON.parse(bodyText) : null; }catch(_){ out = null; }
+          const strings = dict[lang] || dict.sv;
+          if (!resp.ok || !out || out.ok === false){
+            const code = out && out.code;
+            const msg = (code === 'slug_reserved') ? (strings.slugTaken || strings.linkFail) : (strings.linkFail || 'Could not create link.');
+            lastViewerUrl = '';
+            lastAdminUrl = '';
+            lastSlug = '';
+            lastClubName = data.club || '';
+            lastAdminToken = PDF_TOKEN_FALLBACK;
+            cachedQrDataUrl = '';
+            cachedQrSource = '';
+            if (successMsgEl){
+              successMsgEl.classList.remove('has-links');
+              successMsgEl.textContent = msg;
+              successMsgEl.classList.add('is-visible');
+            }
+            return;
+          }
           const viewer = toAbsoluteUrl(out.viewerUrl);
           const admin = toAbsoluteUrl(out.adminUrl);
-          const strings = dict[lang] || dict.sv;
           lastViewerUrl = viewer;
           lastAdminUrl = admin;
           const rawViewerPath = (out.viewerUrl || '').toString();
           const pathParts = rawViewerPath.split('/').filter(Boolean);
           lastSlug = pathParts.length ? pathParts[pathParts.length - 1] : rawViewerPath.replace(/^\/+/, '');
           lastClubName = data.club || '';
+          lastAdminToken = out.adminToken || (lastSlug ? (lastSlug.toLowerCase() + '123') : PDF_TOKEN_FALLBACK);
           cachedQrDataUrl = '';
           cachedQrSource = '';
           renderSuccessMessage(strings);
@@ -715,6 +740,7 @@
           lastAdminUrl = '';
           lastSlug = '';
           lastClubName = '';
+          lastAdminToken = PDF_TOKEN_FALLBACK;
           cachedQrDataUrl = '';
           cachedQrSource = '';
           if (successMsgEl){
