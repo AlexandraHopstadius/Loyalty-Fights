@@ -10,6 +10,18 @@ if (!isBrowser) {
 } else {
   // Start with an empty fights array; will be populated from server (/state) or admin actions.
   let fights = [];
+  function currentSlug(){
+    try{
+      const path = (window.location && window.location.pathname) ? window.location.pathname : '/';
+      const slug = path.replace(/^\/+/,'').split('/')[0];
+      return slug ? slug.toLowerCase() : '';
+    }catch(_){ return ''; }
+  }
+  const ACTIVE_SLUG = currentSlug();
+  window.__viewerSlug = ACTIVE_SLUG;
+  function stateEndpoint(){
+    return ACTIVE_SLUG ? `/cards/${encodeURIComponent(ACTIVE_SLUG)}/state` : '/state';
+  }
 
 // small map of fighter affiliations/gyms to show under names
 const fighterAffils = {
@@ -272,7 +284,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // try to fetch server state (persisted) so viewer shows admin-updated fights/current immediately
   (async function(){
     try{
-      const res = await fetch('/state');
+      const res = await fetch(stateEndpoint());
       if (res.ok){ const j = await res.json(); if (j){
         if (Array.isArray(j.fights)){
           fights.length = 0; j.fights.forEach(f=> fights.push(f));
@@ -407,7 +419,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if (fights.length > 0) return; // already populated by ws or initial fetch
       attempts++;
       try{
-        const r = await fetch('/state');
+        const r = await fetch(stateEndpoint());
         if (r.ok){ const j = await r.json(); if (Array.isArray(j.fights) && j.fights.length){
           fights.length = 0; j.fights.forEach(f=> fights.push(f));
           if (typeof j.current === 'number') current = j.current;

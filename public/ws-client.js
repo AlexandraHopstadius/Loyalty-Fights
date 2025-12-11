@@ -26,9 +26,19 @@
     if (typeof window.__viewerStorageSet === 'function') return window.__viewerStorageSet(name, value);
     try { localStorage.setItem(storageKey(name), value); } catch(_){ }
   }
+  function connectionSlug(){
+    try{
+      const path = (window.location && window.location.pathname) ? window.location.pathname : '/';
+      const slug = path.replace(/^\/+/,'').split('/')[0];
+      return slug ? slug.toLowerCase() : '';
+    }catch(_){ return ''; }
+  }
+  const wsSlug = connectionSlug();
 
   const origin = window.SERVER_ORIGIN || window.location.origin;
-  const wsUrl = origin.replace(/^http/, 'ws'); // http(s)://host -> ws(s)://host
+  const baseWs = origin.replace(/^http/, 'ws'); // http(s)://host -> ws(s)://host
+  const slugQuery = wsSlug ? `?slug=${encodeURIComponent(wsSlug)}&role=viewer` : '';
+  const wsUrl = baseWs + slugQuery;
 
   let ws = null;
   let backoff = 1000;

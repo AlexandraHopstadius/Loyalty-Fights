@@ -26,6 +26,23 @@ let pool = null; // pg Pool (if configured)
 // For production, back this with a DB table.
 const cards = new Map(); // slug -> { club, createdAt, expiresAt, state, adminToken }
 
+function ensureCardState(rec){
+  if (!rec) return null;
+  if (!rec.state || typeof rec.state !== 'object'){
+    rec.state = defaultState();
+  }
+  return rec.state;
+}
+
+function getStateContext(slug){
+  if (slug){
+    const rec = getActiveCard(slug);
+    if (!rec) return null;
+    return { slug, rec, state: ensureCardState(rec) };
+  }
+  return { slug: '', rec: null, state };
+}
+
 function generateSlug(len = 8){
   const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const bytes = crypto.randomBytes(len);
@@ -274,7 +291,13 @@ const broadcastAcks = new Map(); // id -> Set of clientIds that acked
 // Assign simple incremental IDs to connected clients so we can track acks
 let nextClientId = 1;
 // track number of connected admin clients so we can enable standby when none remain
-let adminCount = 0;
+const adminCounts = new Map();
+function adjustAdminCount(slug, delta){
+  const key = slug || '__global__';
+  const next = Math.max(0, (adminCounts.get(key) || 0) + delta);
+  adminCounts.set(key, next);
+  return next;
+}
 
 // try to load initial fights from file
 function loadState(){
@@ -317,6 +340,19 @@ async function saveState(){
       console.log(`Saved fights.json; broadcastId=${bid}; clients=${wss.clients.size}`);
     }catch(e){ console.warn('Broadcast after save failed', e && e.message ? e.message : e); }
   }catch(e){ console.warn('Failed to save state file', e && e.message ? e.message : e); }
+}
+
+async function saveCardState(slug){
+  if (!slug) return saveState();
+  const rec = getActiveCard(slug);
+  if (!rec) return;
+  const snapshot = ensureCardState(rec);
+  try{
+    const bid = ++lastBroadcastId;
+    broadcastAcks.set(bid, new Set());
+    broadcast({ type: 'state', state: snapshot, broadcastId: bid }, slug);
+    console.log(`[state:${slug}] broadcast id=${bid}`);
+  }catch(e){ console.warn(`[state:${slug}] broadcast failed`, e && e.message ? e.message : e); }
 }
 
 // If you want admin changes to update the GitHub Pages source, set these environment vars on the server:
@@ -533,9 +569,11 @@ app.post('/admin/action', async (req, res) => {
   if (!token || token.toLowerCase() !== expected){
     return res.status(401).json({ error: 'unauthorized', code:'bad_token' });
   }
+  const ctx = { slug, rec, state: ensureCardState(rec) };
+  const state = ctx.state;
   const msg = req.body;
   // broadcast the incoming command immediately (so connected admin clients see it)
-  broadcast(msg);
+  broadcast(msg, slug);
   let newFight = null;
   // update server state for current/winner messages
   if (msg.type === 'setCurrent') {
@@ -691,16 +729,35 @@ app.post('/admin/action', async (req, res) => {
     }
   }
   // persist and ensure the full state is broadcast after save
-  await saveState();
+  await saveCardState(slug);
   return res.json({ ok:true, fight: newFight });
 });
 
 // give clients the current state
-app.get('/state', (req,res)=> res.json(state));
+app.get('/state', (req,res)=>{
+  const slug = (req.query && req.query.slug ? String(req.query.slug) : '').trim();
+  if (slug){
+    const rec = getActiveCard(slug);
+    if (!rec) return res.status(404).json({ error:'card not found or expired' });
+    return res.json(ensureCardState(rec));
+  }
+  return res.json(state);
+});
 
-function broadcast(obj){
-  const s = JSON.stringify(obj);
-  wss.clients.forEach(c=>{ if (c.readyState===WebSocket.OPEN) c.send(s); });
+app.get('/cards/:slug/state', (req,res)=>{
+  const slug = (req.params.slug || '').trim();
+  const rec = getActiveCard(slug);
+  if (!rec) return res.status(404).json({ error:'card not found or expired' });
+  return res.json(ensureCardState(rec));
+});
+
+function broadcast(obj, slug = ''){
+  const payload = slug ? JSON.stringify({ ...obj, slug }) : JSON.stringify(obj);
+  wss.clients.forEach(c=>{
+    if (c.readyState!==WebSocket.OPEN) return;
+    if (slug && (c._slug || '') !== slug) return;
+    c.send(payload);
+  });
 }
 
 wss.on('connection', (ws, req)=>{
@@ -708,8 +765,20 @@ wss.on('connection', (ws, req)=>{
   const clientId = nextClientId++;
   ws._clientId = clientId;
   ws._isAdmin = false;
-  // send current state on connect
-  ws.send(JSON.stringify({ type:'state', state }));
+  let slug = '';
+  try{
+    const url = new URL(req.url || '/', 'ws://localhost');
+    slug = (url.searchParams.get('slug') || '').trim().toLowerCase();
+  }catch(_){ slug = ''; }
+  ws._slug = slug;
+  const ctx = slug ? getStateContext(slug) : null;
+  if (slug && !ctx){
+    ws.send(JSON.stringify({ type:'error', error:'card not found or expired', slug }));
+    try{ ws.close(); }catch(_){ }
+    return;
+  }
+  const initialState = ctx ? ctx.state : state;
+  ws.send(JSON.stringify({ type:'state', state: initialState, slug }));
   ws.on('message', async (m)=>{
     try{ const msg = JSON.parse(m.toString());
       // handle ack messages from clients
@@ -721,7 +790,7 @@ wss.on('connection', (ws, req)=>{
       // allow admin via ws if token present in query
       if (msg && msg.type === 'admin' && msg.token === DEFAULT_ADMIN_TOKEN){
         // mark this ws as an admin connection (so we can detect admin disconnects)
-        if (!ws._isAdmin){ ws._isAdmin = true; adminCount++; }
+        if (!ws._isAdmin){ ws._isAdmin = true; adjustAdminCount(ws._slug, 1); }
         // forward admin command
         broadcast(msg.payload);
         if (msg.payload.type === 'setCurrent') {
@@ -866,16 +935,21 @@ wss.on('connection', (ws, req)=>{
       }
     }catch(e){/* ignore */}
   });
-  ws.on('close', ()=>{
-    try{
-      if (ws._isAdmin){ ws._isAdmin = false; adminCount = Math.max(0, adminCount-1); }
-      if (adminCount === 0){
-        // enable standby when no admin clients remain
-        state.standby = true;
-        (async ()=>{ try{ await saveState(); }catch(e){} })();
-      }
-    }catch(e){ /* ignore */ }
-  });
+    ws.on('close', ()=>{
+      try{
+        if (ws._isAdmin){
+          ws._isAdmin = false;
+          const remaining = adjustAdminCount(ws._slug, -1);
+          if (remaining === 0){
+            const ctx = ws._slug ? getStateContext(ws._slug) : { slug:'', state };
+            if (ctx && ctx.state){
+              ctx.state.standby = true;
+              (async ()=>{ try{ ws._slug ? await saveCardState(ws._slug) : await saveState(); }catch(e){} })();
+            }
+          }
+        }
+      }catch(e){ /* ignore */ }
+    });
 });
 
 // health endpoint: number of clients, last broadcast id and ack counts

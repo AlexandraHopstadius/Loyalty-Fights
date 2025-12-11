@@ -512,7 +512,7 @@
   function extractSlug(){
     try{
       const parts = (location.pathname || '').split('/').filter(Boolean);
-      if (parts.length >= 2 && parts[0].toLowerCase() === 'admin') return parts[1];
+      if (parts.length >= 2 && parts[0].toLowerCase() === 'admin') return parts[1].toLowerCase();
     }catch(_){ }
     return '';
   }
@@ -554,6 +554,24 @@
   let state = null;
   // Track locally chosen win-methods to avoid placeholder flicker until server state arrives
   const localWinMethods = Object.create(null);
+
+  async function reloadState(showError){
+    if (!activeSlug){
+      if (showError) showFeedback('Missing slug in URL', false);
+      return false;
+    }
+    try{
+      const resp = await fetch(`/cards/${encodeURIComponent(activeSlug)}/state`);
+      if (!resp.ok) throw new Error('HTTP '+resp.status);
+      state = await resp.json();
+      updateUIFromState();
+      return true;
+    }catch(err){
+      console.warn('[admin] reloadState failed', err);
+      if (showError) showFeedback('Failed to load state for '+activeSlug, false);
+      return false;
+    }
+  }
 
   function setStatus(s){ statusEl.textContent = s; }
   function showFeedback(msg, ok=true){ if (feedback){ feedback.textContent = msg; feedback.style.color = ok? '#cfe7d8':'#f6b3b3'; } else { console.log('[feedback]', ok? 'OK:' : 'ERR:', msg); } }
@@ -600,15 +618,17 @@
   function connect(){
     const token = tokenInput.value.trim();
     if(!token){ showFeedback('Please enter a token first', false); return; }
+    if(!activeSlug){ showFeedback('Missing slug in URL', false); return; }
     if(ws){ ws.close(); ws = null; }
     // use SERVER_ORIGIN when deployed; fall back to current host
     const origin = window.SERVER_ORIGIN || (location.protocol + '//' + location.host);
     const scheme = origin.startsWith('https:')? 'wss':'ws';
     const wsTarget = scheme + '://' + origin.replace(/^https?:\/\//, '');
-    ws = new WebSocket(wsTarget);
+    const wsUrl = wsTarget + `?slug=${encodeURIComponent(activeSlug)}&role=admin`;
+    ws = new WebSocket(wsUrl);
   // expose for debugging
   window.__adminWs = ws;
-  console.log('admin: connecting websocket to', wsTarget);
+  console.log('admin: connecting websocket to', wsUrl);
     ws.addEventListener('open', ()=> setStatus('connected (ws)') );
     ws.addEventListener('close', ()=> setStatus('disconnected') );
     ws.addEventListener('error', ()=> setStatus('error') );
@@ -802,7 +822,7 @@
       remove.style.top='6px';
       remove.style.right='10px';
       remove.style.background='linear-gradient(160deg,var(--accent-red) 0%, var(--accent-red-mid) 50%, var(--accent-red-hot) 100%)';
-      remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){} } }});
+      remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ await reloadState(false); } }});
       div.appendChild(remove);
       const btns = document.createElement('div'); btns.className = 'fightButtons';
       const aBtn = document.createElement('button'); aBtn.textContent = 'A'; aBtn.className='smallBtn'; aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
@@ -1121,11 +1141,11 @@
         const resp = await sendAction({ type:'createFight', data });
         if (resp && resp.fight){
           // Avoid double-listing: rely on server state instead of optimistic push
-          try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(_){ }
+          await reloadState(false);
           closeFightModal();
         } else {
           // keep modal open if token missing or error
-          try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(_){ }
+          await reloadState(false);
         }
       });
       // ESC key to close
@@ -1160,7 +1180,7 @@
       if (!confirm('Really remove ALL fights from the card?')) return;
       const r = await sendAction({ type:'clearAllFights' });
       if (r && r.ok){
-        try{ const s = await fetch('/state'); if (s.ok){ state = await s.json(); updateUIFromState(); } }catch(_){ }
+        await reloadState(false);
       }
     });
 
@@ -1368,9 +1388,7 @@
   })();
 
   // fetch initial state so the page shows accurate values even before ws connects
-  (async ()=>{
-    try{ const r = await fetch('/state'); if(r.ok){ state = await r.json(); updateUIFromState(); } }catch(e){}
-  })();
+  (async ()=>{ await reloadState(true); })();
 
   </script>
 
