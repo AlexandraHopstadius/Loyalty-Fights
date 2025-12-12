@@ -62,7 +62,7 @@ function renderList(){
     try{ const fl = document.getElementById('fightList'); if(fl){ fl.classList.add('is-empty','empty-center'); } }catch(e){}
     const empty = document.createElement('div');
     empty.className = 'empty-placeholder';
-    empty.innerHTML = 'Inga matcher ännu<br>Fghtcard skapas när admin lägger till matcher.';
+    empty.innerHTML = 'Inga matcher ännu.<br>Matchkort skapas när admin lägger till matcher.';
     list.appendChild(empty);
     updateNow();
     return;
