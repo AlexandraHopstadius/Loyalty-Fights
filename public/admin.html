@@ -523,7 +523,7 @@
       <button type="button" class="info-modal-close" aria-label="Close info">&times;</button>
       <div class="info-modal-inner">
         <div id="infoModalMessage" class="info-modal-error" hidden>Unable to load the info image. Please ensure descriptionENG.png exists under /assets.</div>
-        <img id="infoModalImage" data-src="/assets/descriptionENG.png" alt="Admin workflow overview" loading="lazy" decoding="async">
+        <img id="infoModalImage" src="assets/descriptionENG.png" alt="Admin workflow overview" loading="lazy" decoding="async">
       </div>
     </div>
   </div>
@@ -1002,30 +1002,16 @@
     const closeBtn = modal.querySelector('.info-modal-close');
     const infoImg = document.getElementById('infoModalImage');
     const infoMsg = document.getElementById('infoModalMessage');
-    let infoImgInitialized = false;
-    function ensureInfoImage(){
-      if (!infoImg) return;
-      if (!infoImgInitialized){
-        infoImgInitialized = true;
-        infoImg.style.display = 'none';
-        infoImg.addEventListener('load', ()=>{
-          infoImg.style.display = 'block';
-          if (infoMsg) infoMsg.hidden = true;
-        });
-        infoImg.addEventListener('error', ()=>{
-          infoImg.style.display = 'none';
-          if (infoMsg) infoMsg.hidden = false;
-        });
-      }
-      if (infoImg.getAttribute('src')) return;
-      const target = infoImg.dataset.src || '/assets/descriptionENG.png';
-      if (infoMsg) infoMsg.hidden = true;
-      infoImg.src = target;
+    if (infoImg){
+      const hideMsg = () => { if (infoMsg) infoMsg.hidden = true; infoImg.style.display = 'block'; };
+      const showMsg = () => { if (infoMsg) infoMsg.hidden = false; infoImg.style.display = 'none'; };
+      infoImg.addEventListener('load', hideMsg);
+      infoImg.addEventListener('error', showMsg);
+      if (infoImg.complete && infoImg.naturalWidth > 0){ hideMsg(); } else if (infoImg.complete){ showMsg(); }
     }
     function openModal(){
       modal.setAttribute('aria-hidden','false');
       document.body.style.overflow = 'hidden';
-      ensureInfoImage();
     }
     function closeModal(){
       modal.setAttribute('aria-hidden','true');
