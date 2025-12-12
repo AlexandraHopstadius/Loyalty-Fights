@@ -280,6 +280,7 @@
     .info-modal-inner img{display:block;width:100%;height:auto}
     .info-modal-close{position:absolute;top:10px;right:10px;width:38px;height:38px;border:none;border-radius:999px;background:rgba(0,0,0,0.65);color:#fff;font-size:24px;line-height:1;cursor:pointer}
     .info-modal-close:hover{background:rgba(0,0,0,0.85)}
+    .info-modal-error{padding:1rem;font-weight:700;color:#fde68a;text-align:center}
     /* Collapsed sizing handled above for both Admin & Social */
     @media (max-width:800px){
       .section-actions{padding:.8rem}
@@ -521,7 +522,8 @@
     <div class="info-modal-content">
       <button type="button" class="info-modal-close" aria-label="Close info">&times;</button>
       <div class="info-modal-inner">
-        <img src="assets/descriptionENG.png" alt="Admin workflow overview" loading="lazy">
+        <div id="infoModalMessage" class="info-modal-error" hidden>Unable to load the info image. Please ensure descriptionENG.png exists under /assets.</div>
+        <img id="infoModalImage" data-src="/assets/descriptionENG.png" alt="Admin workflow overview" loading="lazy" decoding="async">
       </div>
     </div>
   </div>
@@ -583,8 +585,17 @@
 
   let ws = null;
   let state = null;
+  const eventDraft = { name:'', dirty:false };
   // Track locally chosen win-methods to avoid placeholder flicker until server state arrives
   const localWinMethods = Object.create(null);
+  const eventNameInput = document.getElementById('eventName');
+  if (eventNameInput){
+    eventDraft.name = eventNameInput.value || '';
+    eventNameInput.addEventListener('input', ()=>{
+      eventDraft.name = eventNameInput.value;
+      eventDraft.dirty = true;
+    });
+  }
 
   async function reloadState(showError){
     if (!activeSlug){
@@ -679,7 +690,21 @@
     renderFightList();
     // event fields
     try{
-      document.getElementById('eventName').value = state.eventName || '';
+      const nameInput = document.getElementById('eventName');
+      const serverName = state.eventName || '';
+      if (nameInput){
+        if (eventDraft.dirty){
+          if (serverName === eventDraft.name){
+            eventDraft.dirty = false;
+          } else {
+            if (nameInput.value !== eventDraft.name) nameInput.value = eventDraft.name;
+          }
+        }
+        if (!eventDraft.dirty && nameInput.value !== serverName){
+          nameInput.value = serverName;
+          eventDraft.name = serverName;
+        }
+      }
       document.getElementById('eventFont').value = (state.eventFont || 'bebas');
       if (state.eventColor) document.getElementById('eventColor').value = state.eventColor;
       if (typeof state.eventSize === 'number') {
@@ -975,9 +1000,32 @@
     const openBtn = document.getElementById('infoOverlayBtn');
     if (!modal || !openBtn) return;
     const closeBtn = modal.querySelector('.info-modal-close');
+    const infoImg = document.getElementById('infoModalImage');
+    const infoMsg = document.getElementById('infoModalMessage');
+    let infoImgInitialized = false;
+    function ensureInfoImage(){
+      if (!infoImg) return;
+      if (!infoImgInitialized){
+        infoImgInitialized = true;
+        infoImg.style.display = 'none';
+        infoImg.addEventListener('load', ()=>{
+          infoImg.style.display = 'block';
+          if (infoMsg) infoMsg.hidden = true;
+        });
+        infoImg.addEventListener('error', ()=>{
+          infoImg.style.display = 'none';
+          if (infoMsg) infoMsg.hidden = false;
+        });
+      }
+      if (infoImg.getAttribute('src')) return;
+      const target = infoImg.dataset.src || '/assets/descriptionENG.png';
+      if (infoMsg) infoMsg.hidden = true;
+      infoImg.src = target;
+    }
     function openModal(){
       modal.setAttribute('aria-hidden','false');
       document.body.style.overflow = 'hidden';
+      ensureInfoImage();
     }
     function closeModal(){
       modal.setAttribute('aria-hidden','true');
