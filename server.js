@@ -4,6 +4,7 @@ const WebSocket = require('ws');
 const path = require('path');
 const { Pool } = require('pg');
 const crypto = require('crypto');
+const { sendRegistrationEmail } = require('./controllers/mailer');
 
 const app = express();
 const server = http.createServer(app);
@@ -117,6 +118,50 @@ function createCard({ club, wantClubSlug }, ttlHours = 48){
   const rec = { club: club || {}, createdAt: now.toISOString(), expiresAt: expiresAt.toISOString(), state: defaultState(), adminToken };
   cards.set(slug, rec);
   return { slug, record: rec };
+}
+
+function absoluteUrl(pathname, req){
+  if (!pathname) return '';
+  const configured = (process.env.PUBLIC_BASE_URL || '').trim();
+  if (configured){
+    const cleanBase = configured.replace(/\/+$/, '');
+    const suffix = pathname.startsWith('/') ? pathname : `/${pathname}`;
+    return cleanBase + suffix;
+  }
+  let proto = 'https';
+  let host = 'fightcard.eu';
+  if (req){
+    const forwarded = req.headers && req.headers['x-forwarded-proto'];
+    const rawProto = forwarded ? forwarded.split(',')[0] : (req.protocol || 'https');
+    proto = rawProto || 'https';
+    host = (req.get && req.get('host')) ? req.get('host') : host;
+  }
+  const suffix = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  return `${proto}://${host}`.replace(/\/+$/, '') + suffix;
+}
+
+function pickClubEmail(club){
+  if (!club || typeof club !== 'object') return '';
+  const keys = ['email', 'Email', 'contactEmail', 'contact_email', 'mail'];
+  for (const key of keys){
+    const val = club[key];
+    if (val){
+      return String(val).trim();
+    }
+  }
+  return '';
+}
+
+function pickClubName(club){
+  if (!club || typeof club !== 'object') return '';
+  const keys = ['club', 'clubName', 'club_name', 'name'];
+  for (const key of keys){
+    const val = club[key];
+    if (val){
+      return String(val).trim();
+    }
+  }
+  return '';
 }
 
 function wantSSL(url){
@@ -547,10 +592,28 @@ app.post('/cards', (req, res) => {
     const ttl = Math.min(72, Math.max(24, Number(req.body && req.body.ttlHours || 48)));
     const club = req.body && req.body.club ? req.body.club : {};
     const wantClubSlug = !!(req.body && req.body.useClubSlug);
-  const { slug, record } = createCard({ club, wantClubSlug }, ttl);
+    const { slug, record } = createCard({ club, wantClubSlug }, ttl);
     const viewerUrl = `/${slug}`;
     const adminUrl = `/admin/${slug}?token=${encodeURIComponent(record.adminToken)}`;
-  return res.json({ ok:true, slug, expiresAt: record.expiresAt, viewerUrl, adminUrl, adminToken: record.adminToken, clubSlugRequested: wantClubSlug });
+    const responsePayload = { ok:true, slug, expiresAt: record.expiresAt, viewerUrl, adminUrl, adminToken: record.adminToken, clubSlugRequested: wantClubSlug };
+    res.json(responsePayload);
+    const recipient = pickClubEmail(club);
+    if (recipient){
+      const viewerAbs = absoluteUrl(viewerUrl, req);
+      const adminAbs = absoluteUrl(adminUrl, req);
+      const clubName = pickClubName(club);
+      Promise.resolve(sendRegistrationEmail({
+        to: recipient,
+        clubName,
+        viewerUrl: viewerAbs,
+        adminUrl: adminAbs,
+        slug,
+        expiresAt: record.expiresAt
+      })).catch(err => {
+        console.warn('[mail] sendRegistrationEmail error:', err && err.message ? err.message : err);
+      });
+    }
+    return;
   }catch(e){
     if (e && e.code === 'SLUG_RESERVED'){
       return res.status(409).json({ ok:false, code:'slug_reserved', message:'Club name is already in use. Please try again later.', slug:e.slug, reservedUntil:e.reservedUntil });
