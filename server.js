@@ -608,7 +608,8 @@ app.post('/cards', (req, res) => {
         viewerUrl: viewerAbs,
         adminUrl: adminAbs,
         slug,
-        expiresAt: record.expiresAt
+        expiresAt: record.expiresAt,
+        adminToken: record.adminToken
       })).catch(err => {
         console.warn('[mail] sendRegistrationEmail error:', err && err.message ? err.message : err);
       });
