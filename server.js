@@ -598,10 +598,10 @@ app.post('/cards', (req, res) => {
     const responsePayload = { ok:true, slug, expiresAt: record.expiresAt, viewerUrl, adminUrl, adminToken: record.adminToken, clubSlugRequested: wantClubSlug };
     res.json(responsePayload);
     const recipient = pickClubEmail(club);
-    if (recipient){
+    const clubName = pickClubName(club);
+    if (recipient && clubName){
       const viewerAbs = absoluteUrl(viewerUrl, req);
       const adminAbs = absoluteUrl(adminUrl, req);
-      const clubName = pickClubName(club);
       Promise.resolve(sendRegistrationEmail({
         to: recipient,
         clubName,
@@ -613,6 +613,8 @@ app.post('/cards', (req, res) => {
       })).catch(err => {
         console.warn('[mail] sendRegistrationEmail error:', err && err.message ? err.message : err);
       });
+    } else if (!recipient || !clubName){
+      console.log('[mail] Skipping registration email due to missing data', { recipient: !!recipient, clubName: !!clubName, slug });
     }
     return;
   }catch(e){
