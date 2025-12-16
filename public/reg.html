@@ -93,22 +93,10 @@
     input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.7rem .85rem;font-size:1rem;border-radius:10px;border:1px solid #ccd6e2;background:#ffffff;color:var(--text);box-shadow:0 1px 1px rgba(0,0,0,.04) inset}
     input:focus{outline:2px solid #ef233c;outline-offset:2px}
 
-      .success{display:none;margin:0;padding:1.1rem 1.35rem;border-radius:28px;background:linear-gradient(145deg,#0c2750,#0f3668);color:#f5f7ff;font-weight:700;border:1px solid rgba(12,39,80,0.65);box-shadow:0 18px 38px -16px rgba(7,22,48,0.85),0 8px 26px -18px rgba(15,54,104,0.7);letter-spacing:.16px;font-size:.95rem;line-height:1.2;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif}
-      .success.is-visible{display:flex;flex-direction:column;gap:.9rem;align-items:flex-start}
-      .success-line{display:flex;align-items:center;gap:.65rem;width:100%}
-      .success-icon{width:36px;height:36px;border-radius:12px;background:#f5f7ff;color:#0f3668;display:flex;align-items:center;justify-content:center;font-size:1.05rem;box-shadow:0 8px 18px -10px rgba(255,255,255,0.5);flex-shrink:0}
-      .success-text{display:flex;flex-direction:column;gap:.2rem;align-items:flex-start}
-      .success-text-line{display:inline-flex;align-items:center;line-height:1.2}
-      .success-text-heading{font-size:1.02rem;font-weight:800;text-transform:uppercase;letter-spacing:.04rem}
-      .success-text a{color:#8bd4ff;font-weight:700;text-decoration-color:rgba(139,212,255,0.45);text-underline-offset:3px;display:inline-flex}
-      .success-text a:hover{color:#d7f0ff;text-decoration-color:currentColor}
-      .success-actions{display:flex;flex-direction:column;gap:.45rem;width:100%}
-      @media (min-width:520px){.success-actions{flex-direction:row}}
-      .success .qr-link,.success .pdf-link{background:rgba(255,255,255,0.14);color:#f5f7ff;border:1px solid rgba(255,255,255,0.35);border-radius:18px;padding:.6rem 1.1rem;font-size:.88rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;transition:background .25s ease,box-shadow .25s ease,transform .15s ease;border:none;cursor:pointer;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;width:100%}
-      .success .qr-link:hover,.success .pdf-link:hover{background:rgba(255,255,255,0.28);box-shadow:0 6px 18px -10px rgba(255,255,255,0.65);transform:translateY(-1px)}
-      .success .qr-link:disabled,.success .pdf-link:disabled{opacity:.6;cursor:wait;box-shadow:none;transform:none}
-      .success-note{font-size:.85rem;color:#e0e7ff;font-weight:700;margin-top:.4rem}
-      .success-note code{background:rgba(255,255,255,0.15);color:#fff;padding:.1rem .45rem;border-radius:6px;font-weight:800;letter-spacing:.04rem}
+      .form-alert{display:none;margin:0 0 .8rem;padding:.85rem 1rem;border-radius:14px;background:#fee2e2;color:#991b1b;font-weight:700;font-size:.9rem;line-height:1.3}
+      .form-alert.is-visible{display:block}
+      .success-recall-btn{display:none;margin:-.2rem 0 1rem;padding:.2rem 0;border:none;background:none;font-weight:800;font-size:.9rem;color:var(--accent-red);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+      .success-recall-btn.is-visible{display:inline-flex}
 
       /* Demo modal (copied from create.html for consistent styling) */
       .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1000}
@@ -124,6 +112,24 @@
       .modal-inner img,.modal-inner object{display:block;width:100%;height:auto}
       .modal-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:none;border-radius:999px;background:rgba(0,0,0,0.65);color:#fff;font-size:22px;line-height:1;cursor:pointer}
       .modal-close:hover{background:rgba(0,0,0,0.8)}
+      .success-modal .modal-content{background:linear-gradient(145deg,#0c2750,#0f3668);color:#f5f7ff}
+      .success-modal .modal-inner{padding:0}
+      .success-modal-body{padding:2rem 2.2rem;display:flex;flex-direction:column;gap:1.5rem}
+      .success-modal-header h2{margin:0;font-size:1.8rem;font-weight:800;letter-spacing:.05rem;text-transform:uppercase;color:#f8fbff}
+      .success-modal-header p{margin:0;color:#d9e6ff;font-weight:600;font-size:.95rem}
+      .success-steps{display:flex;flex-direction:column;gap:1.2rem}
+      .success-step{display:flex;gap:.9rem;align-items:flex-start}
+      .success-step-number{width:42px;height:42px;border-radius:14px;background:#f5f7ff;color:#0f3668;font-weight:800;font-size:1.1rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 8px 18px -10px rgba(255,255,255,0.5)}
+      .success-step-text{display:flex;flex-direction:column;gap:.25rem}
+      .success-step-text .step-title{font-size:1rem;text-transform:uppercase;letter-spacing:.05rem;font-weight:800;color:#f8fbff}
+      .success-step-text p{margin:0;font-size:.92rem;color:#d9e6ff;font-weight:600;line-height:1.35}
+      .success-step-text a{color:#8bd4ff;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+      .success-step-text a:hover{color:#d7f0ff}
+      .success-modal-actions{display:flex;flex-direction:column;gap:.6rem}
+      @media (min-width:520px){.success-modal-actions{flex-direction:row}}
+      .success-modal-actions button{background:rgba(255,255,255,0.14);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:20px;padding:.75rem 1.4rem;font-weight:700;font-size:.95rem;cursor:pointer;display:inline-flex;justify-content:center;gap:.4rem;transition:background .25s ease,transform .15s ease,box-shadow .25s ease}
+      .success-modal-actions button:hover{background:rgba(255,255,255,0.28);transform:translateY(-1px);box-shadow:0 10px 24px -12px rgba(255,255,255,0.65)}
+      .success-modal-actions button:disabled{opacity:.6;cursor:wait;transform:none;box-shadow:none}
     .qr-modal .modal-inner{padding:1.6rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
     .qr-frame{width:420px;height:420px;max-width:90vw;max-height:80vh;background:url('assets/qr_code.png') center/contain no-repeat;display:flex;align-items:flex-start;justify-content:center;padding:3rem;position:relative;margin-top:3rem}
     #qrCodeImg{width:100%;height:100%;max-width:220px;max-height:220px;object-fit:contain;border-radius:18px;background:#fff;padding:.6rem;margin-top:7.5rem}
@@ -182,8 +188,6 @@
       .box-group{grid-template-columns:1fr}
       .cta-lower{width:100%}
       .cta{width:100%;text-align:center}
-      .success{border-radius:18px}
-      .success .qr-link,.success .pdf-link{width:100%}
       .modal-content{max-width:95vw}
     }
 
@@ -224,7 +228,8 @@
     </header>
 
     <form id="clubForm" novalidate>
-      <div class="success" id="successMsg">Tack! Sparat lokalt – fortsätt.</div>
+      <div class="form-alert" id="successMsg" role="status" aria-live="polite"></div>
+      <button type="button" class="success-recall-btn" id="successRecallBtn" hidden></button>
       <div class="box-group">
         <div class="field-box" id="boxEmail">
           <label id="lblEmail">E‑postadress</label>
@@ -266,14 +271,24 @@
     </div>
   </div>
 
+  <!-- Success Modal -->
+  <div id="successModal" class="modal-backdrop success-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Registration links ready">
+    <div class="modal-content">
+      <button type="button" class="modal-close" aria-label="Close success">&times;</button>
+      <div class="modal-inner">
+        <div id="successModalBody" class="success-modal-body"></div>
+      </div>
+    </div>
+  </div>
+
   </div>
 
   <script>
     (function(){
       const dict = {
-        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Beställ här!', info:'Hur funkar det?', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länkar klara!', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', slugTaken:'Det klubbnamnet är redan reserverat i 48 timmar. Välj ett annat namn eller försök igen senare.', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod', missingEmail:'Fyll i en e‑postadress för att fortsätta.', missingClub:'Fyll i klubbnamn för att fortsätta.', successEmailHeading:'E‑post på väg', successEmailBody:'Vi skickade just instruktionerna och en PDF. Håll utkik efter ämnet "Fightcard-länkar".', successBuildHeading:'Börja bygga direkt i webben', successBuildViewer:'Publiklänk (dela direkt)', successBuildAdmin:'Adminlänk (redigera & uppdatera)', successPdfHeading:'Spara PDF:en', successPdfBody:'PDF:en innehåller QR-koden, token och länkar. Ladda ner här eller via mejlet.' },
-        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS!', bullet2:'UPDATE FIGHTS LIVE AND SHARE EVERYTHING WITH THE AUDIENCE.', cta:'Order here!', info:'How does it work?', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Links ready!', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', slugTaken:'That club name is already reserved for another event. Please try a different name or check back in 48 hours.', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code', missingEmail:'Please enter an email address before continuing.', missingClub:'Please enter your club name before continuing.', successEmailHeading:'Email sent', successEmailBody:'We just sent the instructions and PDF recap. Look for the subject "Fightcard links".', successBuildHeading:'Start building in your browser', successBuildViewer:'Audience link (share ready)', successBuildAdmin:'Admin link (edit & update)', successPdfHeading:'Keep the PDF handy', successPdfBody:'The PDF stores your QR code, token, and quick links. Download it here or from the email.' },
-        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'สั่งซื้อที่นี่!', info:'มันทำงานอย่างไร?', email:'อีเมล', emailPlaceholder:'name@club.com', club:'ชื่อสโมสร', clubPlaceholder:'กรอกชื่อยิมหรือสโมสรของคุณที่นี่', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'ลิงก์พร้อมแล้ว!', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', slugTaken:'ชื่อนี้ถูกจองไว้แล้ว 48 ชั่วโมง กรุณาเลือกชื่ออื่นหรือลองใหม่ภายหลัง.', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด', qrDownload:'ดาวน์โหลด QR', pdfLink:'ดาวน์โหลด PDF', pdfGenerating:'กำลังสร้าง...', pdfTitle:'ลิงก์ไฟต์การ์ด', pdfToken:'รหัสผู้ดูแล (โทเคน)', pdfViewer:'ลิงก์ไฟต์การ์ด', pdfAdmin:'ลิงก์ผู้ดูแล', pdfQr:'คิวอาร์โค้ด', missingEmail:'กรุณากรอกอีเมลก่อนดำเนินการต่อ', missingClub:'กรุณากรอกชื่อสโมสรก่อนดำเนินการต่อ', successEmailHeading:'ส่งอีเมลให้แล้ว', successEmailBody:'เราเพิ่งส่งคำแนะนำและไฟล์ PDF ไปยังกล่องจดหมายของคุณ หาอีเมลหัวข้อ "Fightcard links".', successBuildHeading:'เริ่มสร้างได้ทันที', successBuildViewer:'ลิงก์สำหรับผู้ชม (แชร์ได้เลย)', successBuildAdmin:'ลิงก์แอดมิน (แก้ไข/อัปเดต)', successPdfHeading:'เก็บไฟล์ PDF ไว้', successPdfBody:'PDF มี QR โค้ด โทเคน และลิงก์ทั้งหมด ดาวน์โหลดได้ที่นี่หรือจากอีเมล' }
+        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Beställ här!', info:'Hur funkar det?', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länkar klara!', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', slugTaken:'Det klubbnamnet är redan reserverat i 48 timmar. Välj ett annat namn eller försök igen senare.', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod', missingEmail:'Fyll i en e‑postadress för att fortsätta.', missingClub:'Fyll i klubbnamn för att fortsätta.', successEmailHeading:'E‑post på väg', successEmailBody:'Vi skickade just instruktionerna och en PDF. Håll utkik efter ämnet "Fightcard-länkar".', successBuildHeading:'Börja bygga direkt i webben', successBuildViewer:'Publiklänk (dela direkt)', successBuildAdmin:'Adminlänk (redigera & uppdatera)', successPdfHeading:'Spara PDF:en', successPdfBody:'PDF:en innehåller QR-koden, token och länkar. Ladda ner här eller via mejlet.', successReopen:'Öppna instruktionerna igen' },
+        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS!', bullet2:'UPDATE FIGHTS LIVE AND SHARE EVERYTHING WITH THE AUDIENCE.', cta:'Order here!', info:'How does it work?', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Links ready!', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', slugTaken:'That club name is already reserved for another event. Please try a different name or check back in 48 hours.', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code', missingEmail:'Please enter an email address before continuing.', missingClub:'Please enter your club name before continuing.', successEmailHeading:'Email sent', successEmailBody:'We just sent the instructions and PDF recap. Look for the subject "Fightcard links".', successBuildHeading:'Start building in your browser', successBuildViewer:'Audience link (share ready)', successBuildAdmin:'Admin link (edit & update)', successPdfHeading:'Keep the PDF handy', successPdfBody:'The PDF stores your QR code, token, and quick links. Download it here or from the email.', successReopen:'Show instructions again' },
+        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'สั่งซื้อที่นี่!', info:'มันทำงานอย่างไร?', email:'อีเมล', emailPlaceholder:'name@club.com', club:'ชื่อสโมสร', clubPlaceholder:'กรอกชื่อยิมหรือสโมสรของคุณที่นี่', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'ลิงก์พร้อมแล้ว!', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', slugTaken:'ชื่อนี้ถูกจองไว้แล้ว 48 ชั่วโมง กรุณาเลือกชื่ออื่นหรือลองใหม่ภายหลัง.', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด', qrDownload:'ดาวน์โหลด QR', pdfLink:'ดาวน์โหลด PDF', pdfGenerating:'กำลังสร้าง...', pdfTitle:'ลิงก์ไฟต์การ์ด', pdfToken:'รหัสผู้ดูแล (โทเคน)', pdfViewer:'ลิงก์ไฟต์การ์ด', pdfAdmin:'ลิงก์ผู้ดูแล', pdfQr:'คิวอาร์โค้ด', missingEmail:'กรุณากรอกอีเมลก่อนดำเนินการต่อ', missingClub:'กรุณากรอกชื่อสโมสรก่อนดำเนินการต่อ', successEmailHeading:'ส่งอีเมลให้แล้ว', successEmailBody:'เราเพิ่งส่งคำแนะนำและไฟล์ PDF ไปยังกล่องจดหมายของคุณ หาอีเมลหัวข้อ "Fightcard links".', successBuildHeading:'เริ่มสร้างได้ทันที', successBuildViewer:'ลิงก์สำหรับผู้ชม (แชร์ได้เลย)', successBuildAdmin:'ลิงก์แอดมิน (แก้ไข/อัปเดต)', successPdfHeading:'เก็บไฟล์ PDF ไว้', successPdfBody:'PDF มี QR โค้ด โทเคน และลิงก์ทั้งหมด ดาวน์โหลดได้ที่นี่หรือจากอีเมล', successReopen:'ดูคำแนะนำอีกครั้ง' }
       };
       const qs = new URLSearchParams(location.search);
       let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
@@ -298,13 +313,31 @@
       let lastAdminToken = PDF_TOKEN_FALLBACK;
       let cachedQrDataUrl = '';
       let cachedQrSource = '';
+      let hasSuccessLinks = false;
       let jsPdfLoader = null;
 
       function showInlineError(message){
         if (!successMsgEl || !message) return;
         successMsgEl.textContent = message;
         successMsgEl.classList.add('is-visible');
-        successMsgEl.classList.remove('has-links');
+      }
+
+      function hideInlineAlert(){
+        if (!successMsgEl) return;
+        successMsgEl.classList.remove('is-visible');
+        successMsgEl.textContent = '';
+      }
+
+      function updateSuccessRecallButton(strings){
+        if (!successRecallBtn) return;
+        successRecallBtn.textContent = (strings && strings.successReopen) || 'Show instructions again';
+        if (hasSuccessLinks){
+          successRecallBtn.hidden = false;
+          successRecallBtn.classList.add('is-visible');
+        }else{
+          successRecallBtn.hidden = true;
+          successRecallBtn.classList.remove('is-visible');
+        }
       }
 
       function apply(l){
@@ -317,8 +350,9 @@
         setText('lblClub', d.club);
         setText('heroCta', d.cta);
         setText('heroInfoBtn', d.info);
-        setText('successMsg', d.ok);
         refreshSuccessMessage(d);
+        updateSuccessRecallButton(d);
+        if (successModal) successModal.setAttribute('aria-label', d.linkPrefix || 'Links ready!');
         if (emailInput) emailInput.placeholder = d.emailPlaceholder || 'name@club.com';
         if (clubInput) clubInput.placeholder = d.clubPlaceholder || 'Enter the name of your gym/club here';
         if (qrHintEl) qrHintEl.textContent = d.qrHint;
@@ -343,6 +377,7 @@
       async function openQrModal(){
         if (!qrModal || !qrImg || !lastViewerUrl) return;
         try{
+          closeSuccessModal();
           if (qrDownloadBtn){
             qrDownloadBtn.disabled = true;
             qrDownloadBtn.dataset.href = '';
@@ -423,66 +458,74 @@
         });
       }
 
-      function renderSuccessMessage(strings){
-        if (!successMsgEl || !lastViewerUrl || !lastAdminUrl) return;
+      function renderSuccessMessage(strings, options){
+        if (!successModal || !successModalBody || !lastViewerUrl || !lastAdminUrl) return;
+        const opts = options || {};
         const qrBtnLabel = strings.qrLink || 'View QR code';
         const pdfBtnLabel = strings.pdfLink || 'Download PDF';
         const viewerHref = escapeAttr(lastViewerUrl);
         const adminHref = escapeAttr(lastAdminUrl);
         const viewerLabel = escapeHtml(strings.viewLink || 'view fightcard');
         const adminLabel = escapeHtml(strings.adminLink || 'open admin');
-        const emailHeading = escapeHtml(strings.successEmailHeading || strings.linkPrefix || 'Email sent');
-        const emailBody = escapeHtml(strings.successEmailBody || strings.ok || 'Check your inbox for the instructions.');
+        const modalTitle = escapeHtml(strings.linkPrefix || 'Links ready!');
+        const emailHeading = escapeHtml(strings.successEmailHeading || 'Email sent');
+        const emailBody = escapeHtml(strings.successEmailBody || 'Check your inbox for the instructions.');
         const buildHeading = escapeHtml(strings.successBuildHeading || 'Start building');
         const buildViewerPrefix = escapeHtml(strings.successBuildViewer || 'Fightcard link');
         const buildAdminPrefix = escapeHtml(strings.successBuildAdmin || 'Admin link');
         const pdfHeading = escapeHtml(strings.successPdfHeading || strings.pdfLink || 'Download PDF');
         const pdfBody = escapeHtml(strings.successPdfBody || 'Keep the PDF handy for QR + token.');
-        const tokenNote = lastAdminToken ? `<div class="success-note">${escapeHtml(strings.pdfToken || 'Admin Password (Token)')}: <code>${escapeHtml(lastAdminToken)}</code></div>` : '';
         const emailLine = `
-          <div class="success-line">
-            <span class="success-icon" aria-hidden="true">1</span>
-            <span class="success-text">
-              <span class="success-text-line success-text-heading">${emailHeading}</span>
-              <span class="success-text-line">${emailBody}</span>
+          <div class="success-step">
+            <span class="success-step-number" aria-hidden="true">1</span>
+            <span class="success-step-text">
+              <span class="step-title">${emailHeading}</span>
+              <p>${emailBody}</p>
             </span>
           </div>`;
         const buildLine = `
-          <div class="success-line">
-            <span class="success-icon" aria-hidden="true">2</span>
-            <span class="success-text">
-              <span class="success-text-line success-text-heading">${buildHeading}</span>
-              <span class="success-text-line">${buildViewerPrefix}: <a class="success-text-link" href="${viewerHref}" target="_blank" rel="noopener">${viewerLabel}</a></span>
-              <span class="success-text-line">${buildAdminPrefix}: <a class="success-text-link" href="${adminHref}" target="_blank" rel="noopener">${adminLabel}</a></span>
+          <div class="success-step">
+            <span class="success-step-number" aria-hidden="true">2</span>
+            <span class="success-step-text">
+              <span class="step-title">${buildHeading}</span>
+              <p>${buildViewerPrefix}: <a href="${viewerHref}" target="_blank" rel="noopener">${viewerLabel}</a></p>
+              <p>${buildAdminPrefix}: <a href="${adminHref}" target="_blank" rel="noopener">${adminLabel}</a></p>
             </span>
           </div>`;
         const pdfLine = `
-          <div class="success-line">
-            <span class="success-icon" aria-hidden="true">3</span>
-            <span class="success-text">
-              <span class="success-text-line success-text-heading">${pdfHeading}</span>
-              <span class="success-text-line">${pdfBody}</span>
+          <div class="success-step">
+            <span class="success-step-number" aria-hidden="true">3</span>
+            <span class="success-step-text">
+              <span class="step-title">${pdfHeading}</span>
+              <p>${pdfBody}</p>
             </span>
           </div>`;
-        successMsgEl.innerHTML = `
-          ${emailLine}
-          ${buildLine}
-          ${pdfLine}
-          <div class="success-actions">
+        successModalBody.innerHTML = `
+          <div class="success-modal-header">
+            <h2>${modalTitle}</h2>
+          </div>
+          <div class="success-steps">
+            ${emailLine}
+            ${buildLine}
+            ${pdfLine}
+          </div>
+          <div class="success-modal-actions">
             <button type="button" class="qr-link">${qrBtnLabel}</button>
             <button type="button" class="pdf-link">${pdfBtnLabel}</button>
-          </div>
-          ${tokenNote}`;
-        successMsgEl.classList.add('is-visible','has-links');
-        wireQrLink(successMsgEl);
-        wirePdfLink(successMsgEl, strings);
+          </div>`;
+        hasSuccessLinks = true;
+        updateSuccessRecallButton(strings);
+        if (opts.openModal !== false){
+          openSuccessModal();
+        }
+        wireQrLink(successModalBody);
+        wirePdfLink(successModalBody, strings);
       }
 
       function refreshSuccessMessage(strings){
-        if (!successMsgEl) return;
-        if (successMsgEl.classList.contains('has-links') && lastViewerUrl && lastAdminUrl){
-          renderSuccessMessage(strings);
-        }
+        if (!lastViewerUrl || !lastAdminUrl || !hasSuccessLinks) return;
+        const shouldOpen = isSuccessModalOpen();
+        renderSuccessMessage(strings, { openModal: shouldOpen });
       }
 
       async function downloadPdf(strings){
@@ -616,6 +659,10 @@
       const emailInput = document.querySelector('input[name="email"]');
       const clubInput = document.querySelector('input[name="club"]');
       const successMsgEl = document.getElementById('successMsg');
+      const successRecallBtn = document.getElementById('successRecallBtn');
+      const successModal = document.getElementById('successModal');
+      const successModalBody = document.getElementById('successModalBody');
+      const successModalClose = successModal ? successModal.querySelector('.modal-close') : null;
       const form = document.getElementById('clubForm');
       document.querySelectorAll('.lang-switch button').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.lang)));
 
@@ -632,6 +679,24 @@
         document.body.style.overflow = '';
       }
 
+      function isSuccessModalOpen(){
+        return !!(successModal && successModal.getAttribute('aria-hidden') === 'false');
+      }
+
+      function openSuccessModal(){
+        if (!successModal) return;
+        if (successModal.getAttribute('aria-hidden') === 'false') return;
+        successModal.setAttribute('aria-hidden','false');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeSuccessModal(){
+        if (!successModal) return;
+        if (successModal.getAttribute('aria-hidden') === 'true') return;
+        successModal.setAttribute('aria-hidden','true');
+        document.body.style.overflow = '';
+      }
+
       const heroInfoBtn = document.getElementById('heroInfoBtn');
       if (heroInfoBtn){
         heroInfoBtn.addEventListener('click', (ev)=>{
@@ -642,17 +707,32 @@
       if (modalCloseBtn){
         modalCloseBtn.addEventListener('click', closeDemoModal);
       }
+      if (successModalClose){
+        successModalClose.addEventListener('click', closeSuccessModal);
+      }
       if (demoModal){
         demoModal.addEventListener('click', (ev)=>{ if (ev.target === demoModal) closeDemoModal(); });
+      }
+      if (successModal){
+        successModal.addEventListener('click', (ev)=>{ if (ev.target === successModal) closeSuccessModal(); });
       }
       if (qrCloseBtn) qrCloseBtn.addEventListener('click', closeQrModal);
       if (qrModal){
         qrModal.addEventListener('click', (ev)=>{ if (ev.target === qrModal) closeQrModal(); });
       }
+      if (successRecallBtn){
+        successRecallBtn.addEventListener('click', (ev)=>{
+          ev.preventDefault();
+          if (!lastViewerUrl || !lastAdminUrl) return;
+          const strings = dict[lang] || dict.sv;
+          renderSuccessMessage(strings);
+        });
+      }
       window.addEventListener('keydown', (ev)=>{
         if (ev.key === 'Escape'){
           if (demoModal && demoModal.getAttribute('aria-hidden') === 'false') closeDemoModal();
           if (qrModal && qrModal.getAttribute('aria-hidden') === 'false') closeQrModal();
+          if (successModal && successModal.getAttribute('aria-hidden') === 'false') closeSuccessModal();
         }
       });
       wireQrDownload();
@@ -748,8 +828,7 @@
         try{ localStorage.setItem('lf_club', JSON.stringify(data)); }catch(err){ console.warn('localStorage save failed', err); }
         // Create unique card on the server (default TTL 48h)
         if (!successMsgEl) return;
-        successMsgEl.classList.remove('is-visible','has-links');
-        successMsgEl.textContent = strings.ok || 'Saved locally – continue.';
+        hideInlineAlert();
         try{
           const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
           const bodyText = await resp.text();
@@ -765,8 +844,10 @@
             lastAdminToken = PDF_TOKEN_FALLBACK;
             cachedQrDataUrl = '';
             cachedQrSource = '';
+            hasSuccessLinks = false;
+            updateSuccessRecallButton(strings);
+            closeSuccessModal();
             if (successMsgEl){
-              successMsgEl.classList.remove('has-links');
               successMsgEl.textContent = msg;
               successMsgEl.classList.add('is-visible');
             }
@@ -795,8 +876,10 @@
           lastAdminToken = PDF_TOKEN_FALLBACK;
           cachedQrDataUrl = '';
           cachedQrSource = '';
+          hasSuccessLinks = false;
+          updateSuccessRecallButton(strings);
+          closeSuccessModal();
           if (successMsgEl){
-            successMsgEl.classList.remove('has-links');
             successMsgEl.textContent = strings.linkFail;
             successMsgEl.classList.add('is-visible');
           }
