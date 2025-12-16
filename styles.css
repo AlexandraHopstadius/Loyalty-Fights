@@ -147,7 +147,7 @@ body.boot *{ transition:none !important }
 .site-header h1{margin:0;font-size:1.25rem}
 .tag{color:var(--muted);font-size:0.9rem;margin-top:0.25rem}
 .fight-header .title-row{display:flex;justify-content:space-between;align-items:center}
-.fight-main{padding:clamp(0.8rem, 2vw, 1.4rem) 0 0}
+.fight-main{padding:0}
 /* Ensure main fills the viewport so footer doesn't create a visual break */
 .fight-main{display:flex;flex-direction:column;min-height:100vh}
 .fight-main > .cards{flex:1}
