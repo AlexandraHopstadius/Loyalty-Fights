@@ -200,12 +200,9 @@
     .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.45rem;align-items:stretch;margin-top:.6rem}
     .fightButtons .corner-btn{width:100%;min-width:0;border-radius:16px;padding:.85rem 1rem;display:flex;align-items:center;gap:.65rem;text-align:left;min-height:74px;font-weight:800;font-size:1rem;letter-spacing:.01em;box-shadow:0 16px 32px -18px rgba(0,0,0,0.45);transition:transform .18s ease,box-shadow .22s ease,border .22s ease}
     .fightButtons .corner-btn:hover{transform:translateY(-2px);box-shadow:0 20px 38px -16px rgba(0,0,0,0.55)}
-    .corner-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.65);background:rgba(255,255,255,0.3);display:inline-flex;align-items:center;justify-content:center}
     .corner-btn .corner-name{font-size:1.05rem;font-weight:900;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .corner-btn.corner-red{background:linear-gradient(135deg,#8b111b 0%,#c3181f 55%,#f65330 100%);box-shadow:0 18px 36px -14px rgba(237,67,64,0.6);border:1px solid rgba(255,255,255,0.15)}
-    .corner-btn.corner-red .corner-dot{background:#ffb2a3;border-color:#ffe5de}
     .corner-btn.corner-blue{background:linear-gradient(135deg,#0b2d68 0%,#0f4290 45%,#1a6cce 100%);box-shadow:0 18px 36px -14px rgba(27,100,198,0.55);border:1px solid rgba(255,255,255,0.12)}
-    .corner-btn.corner-blue .corner-dot{background:#a5d4ff;border-color:#e1f0ff}
     .result-btn{background:#fff;color:#0f172a;border:1px solid var(--card-border);border-radius:14px;font-weight:800;box-shadow:0 10px 24px -14px rgba(15,23,42,0.35);letter-spacing:.05em;padding:.55rem .85rem}
     .result-btn.draw-btn{background:linear-gradient(135deg,#f8fafc,#eef2ff)}
     .result-btn.clear-btn{background:linear-gradient(135deg,#fff7f7,#ffe4e4);color:#7a0f0f}
@@ -923,11 +920,11 @@
       const blueName = escapeHtml(f.b || 'Blue corner');
       const aBtn = document.createElement('button');
       aBtn.className='corner-btn corner-red';
-      aBtn.innerHTML = `<span class="corner-label"><span class="corner-dot"></span>RED CORNER</span><span class="corner-name">${redName}</span>`;
+      aBtn.innerHTML = `<span class="corner-name">${redName}</span>`;
       aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
       const bBtn = document.createElement('button');
       bBtn.className='corner-btn corner-blue';
-      bBtn.innerHTML = `<span class="corner-label"><span class="corner-dot"></span>BLUE CORNER</span><span class="corner-name">${blueName}</span>`;
+      bBtn.innerHTML = `<span class="corner-name">${blueName}</span>`;
       bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
       const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn result-btn draw-btn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
       const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn result-btn clear-btn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); delete localWinMethods[i]; sendAction({type:'clearWinner', index:i}); sendAction({type:'setWinMethod', index:i, method:''}); });
