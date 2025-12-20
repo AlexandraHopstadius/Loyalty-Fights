@@ -124,59 +124,77 @@ async function buildRegistrationPdf({ clubName, viewerUrl, adminUrl, token, slug
       const usableWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
       if (logoBuffer){
-        const logoWidth = Math.min(usableWidth, 200);
-        const logoHeight = logoWidth * 0.5;
+        const logoWidth = Math.min(usableWidth * 0.5, 220);
+        const logoHeight = logoWidth * 0.48;
         const logoX = doc.page.margins.left + (usableWidth - logoWidth) / 2;
         const logoY = doc.y;
         doc.image(logoBuffer, logoX, logoY, { fit:[logoWidth, logoHeight] });
-        doc.y = logoY + logoHeight + 18;
+        doc.y = logoY + logoHeight + 24;
       }
 
-      const headingHeight = 48;
+      const headingHeight = 54;
       const headingX = doc.page.margins.left;
       const headingY = doc.y;
       doc.save();
-      doc.roundedRect(headingX, headingY, usableWidth, headingHeight, 12).fill('#0f1d2b');
-      doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(22).text('Fightcard-länkar', headingX + 18, headingY + 12, { lineBreak:false });
+      doc.roundedRect(headingX, headingY, usableWidth, headingHeight, 18).fill('#0f1d2b');
+      doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(24).text('Fightcard-länkar', headingX + 24, headingY + 14, { lineBreak:false });
       doc.restore();
-      doc.y = headingY + headingHeight + 24;
+      doc.y = headingY + headingHeight + 20;
 
-      doc.font('Helvetica').fontSize(12).fillColor('#4b5563').text('Alla länkar och QR-koder samlade för din klubb.', { align:'left' });
-      doc.moveDown(0.8);
+      doc.font('Helvetica').fontSize(12).fillColor('#4b5563').text('Alla länkar och QR-koder samlade för din klubb.', { align:'center' });
+      doc.moveDown(1.2);
       doc.fillColor('#111');
 
       const metaPairs = [];
       if (clubName) metaPairs.push(['Klubb', clubName]);
       if (slug) metaPairs.push(['Kort-ID', slug]);
       if (token) metaPairs.push(['Adminlösenord', token]);
-      metaPairs.forEach(([label, value]) => {
-        doc.font('Helvetica-Bold').text(`${label}:`, { continued:true });
-        doc.font('Helvetica').text(` ${value}`);
-      });
-      if (metaPairs.length) doc.moveDown(0.6);
+      const metaLines = [];
+      if (viewerUrl) metaLines.push(['Publik länk', viewerUrl, true]);
+      if (adminUrl) metaLines.push(['Admin länk', adminUrl, true]);
 
-      if (viewerUrl){
-        doc.font('Helvetica-Bold').text('Publik länk:');
-        doc.font('Helvetica').fillColor('#1d4ed8').text(viewerUrl, { link: viewerUrl, underline:true });
-        doc.fillColor('#111');
-        doc.moveDown(0.6);
-      }
-      if (adminUrl){
-        doc.font('Helvetica-Bold').text('Admin länk:');
-        doc.font('Helvetica').fillColor('#1d4ed8').text(adminUrl, { link: adminUrl, underline:true });
-        doc.fillColor('#111');
-        doc.moveDown(0.6);
-      }
+      const infoBoxPadding = 18;
+      const infoBoxLineHeight = 22;
+      const infoBoxHeight = infoBoxPadding * 2 + (metaPairs.length + metaLines.length) * infoBoxLineHeight + 10;
+      const infoBoxX = doc.page.margins.left;
+      const infoBoxY = doc.y;
+      doc.save();
+      doc.roundedRect(infoBoxX, infoBoxY, usableWidth, infoBoxHeight, 16).fill('#f8fafc');
+      doc.restore();
+      doc.y = infoBoxY + infoBoxPadding;
+
+      metaPairs.forEach(([label, value]) => {
+        doc.font('Helvetica-Bold').fillColor('#111').text(`${label}:`, { continued:true });
+        doc.font('Helvetica').fillColor('#111').text(` ${value}`);
+      });
+
+      metaLines.forEach(([label, value, isLink]) => {
+        doc.font('Helvetica-Bold').fillColor('#111').text(`${label}:`);
+        if (isLink){
+          doc.font('Helvetica').fillColor('#1d4ed8').text(value, { link: value, underline:true });
+        } else {
+          doc.font('Helvetica').fillColor('#111').text(value);
+        }
+        doc.moveDown(0.1);
+      });
+      doc.fillColor('#111');
+      doc.y = infoBoxY + infoBoxHeight + 18;
 
       if (qrBuffer){
-        doc.font('Helvetica-Bold').text('QR-kod till publikvy:');
-        const qrSize = 160;
+        const qrBlockPadding = 20;
+        const qrSize = 170;
+        const qrBlockHeight = qrSize + qrBlockPadding * 2 + 30;
+        const qrBlockY = doc.y;
+        doc.save();
+        doc.roundedRect(doc.page.margins.left, qrBlockY, usableWidth, qrBlockHeight, 18).fill('#ffffff');
+        doc.restore();
+        const qrTitleY = qrBlockY + 16;
+        doc.font('Helvetica-Bold').fontSize(12).fillColor('#111').text('QR-kod till publikvy:', doc.page.margins.left + qrBlockPadding, qrTitleY);
         const qrX = doc.page.margins.left + (usableWidth - qrSize) / 2;
-        const qrY = doc.y + 10;
+        const qrY = qrTitleY + 18;
         doc.image(qrBuffer, qrX, qrY, { fit:[qrSize, qrSize] });
-        doc.y = qrY + qrSize + 18;
-        doc.font('Helvetica').fontSize(10).fillColor('#4b5563').text('Dela QR-koden med publik och klubbar för snabb åtkomst.', { align:'center' });
-        doc.fillColor('#111');
+        doc.font('Helvetica').fontSize(10).fillColor('#4b5563').text('Dela QR-koden med publik och klubbar för snabb åtkomst.', doc.page.margins.left, qrY + qrSize + 16, { align:'center', width: usableWidth });
+        doc.y = qrBlockY + qrBlockHeight;
       }
 
       doc.end();

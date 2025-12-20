@@ -789,6 +789,31 @@ app.post('/admin/action', async (req, res) => {
       }
     }
   }
+  if (msg.type === 'updateFight'){
+    const idx = Number.isInteger(msg.index) ? msg.index : -1;
+    if (idx < 0 || idx >= state.fights.length){
+      return res.status(400).json({ error:'fight not found' });
+    }
+    const data = msg.data || {};
+    const a = (data.a||'').trim();
+    const b = (data.b||'').trim();
+    if (!a || !b){
+      return res.status(400).json({ error:'missing fighter names' });
+    }
+    const weight = (data.weight||'').trim();
+    const klass = (data.klass||'').trim();
+    const aGym = (data.aGym||'').trim();
+    const bGym = (data.bGym||'').trim();
+    const fight = state.fights[idx];
+    fight.a = a;
+    fight.b = b;
+    fight.weight = weight;
+    fight.klass = klass;
+    fight.aGym = aGym;
+    fight.bGym = bGym;
+    state.fightsVisible = true;
+    newFight = fight;
+  }
   if (msg.type === 'deleteFight'){
     const idx = Number.isInteger(msg.index) ? msg.index : -1;
     if (idx>=0 && idx < state.fights.length){
@@ -990,6 +1015,26 @@ wss.on('connection', (ws, req)=>{
               if (first) processedCreateIds.delete(first);
             }
           }
+        }
+        if (msg.payload.type === 'updateFight'){
+          const idx = Number.isInteger(msg.payload.index) ? msg.payload.index : -1;
+          if (idx < 0 || idx >= state.fights.length) return;
+          const data = msg.payload.data || {};
+          const a = (data.a||'').trim();
+          const b = (data.b||'').trim();
+          if (!a || !b) return;
+          const weight = (data.weight||'').trim();
+          const klass = (data.klass||'').trim();
+          const aGym = (data.aGym||'').trim();
+          const bGym = (data.bGym||'').trim();
+          const fight = state.fights[idx];
+          fight.a = a;
+          fight.b = b;
+          fight.weight = weight;
+          fight.klass = klass;
+          fight.aGym = aGym;
+          fight.bGym = bGym;
+          state.fightsVisible = true;
         }
         if (msg.payload.type === 'deleteFight'){
           const idx = Number.isInteger(msg.payload.index) ? msg.payload.index : -1;

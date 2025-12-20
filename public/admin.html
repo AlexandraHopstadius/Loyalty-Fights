@@ -50,6 +50,9 @@
     /* Circular danger icon button (for Remove) */
     .btn-circle-danger{width:36px;height:36px;min-width:36px;border-radius:50%;padding:0;display:inline-flex;align-items:center;justify-content:center;line-height:0;color:#fff;border:0}
     .btn-circle-danger svg{width:16px;height:16px}
+    .fight-actions{position:absolute;top:6px;right:10px;display:flex;gap:.4rem;align-items:center;z-index:5}
+    .fight-edit-btn{padding:.35rem .85rem;border-radius:999px;border:1px solid rgba(15,23,42,0.12);background:#fff;color:#0f2f63;font-weight:800;font-size:.75rem;letter-spacing:.04em;cursor:pointer;box-shadow:0 10px 24px -12px rgba(15,23,42,0.4);transition:transform .18s ease,box-shadow .2s ease}
+    .fight-edit-btn:hover{transform:translateY(-1px);box-shadow:0 16px 32px -14px rgba(15,23,42,0.45)}
     #status{font-weight:700}
     .pill{background:#eef2ff;padding:.45rem .8rem;border-radius:999px;border:1px solid #dbeafe;font-size:.78rem;color:#1e40af}
     .muted{color:var(--muted)}
@@ -194,24 +197,21 @@
     .fightItem.dragging{opacity:.55;cursor:grabbing}
     .fightItem.drop-before{box-shadow:0 -3px 0 0 #ef233c inset}
     .fightItem.drop-after{box-shadow:0 3px 0 0 #ef233c inset}
-    .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.55rem;align-items:stretch;margin-top:.85rem}
-    .fightButtons button{font-size:.9rem;padding:.65rem .8rem}
-    .fightButtons .corner-btn{width:100%;min-width:0;border-radius:16px;padding:1rem 1.1rem;display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:110px;font-weight:800;font-size:1rem;letter-spacing:.01em;box-shadow:0 16px 32px -18px rgba(0,0,0,0.45);transition:transform .18s ease,box-shadow .22s ease,border .22s ease}
+    .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.45rem;align-items:stretch;margin-top:.6rem}
+    .fightButtons .corner-btn{width:100%;min-width:0;border-radius:16px;padding:.85rem 1rem;display:flex;align-items:center;gap:.65rem;text-align:left;min-height:74px;font-weight:800;font-size:1rem;letter-spacing:.01em;box-shadow:0 16px 32px -18px rgba(0,0,0,0.45);transition:transform .18s ease,box-shadow .22s ease,border .22s ease}
     .fightButtons .corner-btn:hover{transform:translateY(-2px);box-shadow:0 20px 38px -16px rgba(0,0,0,0.55)}
-    .corner-label{font-size:.72rem;letter-spacing:.32em;font-weight:800;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem;opacity:.88;color:rgba(255,255,255,0.9)}
-    .corner-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.35);display:inline-block}
-    .corner-name{font-size:1.08rem;font-weight:900;margin-top:.25rem;line-height:1.2;color:#fff}
+    .corner-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.65);background:rgba(255,255,255,0.3);display:inline-flex;align-items:center;justify-content:center}
+    .corner-btn .corner-name{font-size:1.05rem;font-weight:900;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .corner-btn.corner-red{background:linear-gradient(135deg,#8b111b 0%,#c3181f 55%,#f65330 100%);box-shadow:0 18px 36px -14px rgba(237,67,64,0.6);border:1px solid rgba(255,255,255,0.15)}
     .corner-btn.corner-red .corner-dot{background:#ffb2a3;border-color:#ffe5de}
     .corner-btn.corner-blue{background:linear-gradient(135deg,#0b2d68 0%,#0f4290 45%,#1a6cce 100%);box-shadow:0 18px 36px -14px rgba(27,100,198,0.55);border:1px solid rgba(255,255,255,0.12)}
     .corner-btn.corner-blue .corner-dot{background:#a5d4ff;border-color:#e1f0ff}
-    .result-btn{background:#fff;color:#0f172a;border:1px solid var(--card-border);border-radius:14px;font-weight:800;box-shadow:0 10px 24px -14px rgba(15,23,42,0.35);letter-spacing:.05em}
+    .result-btn{background:#fff;color:#0f172a;border:1px solid var(--card-border);border-radius:14px;font-weight:800;box-shadow:0 10px 24px -14px rgba(15,23,42,0.35);letter-spacing:.05em;padding:.55rem .85rem}
     .result-btn.draw-btn{background:linear-gradient(135deg,#f8fafc,#eef2ff)}
     .result-btn.clear-btn{background:linear-gradient(135deg,#fff7f7,#ffe4e4);color:#7a0f0f}
     @media (max-width:600px){
-      .fightButtons{grid-template-columns:1fr;gap:.45rem;margin-bottom:.4rem;margin-top:.65rem}
-      .fightButtons button{padding:.6rem .65rem;font-size:.85rem;min-height:48px}
-      .fightButtons .corner-btn{min-height:auto}
+      .fightButtons{grid-template-columns:1fr;gap:.4rem;margin-bottom:.4rem;margin-top:.5rem}
+      .fightButtons .corner-btn{min-height:auto;padding:.75rem .9rem}
       .fightItem .method-row{margin-top:.6rem}
     }
     /* Card Management primary buttons layout */
@@ -443,7 +443,7 @@
         <button id="toggleCard" type="button" class="toggle-btn" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
       </div>
       <div class="card-manage-actions" style="margin:.65rem 0 .9rem">
-        <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
+        <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight">Create New Fight</button>
         <button id="clearAllFights" class="btn-small" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
         <button id="pauseFights" class="btn-small" title="Pause fights (show Nu only)">Pause Fights</button>
         <button id="playFights" class="btn-small" title="Resume fights (show live Now)">Play</button>
@@ -526,7 +526,7 @@
           <input name="bGym" placeholder="Gym / Club" autocomplete="off">
         </fieldset>
         <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.4rem">
-          <button type="button" id="cancelFight" class="btn-neutral" onclick="(function(){var m=document.getElementById('fightModal'); if(m) m.style.display='none';})()">Cancel</button>
+          <button type="button" id="cancelFight" class="btn-neutral" onclick="closeFightModal()">Cancel</button>
           <button type="submit" id="createFightBtn">Create fight</button>
         </div>
       </form>
@@ -545,16 +545,31 @@
 
 
   <script>
-  // Fight modal functions
-  function openFightModal(){
+  const fightFormState = { mode:'create', index:null };
+  function openFightModal(prefill){
     const modal = document.getElementById('fightModal');
     const form = document.getElementById('fightForm');
     if(!modal || !form){ console.error('[admin] modal missing'); return; }
+    fightFormState.mode = prefill && Number.isInteger(prefill.index) ? 'edit' : 'create';
+    fightFormState.index = prefill && Number.isInteger(prefill.index) ? prefill.index : null;
+    if (prefill && prefill.fight){
+      ['klass','weight','a','aGym','b','bGym'].forEach(name=>{
+        const input = form.querySelector(`[name="${name}"]`);
+        if (input) input.value = prefill.fight[name] || '';
+      });
+    } else {
+      form.reset();
+    }
+    const submitBtn = document.getElementById('createFightBtn');
+    if (submitBtn){ submitBtn.textContent = fightFormState.mode === 'edit' ? 'Update fight' : 'Create fight'; }
     modal.style.display='flex';
-    console.log('[admin] fight modal opened');
-    try{ form.querySelector('input[name="klass"]').focus(); }catch(_){}
+    console.log('[admin] fight modal opened', fightFormState);
+    try{ form.querySelector('input[name="klass"]').focus(); }catch(_){ }
   }
-  function closeFightModal(){ const m = document.getElementById('fightModal'); if(m) m.style.display='none'; }
+  function closeFightModal(){
+    const m = document.getElementById('fightModal'); if(m) m.style.display='none';
+    fightFormState.mode = 'create'; fightFormState.index = null;
+  }
   // simplified admin UI with explicit connect and clear feedback
   const urlToken = new URLSearchParams(location.search).get('token') || '';
   function extractSlug(){
@@ -884,17 +899,25 @@
       if (state && typeof state.current === 'number' && state.current === i){ div.classList.add('current'); }
       const title = document.createElement('div'); title.innerHTML = `<strong>#${i+1}</strong> ${escapeHtml(f.a)} vs ${escapeHtml(f.b)} <span class="muted">(${escapeHtml(f.klass||'')})</span>`;
       div.appendChild(title);
-      // Corner remove button
+      const actionsWrap = document.createElement('div');
+      actionsWrap.className = 'fight-actions';
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'fight-edit-btn';
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        openFightModal({ index:i, fight:f });
+      });
       const remove = document.createElement('button');
       remove.className = 'btn-circle-danger fight-remove';
       remove.setAttribute('aria-label','Remove fight');
       remove.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='#ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='6' x2='18' y2='18'/><line x1='18' y1='6' x2='6' y2='18'/></svg>";
-      remove.style.position='absolute';
-      remove.style.top='6px';
-      remove.style.right='10px';
       remove.style.background='linear-gradient(160deg,var(--accent-red) 0%, var(--accent-red-mid) 50%, var(--accent-red-hot) 100%)';
       remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ await reloadState(false); } }});
-      div.appendChild(remove);
+      actionsWrap.appendChild(editBtn);
+      actionsWrap.appendChild(remove);
+      div.appendChild(actionsWrap);
       const btns = document.createElement('div'); btns.className = 'fightButtons';
       const redName = escapeHtml(f.a || 'Red corner');
       const blueName = escapeHtml(f.b || 'Blue corner');
@@ -1243,20 +1266,19 @@
         const fd = new FormData(form);
         const data = Object.fromEntries(fd.entries());
         if(!data.a || !data.b){ showFeedback('Enter both fighter names', false); return; }
-        // Warn clearly if missing token
         if (!tokenInput.value.trim()){
           showFeedback('Missing token — enter admin token at top, then try again', false);
           try{ tokenInput.focus(); }catch(_){ }
           return;
         }
-        const resp = await sendAction({ type:'createFight', data });
-        if (resp && resp.fight){
-          // Avoid double-listing: rely on server state instead of optimistic push
-          await reloadState(false);
-          closeFightModal();
+        if (fightFormState.mode === 'edit' && Number.isInteger(fightFormState.index)){
+          const resp = await sendAction({ type:'updateFight', index:fightFormState.index, data });
+          if (resp && resp.ok){ await reloadState(false); closeFightModal(); }
+          else { await reloadState(false); }
         } else {
-          // keep modal open if token missing or error
-          await reloadState(false);
+          const resp = await sendAction({ type:'createFight', data });
+          if (resp && resp.fight){ await reloadState(false); closeFightModal(); }
+          else { await reloadState(false); }
         }
       });
       // ESC key to close
