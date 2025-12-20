@@ -592,6 +592,7 @@ app.post('/cards', (req, res) => {
     const ttl = Math.min(72, Math.max(24, Number(req.body && req.body.ttlHours || 48)));
     const club = req.body && req.body.club ? req.body.club : {};
     const wantClubSlug = !!(req.body && req.body.useClubSlug);
+    const locale = (req.body && typeof req.body.locale === 'string') ? req.body.locale : '';
     const { slug, record } = createCard({ club, wantClubSlug }, ttl);
     const viewerUrl = `/${slug}`;
     const adminUrl = `/admin/${slug}?token=${encodeURIComponent(record.adminToken)}`;
@@ -609,7 +610,8 @@ app.post('/cards', (req, res) => {
         adminUrl: adminAbs,
         slug,
         expiresAt: record.expiresAt,
-        adminToken: record.adminToken
+        adminToken: record.adminToken,
+        locale
       })).catch(err => {
         console.warn('[mail] sendRegistrationEmail error:', err && err.message ? err.message : err);
       });

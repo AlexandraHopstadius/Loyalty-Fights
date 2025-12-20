@@ -88,11 +88,13 @@ function renderList(){
   <div class="fight-row">
           <div class="fighter-box ${aClass}" data-side="a">
             <div class="fighter-name">${f.a}</div>
+            <div class="corner-chip corner-chip-red">Red Corner</div>
             <div class="fighter-meta">${(f.aGym || fighterAffils[f.a] || '')}</div>
           </div>
           <div class="vs-col"><span class="vs-label">vs</span></div>
           <div class="fighter-box ${bClass}" data-side="b">
             <div class="fighter-name">${f.b}</div>
+            <div class="corner-chip corner-chip-blue">Blue Corner</div>
             <div class="fighter-meta">${(f.bGym || fighterAffils[f.b] || '')}</div>
           </div>
         </div>

@@ -194,11 +194,24 @@
     .fightItem.dragging{opacity:.55;cursor:grabbing}
     .fightItem.drop-before{box-shadow:0 -3px 0 0 #ef233c inset}
     .fightItem.drop-after{box-shadow:0 3px 0 0 #ef233c inset}
-    .fightButtons{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.4rem;align-items:center;margin-top:.85rem}
-    .fightButtons button{font-size:.85rem;padding:.55rem .6rem}
+    .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.55rem;align-items:stretch;margin-top:.85rem}
+    .fightButtons button{font-size:.9rem;padding:.65rem .8rem}
+    .fightButtons .corner-btn{width:100%;min-width:0;border-radius:16px;padding:1rem 1.1rem;display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:110px;font-weight:800;font-size:1rem;letter-spacing:.01em;box-shadow:0 16px 32px -18px rgba(0,0,0,0.45);transition:transform .18s ease,box-shadow .22s ease,border .22s ease}
+    .fightButtons .corner-btn:hover{transform:translateY(-2px);box-shadow:0 20px 38px -16px rgba(0,0,0,0.55)}
+    .corner-label{font-size:.72rem;letter-spacing:.32em;font-weight:800;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem;opacity:.88;color:rgba(255,255,255,0.9)}
+    .corner-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.35);display:inline-block}
+    .corner-name{font-size:1.08rem;font-weight:900;margin-top:.25rem;line-height:1.2;color:#fff}
+    .corner-btn.corner-red{background:linear-gradient(135deg,#8b111b 0%,#c3181f 55%,#f65330 100%);box-shadow:0 18px 36px -14px rgba(237,67,64,0.6);border:1px solid rgba(255,255,255,0.15)}
+    .corner-btn.corner-red .corner-dot{background:#ffb2a3;border-color:#ffe5de}
+    .corner-btn.corner-blue{background:linear-gradient(135deg,#0b2d68 0%,#0f4290 45%,#1a6cce 100%);box-shadow:0 18px 36px -14px rgba(27,100,198,0.55);border:1px solid rgba(255,255,255,0.12)}
+    .corner-btn.corner-blue .corner-dot{background:#a5d4ff;border-color:#e1f0ff}
+    .result-btn{background:#fff;color:#0f172a;border:1px solid var(--card-border);border-radius:14px;font-weight:800;box-shadow:0 10px 24px -14px rgba(15,23,42,0.35);letter-spacing:.05em}
+    .result-btn.draw-btn{background:linear-gradient(135deg,#f8fafc,#eef2ff)}
+    .result-btn.clear-btn{background:linear-gradient(135deg,#fff7f7,#ffe4e4);color:#7a0f0f}
     @media (max-width:600px){
-      .fightButtons{grid-template-columns:1fr 1fr 1fr auto;gap:.3rem;margin-bottom:.4rem;margin-top:.65rem}
-      .fightButtons button{padding:.6rem .5rem;font-size:.8rem;min-height:44px}
+      .fightButtons{grid-template-columns:1fr;gap:.45rem;margin-bottom:.4rem;margin-top:.65rem}
+      .fightButtons button{padding:.6rem .65rem;font-size:.85rem;min-height:48px}
+      .fightButtons .corner-btn{min-height:auto}
       .fightItem .method-row{margin-top:.6rem}
     }
     /* Card Management primary buttons layout */
@@ -424,6 +437,25 @@
         </div>
       </div>
 
+  <div class="card" aria-labelledby="newFightControls">
+      <h3 id="newFightControls">Card Management</h3>
+      <div class="card-actions">
+        <button id="toggleCard" type="button" class="toggle-btn" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
+      </div>
+      <div class="card-manage-actions" style="margin:.65rem 0 .9rem">
+        <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
+        <button id="clearAllFights" class="btn-small" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
+        <button id="pauseFights" class="btn-small" title="Pause fights (show Nu only)">Pause Fights</button>
+        <button id="playFights" class="btn-small" title="Resume fights (show live Now)">Play</button>
+      </div>
+      <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.4rem">
+        <!-- Fight items injected here -->
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:.95rem">
+        <button id="saveCardBtn" class="btn-small" title="Save all changes">Save</button>
+      </div>
+  </div>
+
       <!-- New dedicated Social Links panel -->
       <div class="card" aria-labelledby="socialControls">
         <h3 id="socialControls">Social Links</h3>
@@ -467,24 +499,7 @@
         </div>
       </div>
       
-  <div class="card" aria-labelledby="newFightControls">
-      <h3 id="newFightControls">Card Management</h3>
-      <div class="card-actions">
-        <button id="toggleCard" type="button" class="toggle-btn" aria-pressed="false" aria-label="Hide card management" title="Hide card management">Hide</button>
-      </div>
-      <div class="card-manage-actions" style="margin:.65rem 0 .9rem">
-        <button id="newFightBtn" type="button" class="btn-small" title="Create a new fight" aria-label="Create a new fight" onclick="(function(){var m=document.getElementById('fightModal'); if(m){ m.style.display='flex'; console.log('[admin] fight modal opened (inline)'); var f=document.getElementById('fightForm'); if(f){ try{ f.querySelector('input[name=\'klass\']').focus(); }catch(_){ } } }})()">Create New Fight</button>
-        <button id="clearAllFights" class="btn-small" title="Remove all fights" style="background:#ef4444">Clear ALL fights</button>
-        <button id="pauseFights" class="btn-small" title="Pause fights (show Nu only)">Pause Fights</button>
-        <button id="playFights" class="btn-small" title="Resume fights (show live Now)">Play</button>
-      </div>
-      <div class="sidebar" id="fightList" aria-label="Fight list" style="margin-top:.4rem">
-        <!-- Fight items injected here -->
-      </div>
-      <div style="display:flex;justify-content:flex-end;margin-top:.95rem">
-        <button id="saveCardBtn" class="btn-small" title="Save all changes">Save</button>
-      </div>
-  </div>
+      <!-- Preview pane removed per request -->
       <!-- Preview pane removed per request -->
   </main>
   <!-- Static fight creation modal (hidden by default) -->
@@ -881,10 +896,18 @@
       remove.addEventListener('click', async (e)=>{ e.stopPropagation(); if (confirm('Remove this fight?')){ const r = await sendAction({type:'deleteFight', index:i}); if (r && r.ok){ await reloadState(false); } }});
       div.appendChild(remove);
       const btns = document.createElement('div'); btns.className = 'fightButtons';
-      const aBtn = document.createElement('button'); aBtn.textContent = 'A'; aBtn.className='smallBtn'; aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
-      const bBtn = document.createElement('button'); bBtn.textContent = 'B'; bBtn.className='smallBtn'; bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
-      const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
-      const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); delete localWinMethods[i]; sendAction({type:'clearWinner', index:i}); sendAction({type:'setWinMethod', index:i, method:''}); });
+      const redName = escapeHtml(f.a || 'Red corner');
+      const blueName = escapeHtml(f.b || 'Blue corner');
+      const aBtn = document.createElement('button');
+      aBtn.className='corner-btn corner-red';
+      aBtn.innerHTML = `<span class="corner-label"><span class="corner-dot"></span>RED CORNER</span><span class="corner-name">${redName}</span>`;
+      aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
+      const bBtn = document.createElement('button');
+      bBtn.className='corner-btn corner-blue';
+      bBtn.innerHTML = `<span class="corner-label"><span class="corner-dot"></span>BLUE CORNER</span><span class="corner-name">${blueName}</span>`;
+      bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
+      const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn result-btn draw-btn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
+      const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn result-btn clear-btn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); delete localWinMethods[i]; sendAction({type:'clearWinner', index:i}); sendAction({type:'setWinMethod', index:i, method:''}); });
       btns.appendChild(aBtn); btns.appendChild(bBtn); btns.appendChild(dBtn); btns.appendChild(clr);
       div.appendChild(btns);
       // Always show method selector so it doesn't disappear if winner is unset

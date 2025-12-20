@@ -277,6 +277,12 @@ body.updating .fight-main{opacity:0}
 .fighter-name{font-weight:700;font-size:1.02rem;color:#111;text-align:center}
   .fighter-name{font-weight:700;font-size:1.02rem;color:#111}
 .fighter-meta{font-size:0.78rem;color:var(--muted);margin-top:6px;line-height:1.05;text-align:center;opacity:0.95}
+.corner-chip{margin-top:.4rem;padding:.22rem .8rem;border-radius:999px;font-size:.7rem;font-weight:900;letter-spacing:.28em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem;color:#fff;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.08)}
+.corner-chip::before{content:'';width:.55rem;height:.55rem;border-radius:999px;border:2px solid rgba(255,255,255,0.65);background:rgba(255,255,255,0.4);display:inline-block}
+.corner-chip-red{background:linear-gradient(140deg,#651112,#b32020);color:#ffe1d9;box-shadow:0 10px 20px -12px rgba(255,62,62,0.55)}
+.corner-chip-red::before{background:#ffb2a3;border-color:#ffe1d9}
+.corner-chip-blue{background:linear-gradient(140deg,#0f274f,#1f4d91);color:#d7ecff;box-shadow:0 10px 20px -12px rgba(74,144,226,0.5)}
+.corner-chip-blue::before{background:#9ccfff;border-color:#d7ecff}
 .fighter-box.winner{background:linear-gradient(180deg,#dff6e6,#c9f0d1);border-color:#7ad08a}
 .fighter-box.winner .fighter-name{color:#063b14}
 .fighter-box.winner .fighter-meta{color:#0a4f22}
