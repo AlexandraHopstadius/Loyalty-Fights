@@ -66,9 +66,9 @@
     .cta:hover{transform:translateY(-2px);box-shadow:0 16px 36px -14px rgba(255,70,70,0.65);filter:brightness(1.03)}
     .cta:active{transform:translateY(1px)}
     .hero-side{display:flex;flex-direction:column;gap:1.1rem;align-items:flex-start}
-    .info-btn{appearance:none;border:0;border-radius:999px;padding:.95rem 1.9rem;font-size:1rem;font-weight:700;color:#f5f7ff;background:linear-gradient(145deg,#0c2750,#0f3668);box-shadow:0 12px 30px -12px rgba(7,22,48,.9);cursor:pointer;align-self:flex-start;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+    .info-btn{appearance:none;border:2px solid #0c2750;border-radius:18px;padding:.95rem 1.9rem;font-size:1rem;font-weight:800;color:#0f2f63;background:linear-gradient(140deg,#f6f8fb,#edf1f7);box-shadow:0 10px 26px -14px rgba(7,22,48,.65);cursor:pointer;align-self:flex-start;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
     .hero-info{margin-top:.4rem}
-    .info-btn:hover{transform:translateY(-1px);box-shadow:0 16px 36px -14px rgba(7,22,48,.9);filter:brightness(1.03)}
+    .info-btn:hover{transform:translateY(-1px);box-shadow:0 14px 32px -14px rgba(7,22,48,.7);background:#fff}
     .info-btn:active{transform:translateY(1px)}
     @media (min-width:720px){
       .hero{flex-direction:row;justify-content:space-between;align-items:center}
@@ -289,8 +289,8 @@
   <script>
     (function(){
       const dict = {
-        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'Fyll i klubbens e‑postadress och namn.', bullet2:'Inom några sekunder skickar vi en PDF med länkar till fightcard och admin.', bullet3:'Öppna länken och börja bygga fightcardet direkt!', cta:'Beställ här!', info:'Hur funkar det?', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länkar klara!', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', slugTaken:'Det klubbnamnet är redan reserverat i 48 timmar. Välj ett annat namn eller försök igen senare.', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod', pdfIntro:'Spara den här sidan – den innehåller länkarna, QR-koden och adminlösenordet.', pdfViewerHint:'Dela med fighters och publik. Uppdateras automatiskt.', pdfAdminHint:'Endast arrangörer. Logga in för att lägga till matcher och resultat.', pdfTokenHint:'Behövs för att komma in i admin-länken.', pdfQrHint:'Skanna för att öppna publiklänken (samma som fightcardlänken).', missingEmail:'Fyll i en e‑postadress för att fortsätta.', missingClub:'Fyll i klubbnamn för att fortsätta.', successEmailHeading:'E‑post på väg', successEmailBody:'Vi skickade just instruktionerna och en PDF. Håll utkik efter ämnet "Fightcard-länkar".', successBuildHeading:'Börja bygga direkt i webben', successBuildViewer:'Publiklänk (dela direkt)', successBuildAdmin:'Adminlänk (redigera & uppdatera)', successPdfHeading:'Spara PDF:en', successPdfBody:'PDF:en innehåller QR-koden, token och länkar. Ladda ner här eller via mejlet.', successReopen:'Öppna instruktionerna igen' },
-        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'Enter your email address and club name.', bullet2:'Within seconds we send you a PDF with both fightcard and admin links.', bullet3:'Open the link and start building your fightcard!', cta:'Order here!', info:'How does it work?', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Links ready!', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', slugTaken:'That club name is already reserved for another event. Please try a different name or check back in 48 hours.', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code', pdfIntro:'Keep this sheet handy - it includes every link, the QR and your admin token.', pdfViewerHint:'Share with fighters and audience. Always shows the latest card.', pdfAdminHint:'For organizers only. Sign in to add bouts, results, and updates.', pdfTokenHint:'You need this token whenever you open the admin link.', pdfQrHint:'Scan to open the audience link (same as the fightcard link).', missingEmail:'Please enter an email address before continuing.', missingClub:'Please enter your club name before continuing.', successEmailHeading:'Email sent', successEmailBody:'We just sent the instructions and PDF recap. Look for the subject "Fightcard links".', successBuildHeading:'Start building in your browser', successBuildViewer:'Audience link (share ready)', successBuildAdmin:'Admin link (edit & update)', successPdfHeading:'Keep the PDF handy', successPdfBody:'The PDF stores your QR code, token, and quick links. Download it here or from the email.', successReopen:'Show instructions again' }
+        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'Fyll i klubbens e‑postadress och namn.', bullet2:'Inom några sekunder skickar vi en PDF med länkar till fightcard och admin.', bullet3:'Öppna länken och börja bygga fightcardet direkt!', cta:'Beställ här!', info:'Klicka här för att se hur det funkar!', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länkar klara!', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', slugTaken:'Det klubbnamnet är redan reserverat i 48 timmar. Välj ett annat namn eller försök igen senare.', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod', pdfIntro:'Spara sidan – den innehåller all info du behöver.', pdfViewerHint:'Dela med publik och fighters. Uppdateras automatiskt.', pdfAdminHint:'För arrangörerna. Logga in för att lägga till matcher.', pdfTokenHint:'Behövs när du öppnar adminlänken.', pdfQrHint:'Skanna för att öppna publiklänken direkt.', pdfClubLabel:'Klubb', pdfSlugLabel:'Kort-ID', instructionsLink:'Ladda ner guide (PDF)', instructionsPdf:'assets/docs/instructions_sv.pdf', missingEmail:'Fyll i en e‑postadress för att fortsätta.', missingClub:'Fyll i klubbnamn för att fortsätta.', successEmailHeading:'E‑post på väg', successEmailBody:'Vi skickade just instruktionerna och en PDF. Håll utkik efter ämnet "Fightcard-länkar".', successBuildHeading:'Börja bygga direkt i webben', successBuildViewer:'Publiklänk (dela direkt)', successBuildAdmin:'Adminlänk (redigera & uppdatera)', successPdfHeading:'Spara PDF:en', successPdfBody:'PDF:en innehåller QR-koden, token och länkar. Ladda ner här eller via mejlet.', successReopen:'Öppna instruktionerna igen' },
+        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'Enter your email address and club name.', bullet2:'Within seconds we send you a PDF with both fightcard and admin links.', bullet3:'Open the link and start building your fightcard!', cta:'Order here!', info:'Click here to see how it works!', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Links ready!', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', slugTaken:'That club name is already reserved for another event. Please try a different name or check back in 48 hours.', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code', pdfIntro:'Keep this sheet handy – everything you need lives here.', pdfViewerHint:'Share with coaches and the audience. Always shows the latest card.', pdfAdminHint:'For organizers only. Use it to add fights and results.', pdfTokenHint:'Required whenever you open the admin link.', pdfQrHint:'Scan to open the public link instantly.', pdfClubLabel:'Club', pdfSlugLabel:'Card ID', instructionsLink:'Download instructions (PDF)', instructionsPdf:'assets/docs/instructions_en.pdf', missingEmail:'Please enter an email address before continuing.', missingClub:'Please enter your club name before continuing.', successEmailHeading:'Email sent', successEmailBody:'We just sent the instructions and PDF recap. Look for the subject "Fightcard links".', successBuildHeading:'Start building in your browser', successBuildViewer:'Audience link (share ready)', successBuildAdmin:'Admin link (edit & update)', successPdfHeading:'Keep the PDF handy', successPdfBody:'The PDF stores your QR code, token, and quick links. Download it here or from the email.', successReopen:'Show instructions again' }
       };
       const qs = new URLSearchParams(location.search);
       let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
@@ -460,11 +460,25 @@
         });
       }
 
+      function wireInstructionsLink(container){
+        if (!container) return;
+        const trigger = container.querySelector('.instructions-link');
+        if (!trigger) return;
+        trigger.addEventListener('click', (ev)=>{
+          ev.preventDefault();
+          const href = trigger.dataset.href;
+          if (!href) return;
+          window.open(href, '_blank', 'noopener');
+        });
+      }
+
       function renderSuccessMessage(strings, options){
         if (!successModal || !successModalBody || !lastViewerUrl || !lastAdminUrl) return;
         const opts = options || {};
         const qrBtnLabel = strings.qrLink || 'View QR code';
         const pdfBtnLabel = strings.pdfLink || 'Download PDF';
+        const instructionsBtnLabel = strings.instructionsLink || 'Download instructions';
+        const instructionsHref = escapeAttr(strings.instructionsPdf || '');
         const viewerHref = escapeAttr(lastViewerUrl);
         const adminHref = escapeAttr(lastAdminUrl);
         const viewerLabel = escapeHtml(strings.viewLink || 'view fightcard');
@@ -502,6 +516,7 @@
               <p>${pdfBody}</p>
             </span>
           </div>`;
+        const instructionsButton = instructionsHref ? `<button type="button" class="instructions-link" data-href="${instructionsHref}">${instructionsBtnLabel}</button>` : '';
         successModalBody.innerHTML = `
           <div class="success-modal-header">
             <h2>${modalTitle}</h2>
@@ -512,6 +527,7 @@
             ${pdfLine}
           </div>
           <div class="success-modal-actions">
+            ${instructionsButton}
             <button type="button" class="qr-link">${qrBtnLabel}</button>
             <button type="button" class="pdf-link">${pdfBtnLabel}</button>
           </div>`;
@@ -522,6 +538,7 @@
         }
         wireQrLink(successModalBody);
         wirePdfLink(successModalBody, strings);
+        wireInstructionsLink(successModalBody);
       }
 
       function refreshSuccessMessage(strings){
@@ -534,16 +551,18 @@
         const jsPDF = await ensureJsPdf();
         if (!jsPDF) throw new Error('PDF library unavailable');
         const doc = new jsPDF();
+        const clubLabel = (strings && strings.pdfClubLabel) || 'Club';
+        const slugLabel = (strings && strings.pdfSlugLabel) || 'Card ID';
         const tokenLabel = (strings && strings.pdfToken) || 'Admin Password (Token)';
         const viewerLabel = (strings && strings.pdfViewer) || 'Fightcard link';
         const adminLabel = (strings && strings.pdfAdmin) || 'Admin link';
         const qrLabel = (strings && strings.pdfQr) || 'QR code';
-        const introCopy = (strings && strings.pdfIntro) || 'Keep this sheet handy - it includes every link, the QR and your admin token.';
-        const viewerHint = (strings && strings.pdfViewerHint) || 'Share with fighters and audience. Always shows the latest card.';
-        const adminHint = (strings && strings.pdfAdminHint) || 'For organizers only. Sign in to add bouts, results, and updates.';
-        const tokenHint = (strings && strings.pdfTokenHint) || 'You need this token whenever you open the admin link.';
-        const qrHint = (strings && strings.pdfQrHint) || 'Scan to open the audience link (same as the fightcard link).';
-        const tokenValue = lastAdminToken || PDF_TOKEN_FALLBACK;
+        const introCopy = (strings && strings.pdfIntro) || 'Keep this sheet handy – everything you need lives here.';
+        const viewerHint = (strings && strings.pdfViewerHint) || 'Share with coaches and the audience. Always shows the latest card.';
+        const adminHint = (strings && strings.pdfAdminHint) || 'For organizers only. Use it to add fights and results.';
+        const tokenHint = (strings && strings.pdfTokenHint) || 'Required whenever you open the admin link.';
+        const qrHint = (strings && strings.pdfQrHint) || 'Scan to open the public link instantly.';
+        const tokenValue = (lastAdminToken || PDF_TOKEN_FALLBACK).toString();
         const pageWidth = doc.internal.pageSize.getWidth();
         const marginX = 16;
         const contentWidth = pageWidth - marginX * 2;
@@ -551,24 +570,37 @@
         const logoMeta = await getLogoImage();
         if (logoMeta){
           const ratio = logoMeta.height && logoMeta.width ? (logoMeta.height / logoMeta.width) : 1;
-          let logoWidth = Math.min(pageWidth * 0.5, 80);
+          let logoWidth = Math.min(pageWidth * 0.5, 90);
           let logoHeight = logoWidth * ratio;
-          const maxHeight = 42;
+          const maxHeight = 48;
           if (logoHeight > maxHeight){
             logoHeight = maxHeight;
             logoWidth = logoHeight / (ratio || 1);
           }
           const logoX = (pageWidth - logoWidth) / 2;
-          doc.addImage(logoMeta.dataUrl, 'PNG', logoX, cursorY - 8, logoWidth, logoHeight);
-          cursorY += logoHeight + 6;
+          doc.addImage(logoMeta.dataUrl, 'PNG', logoX, cursorY - 10, logoWidth, logoHeight);
+          cursorY += logoHeight + 4;
         }
-        const clubTitle = lastClubName || '';
-        if (clubTitle){
+        if (lastClubName){
           doc.setFont('helvetica','bold');
           doc.setFontSize(18);
-          doc.text(clubTitle, pageWidth / 2, cursorY, { align:'center' });
+          doc.text(lastClubName, pageWidth / 2, cursorY, { align:'center' });
           cursorY += 12;
         }
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(11);
+        doc.text(`${clubLabel}: ${lastClubName || '—'}`, marginX, cursorY);
+        cursorY += 6;
+        doc.text(`${slugLabel}: ${lastSlug || '—'}`, marginX, cursorY);
+        cursorY += 6;
+        doc.text(`${tokenLabel}: ${tokenValue}`, marginX, cursorY);
+        cursorY += 6;
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10);
+        const tokenHintLines = doc.splitTextToSize(tokenHint, contentWidth);
+        doc.text(tokenHintLines, marginX, cursorY);
+        cursorY += tokenHintLines.length * 5 + 8;
+
         doc.setFont('helvetica','normal');
         doc.setFontSize(12);
         const introLines = doc.splitTextToSize(introCopy, contentWidth);
@@ -583,14 +615,13 @@
           cursorY += 6;
           doc.setFont('helvetica','normal');
           doc.setFontSize(12);
-          const valueLines = doc.splitTextToSize(value, contentWidth);
-          doc.text(valueLines, marginX, cursorY);
-          cursorY += valueLines.length * 6;
+          const lines = doc.splitTextToSize(value, contentWidth);
+          doc.text(lines, marginX, cursorY);
+          cursorY += lines.length * 6;
           if (hint){
-            const hintLines = doc.splitTextToSize(hint, contentWidth);
             doc.setFontSize(10);
             doc.setTextColor(90,90,90);
-            cursorY += 2;
+            const hintLines = doc.splitTextToSize(hint, contentWidth);
             doc.text(hintLines, marginX, cursorY);
             cursorY += hintLines.length * 5;
             doc.setTextColor(0,0,0);
@@ -600,24 +631,21 @@
 
         drawBlock(viewerLabel, lastViewerUrl, viewerHint);
         drawBlock(adminLabel, lastAdminUrl, adminHint);
-        drawBlock(tokenLabel, tokenValue, tokenHint);
 
         doc.setFont('helvetica','bold');
         doc.setFontSize(12);
         doc.text(qrLabel, marginX, cursorY);
         cursorY += 6;
         if (qrHint){
-          const qrHintLines = doc.splitTextToSize(qrHint, contentWidth);
           doc.setFont('helvetica','normal');
           doc.setFontSize(10);
-          doc.setTextColor(90,90,90);
+          const qrHintLines = doc.splitTextToSize(qrHint, contentWidth);
           doc.text(qrHintLines, marginX, cursorY);
           cursorY += qrHintLines.length * 5 + 6;
-          doc.setTextColor(0,0,0);
         }
         const qrData = await getQrDataUrl(lastViewerUrl);
         if (qrData){
-          const qrSize = Math.min(90, contentWidth * 0.4);
+          const qrSize = Math.min(100, contentWidth * 0.55);
           const qrX = (pageWidth - qrSize) / 2;
           doc.addImage(qrData, 'PNG', qrX, cursorY, qrSize, qrSize);
           cursorY += qrSize + 6;
@@ -877,7 +905,7 @@
         if (!successMsgEl) return;
         hideInlineAlert();
         try{
-          const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
+          const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true, locale: lang }) });
           const bodyText = await resp.text();
           let out = null;
           try{ out = bodyText ? JSON.parse(bodyText) : null; }catch(_){ out = null; }

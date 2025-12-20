@@ -66,9 +66,9 @@
     .cta:hover{transform:translateY(-2px);box-shadow:0 16px 36px -14px rgba(255,70,70,0.65);filter:brightness(1.03)}
     .cta:active{transform:translateY(1px)}
     .hero-side{display:flex;flex-direction:column;gap:1.1rem;align-items:flex-start}
-    .info-btn{appearance:none;border:0;border-radius:999px;padding:.95rem 1.9rem;font-size:1rem;font-weight:700;color:#f5f7ff;background:linear-gradient(145deg,#0c2750,#0f3668);box-shadow:0 12px 30px -12px rgba(7,22,48,.9);cursor:pointer;align-self:flex-start;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+    .info-btn{appearance:none;border:2px solid #0c2750;border-radius:18px;padding:.95rem 1.9rem;font-size:1rem;font-weight:800;color:#0f2f63;background:linear-gradient(140deg,#f6f8fb,#edf1f7);box-shadow:0 10px 26px -14px rgba(7,22,48,.65);cursor:pointer;align-self:flex-start;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
     .hero-info{margin-top:.4rem}
-    .info-btn:hover{transform:translateY(-1px);box-shadow:0 16px 36px -14px rgba(7,22,48,.9);filter:brightness(1.03)}
+    .info-btn:hover{transform:translateY(-1px);box-shadow:0 14px 32px -14px rgba(7,22,48,.7);background:#fff}
     .info-btn:active{transform:translateY(1px)}
     @media (min-width:720px){
       .hero{flex-direction:row;justify-content:space-between;align-items:center}
@@ -267,9 +267,9 @@
   <script>
     (function(){
       const dict = {
-        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Spara & fortsätt', info:'Hur funkar det?', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länk skapad', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod' },
-        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS!', bullet2:'UPDATE FIGHTS LIVE AND SHARE EVERYTHING WITH THE AUDIENCE.', cta:'Save & continue', info:'How does it work?', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Link ready', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code' },
-        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'บันทึกและไปต่อ', info:'มันทำงานอย่างไร?', email:'อีเมล', emailPlaceholder:'name@club.com', club:'ชื่อสโมสร', clubPlaceholder:'กรอกชื่อยิมหรือสโมสรของคุณที่นี่', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'สร้างลิงก์แล้ว', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด', qrDownload:'ดาวน์โหลด QR', pdfLink:'ดาวน์โหลด PDF', pdfGenerating:'กำลังสร้าง...', pdfTitle:'ลิงก์ไฟต์การ์ด', pdfToken:'รหัสผู้ดูแล (โทเคน)', pdfViewer:'ลิงก์ไฟต์การ์ด', pdfAdmin:'ลิงก์ผู้ดูแล', pdfQr:'คิวอาร์โค้ด' }
+        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'SKAPA SNYGGA FIGHTCARDS FÖR DINA KAMPSPORTSEVENT DIREKT!', bullet2:'UPPDATERA MATCHER LIVE OCH DELA ALLT MED PUBLIK OCH KLUBBAR.', cta:'Spara & fortsätt', info:'Klicka här för att se hur det funkar!', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länk skapad', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod', pdfIntro:'Spara sidan – den innehåller all info du behöver.', pdfViewerHint:'Dela med publik och fighters. Uppdateras automatiskt.', pdfAdminHint:'För arrangörerna. Logga in för att lägga till matcher.', pdfTokenHint:'Behövs när du öppnar adminlänken.', pdfQrHint:'Skanna för att öppna publiklänken direkt.', pdfClubLabel:'Klubb', pdfSlugLabel:'Kort-ID', instructionsLink:'Ladda ner guide (PDF)', instructionsPdf:'assets/docs/instructions_sv.pdf' },
+        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'CREATE BEAUTIFUL FIGHT CARDS FOR YOUR COMBAT SPORTS EVENTS!', bullet2:'UPDATE FIGHTS LIVE AND SHARE EVERYTHING WITH THE AUDIENCE.', cta:'Save & continue', info:'Click here to see how it works!', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Link ready', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code', pdfIntro:'Keep this sheet handy – everything you need lives here.', pdfViewerHint:'Share with coaches and the audience. Always shows the latest card.', pdfAdminHint:'For organizers only. Use it to add fights and results.', pdfTokenHint:'Required whenever you open the admin link.', pdfQrHint:'Scan to open the public link instantly.', pdfClubLabel:'Club', pdfSlugLabel:'Card ID', instructionsLink:'Download instructions (PDF)', instructionsPdf:'assets/docs/instructions_en.pdf' },
+        th:{ heroTitle:'สร้างไฟต์การ์ดของคุณที่นี่!', bullet1:'สร้างไฟต์การ์ดสุดสวยสำหรับงานกีฬาต่อสู้ของคุณได้ทันที', bullet2:'อัปเดตผลการแข่งขันสดและแชร์ให้ผู้ชมและสโมสรได้ทันที', cta:'บันทึกและไปต่อ', info:'คลิกที่นี่เพื่อดูวิธีใช้งาน!', email:'อีเมล', emailPlaceholder:'name@club.com', club:'ชื่อสโมสร', clubPlaceholder:'กรอกชื่อยิมหรือสโมสรของคุณที่นี่', ok:'บันทึกแล้ว – ไปต่อ.', linkPrefix:'สร้างลิงก์แล้ว', viewLink:'ดูไฟต์การ์ด', adminLink:'เปิดแอดมิน', linkFail:'ไม่สามารถสร้างลิงก์ได้ (ต้องเปิดเซิร์ฟเวอร์ที่ http://localhost:3000).', qrLink:'ดูคิวอาร์โค้ด', qrAlt:'คิวอาร์โค้ดสำหรับไฟต์การ์ด', qrHint:'สแกนโค้ดนี้เพื่อเปิดไฟต์การ์ด', qrDownload:'ดาวน์โหลด QR', pdfLink:'ดาวน์โหลด PDF', pdfGenerating:'กำลังสร้าง...', pdfTitle:'ลิงก์ไฟต์การ์ด', pdfToken:'รหัสผู้ดูแล (โทเคน)', pdfViewer:'ลิงก์ไฟต์การ์ด', pdfAdmin:'ลิงก์ผู้ดูแล', pdfQr:'คิวอาร์โค้ด', pdfIntro:'Keep this sheet handy – everything you need lives here.', pdfViewerHint:'Share with coaches and the audience. Always shows the latest card.', pdfAdminHint:'For organizers only. Use it to add fights and results.', pdfTokenHint:'Required whenever you open the admin link.', pdfQrHint:'Scan to open the public link instantly.', pdfClubLabel:'Club', pdfSlugLabel:'Card ID', instructionsLink:'ดาวน์โหลดคู่มือ (PDF)', instructionsPdf:'assets/docs/instructions_en.pdf' }
       };
       const qs = new URLSearchParams(location.search);
       let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
@@ -285,12 +285,13 @@
         qrDownloadBtn.dataset.href = '';
         qrDownloadBtn.disabled = true;
       }
-      const PDF_TOKEN = 'letmein';
+      const PDF_TOKEN_FALLBACK = 'letmein';
       const DEFAULT_FILE_BASENAME = 'fightcard-links';
       let lastViewerUrl = '';
       let lastAdminUrl = '';
       let lastSlug = '';
       let lastClubName = '';
+      let lastAdminToken = PDF_TOKEN_FALLBACK;
       let cachedQrDataUrl = '';
       let cachedQrSource = '';
       let jsPdfLoader = null;
@@ -446,47 +447,104 @@
         const jsPDF = await ensureJsPdf();
         if (!jsPDF) throw new Error('PDF library unavailable');
         const doc = new jsPDF();
-        const heading = (strings && strings.pdfTitle) || 'Fightcard links';
+        const clubLabel = (strings && strings.pdfClubLabel) || 'Club';
+        const slugLabel = (strings && strings.pdfSlugLabel) || 'Card ID';
         const tokenLabel = (strings && strings.pdfToken) || 'Admin Password (Token)';
         const viewerLabel = (strings && strings.pdfViewer) || 'Fightcard link';
         const adminLabel = (strings && strings.pdfAdmin) || 'Admin link';
         const qrLabel = (strings && strings.pdfQr) || 'QR code';
+        const introCopy = (strings && strings.pdfIntro) || 'Keep this sheet handy – everything you need lives here.';
+        const viewerHint = (strings && strings.pdfViewerHint) || 'Share with coaches and the audience. Always shows the latest card.';
+        const adminHint = (strings && strings.pdfAdminHint) || 'For organizers only. Use it to add fights and results.';
+        const tokenHint = (strings && strings.pdfTokenHint) || 'Required whenever you open the admin link.';
+        const qrHint = (strings && strings.pdfQrHint) || 'Scan to open the public link instantly.';
+        const tokenValue = (lastAdminToken || PDF_TOKEN_FALLBACK).toString();
         const pageWidth = doc.internal.pageSize.getWidth();
-        let cursorY = 16;
+        const marginX = 16;
+        const contentWidth = pageWidth - marginX * 2;
+        let cursorY = 20;
         const logoMeta = await getLogoImage();
         if (logoMeta){
           const ratio = logoMeta.height && logoMeta.width ? (logoMeta.height / logoMeta.width) : 1;
-          let logoWidth = Math.min(pageWidth * 0.5, 80);
+          let logoWidth = Math.min(pageWidth * 0.5, 90);
           let logoHeight = logoWidth * ratio;
-          const maxHeight = 42;
+          const maxHeight = 48;
           if (logoHeight > maxHeight){
             logoHeight = maxHeight;
             logoWidth = logoHeight / (ratio || 1);
           }
           const logoX = (pageWidth - logoWidth) / 2;
-          doc.addImage(logoMeta.dataUrl, 'PNG', logoX, cursorY - 8, logoWidth, logoHeight);
-          cursorY += logoHeight + 2;
+          doc.addImage(logoMeta.dataUrl, 'PNG', logoX, cursorY - 10, logoWidth, logoHeight);
+          cursorY += logoHeight + 4;
+        }
+        if (lastClubName){
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(18);
+          doc.text(lastClubName, pageWidth / 2, cursorY, { align:'center' });
+          cursorY += 12;
         }
         doc.setFont('helvetica','bold');
-        doc.setFontSize(16);
-        doc.text(heading, pageWidth / 2, cursorY, { align:'center' });
-        cursorY += 14;
+        doc.setFontSize(11);
+        doc.text(`${clubLabel}: ${lastClubName || '—'}`, marginX, cursorY);
+        cursorY += 6;
+        doc.text(`${slugLabel}: ${lastSlug || '—'}`, marginX, cursorY);
+        cursorY += 6;
+        doc.text(`${tokenLabel}: ${tokenValue}`, marginX, cursorY);
+        cursorY += 6;
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10);
+        const tokenHintLines = doc.splitTextToSize(tokenHint, contentWidth);
+        doc.text(tokenHintLines, marginX, cursorY);
+        cursorY += tokenHintLines.length * 5 + 8;
+
         doc.setFont('helvetica','normal');
         doc.setFontSize(12);
-        doc.text(`${tokenLabel}: ${PDF_TOKEN}`, 14, cursorY);
-        cursorY += 10;
-        doc.text(`${viewerLabel}:`, 14, cursorY);
+        const introLines = doc.splitTextToSize(introCopy, contentWidth);
+        doc.text(introLines, pageWidth / 2, cursorY, { align:'center' });
+        cursorY += introLines.length * 6 + 12;
+
+        const drawBlock = (label, value, hint) => {
+          if (!value) return;
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(12);
+          doc.text(label, marginX, cursorY);
+          cursorY += 6;
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(12);
+          const lines = doc.splitTextToSize(value, contentWidth);
+          doc.text(lines, marginX, cursorY);
+          cursorY += lines.length * 6;
+          if (hint){
+            doc.setFontSize(10);
+            doc.setTextColor(90,90,90);
+            const hintLines = doc.splitTextToSize(hint, contentWidth);
+            doc.text(hintLines, marginX, cursorY);
+            cursorY += hintLines.length * 5;
+            doc.setTextColor(0,0,0);
+          }
+          cursorY += 8;
+        };
+
+        drawBlock(viewerLabel, lastViewerUrl, viewerHint);
+        drawBlock(adminLabel, lastAdminUrl, adminHint);
+
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(12);
+        doc.text(qrLabel, marginX, cursorY);
         cursorY += 6;
-        doc.text(lastViewerUrl, 14, cursorY, { maxWidth: 180 });
-        cursorY += 12;
-        doc.text(`${adminLabel}:`, 14, cursorY);
-        cursorY += 6;
-        doc.text(lastAdminUrl, 14, cursorY, { maxWidth: 180 });
-        cursorY += 14;
-        doc.text(`${qrLabel}:`, 14, cursorY);
+        if (qrHint){
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(10);
+          const qrHintLines = doc.splitTextToSize(qrHint, contentWidth);
+          doc.text(qrHintLines, marginX, cursorY);
+          cursorY += qrHintLines.length * 5 + 6;
+        }
         const qrData = await getQrDataUrl(lastViewerUrl);
         if (qrData){
-          doc.addImage(qrData, 'PNG', 14, cursorY + 4, 60, 60);
+          const qrSize = Math.min(100, contentWidth * 0.55);
+          const qrX = (pageWidth - qrSize) / 2;
+          doc.addImage(qrData, 'PNG', qrX, cursorY, qrSize, qrSize);
+          cursorY += qrSize + 6;
         }
         const safeName = sanitizeFilename(lastSlug || lastClubName || DEFAULT_FILE_BASENAME) || DEFAULT_FILE_BASENAME;
         doc.save(`${safeName}.pdf`);
@@ -697,6 +755,7 @@
           const pathParts = rawViewerPath.split('/').filter(Boolean);
           lastSlug = pathParts.length ? pathParts[pathParts.length - 1] : rawViewerPath.replace(/^\/+/, '');
           lastClubName = data.club || '';
+          lastAdminToken = out.adminToken || (lastSlug ? (lastSlug.toLowerCase() + '123') : PDF_TOKEN_FALLBACK);
           cachedQrDataUrl = '';
           cachedQrSource = '';
           renderSuccessMessage(strings);
@@ -708,6 +767,7 @@
           lastAdminUrl = '';
           lastSlug = '';
           lastClubName = '';
+          lastAdminToken = PDF_TOKEN_FALLBACK;
           cachedQrDataUrl = '';
           cachedQrSource = '';
           if (successMsgEl){
