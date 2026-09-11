@@ -101,13 +101,13 @@ function renderList(){
   <div class="fight-row">
           <div class="fighter-box ${aClass}" data-side="a">
             <div class="fighter-name">${f.a}</div>
-            <div class="corner-chip corner-chip-red">Red Corner</div>
+            <div class="corner-chip corner-chip-red" aria-label="Red corner" title="Red corner"></div>
             <div class="fighter-meta">${(f.aGym || fighterAffils[f.a] || '')}</div>
           </div>
           <div class="vs-col"><span class="vs-label">vs</span></div>
           <div class="fighter-box ${bClass}" data-side="b">
             <div class="fighter-name">${f.b}</div>
-            <div class="corner-chip corner-chip-blue">Blue Corner</div>
+            <div class="corner-chip corner-chip-blue" aria-label="Blue corner" title="Blue corner"></div>
             <div class="fighter-meta">${(f.bGym || fighterAffils[f.b] || '')}</div>
           </div>
         </div>
@@ -196,13 +196,10 @@ function updateNow(){
   }
 }
 
-// --- Round timer (ringklocka) ---
-// window.timerState is populated by ws-client.js / the initial /state fetch below.
-// Rendering just reads phaseEndsAt/remainingMs and ticks locally; the server owns
-// the actual phase transitions so all screens agree even if one client's clock drifts.
+// --- Break timer popup ---
+// window.timerState + window.timerVisible are populated by ws-client.js / initial /state fetch.
 let _timerInterval = null;
-let _lastTimerKey = null;
-let _warnedForKey = null;
+let _timerHiddenByUser = false;
 
 function formatClock(ms){
   const total = Math.max(0, Math.ceil(ms / 1000));
@@ -254,17 +251,40 @@ function playWarningBeep(){
 
 function renderTimer(){
   const wrap = document.getElementById('ringTimer');
+  const closeBtn = document.getElementById('ringTimerClose');
+  const openBtn = document.getElementById('ringTimerOpen');
   const phaseEl = document.getElementById('ringTimerPhase');
   const clockEl = document.getElementById('ringTimerClock');
-  if (!wrap || !phaseEl || !clockEl) return;
+  if (!wrap || !phaseEl || !clockEl || !openBtn) return;
+
+  if (closeBtn && !closeBtn.dataset.bound){
+    closeBtn.dataset.bound = '1';
+    closeBtn.addEventListener('click', ()=>{
+      _timerHiddenByUser = true;
+      renderTimer();
+    });
+  }
+  if (!openBtn.dataset.bound){
+    openBtn.dataset.bound = '1';
+    openBtn.addEventListener('click', ()=>{
+      _timerHiddenByUser = false;
+      renderTimer();
+    });
+  }
+
   const t0 = window.timerState;
-  if (!t0 || t0.status === 'idle'){
+  const active = !!(t0 && t0.status && t0.status !== 'idle');
+  const serverVisible = (typeof window.timerVisible === 'boolean') ? window.timerVisible : true;
+  if (!active || !serverVisible){
     wrap.style.display = 'none';
+    openBtn.style.display = 'none';
     if (_timerInterval){ clearInterval(_timerInterval); _timerInterval = null; }
-    _lastTimerKey = null; _warnedForKey = null;
+    _timerHiddenByUser = false;
     return;
   }
-  wrap.style.display = '';
+
+  wrap.style.display = _timerHiddenByUser ? 'none' : '';
+  openBtn.style.display = _timerHiddenByUser ? 'inline-flex' : 'none';
 
   function tick(){
     const t = window.timerState;
@@ -281,22 +301,8 @@ function renderTimer(){
     }
     remainingMs = Math.max(0, remainingMs);
 
-    const key = t.phase + '-' + t.currentRound + '-' + t.status;
-    if (_lastTimerKey !== null && key !== _lastTimerKey && (t.status === 'running' || t.status === 'finished')){
-      playBell(t.phase === 'round');
-      _warnedForKey = null;
-    }
-    _lastTimerKey = key;
-
-    const totalSeconds = Math.ceil(remainingMs / 1000);
-    const warnSecs = (t.config && t.config.warningSeconds) || 0;
-    const inWarning = t.status === 'running' && t.phase === 'round' && warnSecs > 0 && totalSeconds <= warnSecs && totalSeconds > 0;
-    if (inWarning && _warnedForKey !== key){ playWarningBeep(); _warnedForKey = key; }
-
-    phaseEl.textContent = t.status === 'finished' ? 'KLART' : (t.phase === 'round' ? ('RUND ' + t.currentRound + '/' + t.config.rounds) : 'VILA');
+    phaseEl.textContent = t.status === 'finished' ? 'START NOW' : (t.status === 'paused' ? 'PAUSED' : 'START AGAIN IN');
     clockEl.textContent = formatClock(remainingMs);
-    wrap.classList.toggle('ring-timer-warning', inWarning);
-    wrap.classList.toggle('ring-timer-rest', t.phase === 'rest');
     wrap.classList.toggle('ring-timer-paused', t.status === 'paused');
     wrap.classList.toggle('ring-timer-finished', t.status === 'finished');
   }
@@ -470,7 +476,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
         try{ document.body.classList.remove('boot'); }catch(_){ }
         // apply social from initial fetch
         try{ if (j.social && typeof j.social === 'object'){ window.social = j.social; if (typeof renderSocial === 'function') renderSocial(); } }catch(e){}
-        try{ if (j.timer && typeof j.timer === 'object'){ window.timerState = j.timer; renderTimer(); } }catch(e){}
+        try{
+          if (j.timer && typeof j.timer === 'object') window.timerState = j.timer;
+          if (typeof j.timerVisible === 'boolean') window.timerVisible = j.timerVisible;
+          renderTimer();
+        }catch(e){}
       }}
     }catch(e){ /* ignore */ }
   })();

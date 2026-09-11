@@ -139,6 +139,9 @@
       if (payload.timer && typeof payload.timer === 'object'){
         try{ window.timerState = payload.timer; }catch(e){}
       }
+      if (typeof payload.timerVisible === 'boolean'){
+        try{ window.timerVisible = payload.timerVisible; }catch(e){}
+      }
       // apply event title live color/font immediately if element present
       try{
   const t = document.getElementById('eventTitle');

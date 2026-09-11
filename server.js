@@ -35,6 +35,9 @@ function ensureCardState(rec){
   if (!rec.state.timer || typeof rec.state.timer !== 'object'){
     rec.state.timer = defaultTimer();
   }
+  if (typeof rec.state.timerVisible !== 'boolean'){
+    rec.state.timerVisible = false;
+  }
   return rec.state;
 }
 
@@ -98,7 +101,7 @@ function sanitizeTimerConfig(cfg){
 }
 
 function defaultState(){
-  return { current: 0, fights: [], standby: false, infoVisible: true, timer: defaultTimer() };
+  return { current: 0, fights: [], standby: false, infoVisible: true, timer: defaultTimer(), timerVisible: false };
 }
 
 function getActiveCard(slug){
@@ -502,9 +505,11 @@ function handleTimerAction(state, slug, msg){
     if (t.status === 'idle' || t.status === 'finished'){
       t.currentRound = 1; t.phase = 'round'; t.status = 'running';
       t.phaseEndsAt = Date.now() + t.config.roundSeconds * 1000; t.remainingMs = null;
+      state.timerVisible = true;
     } else if (t.status === 'paused'){
       const remaining = Number.isFinite(t.remainingMs) ? t.remainingMs : currentPhaseDurationMs(t);
       t.status = 'running'; t.phaseEndsAt = Date.now() + remaining; t.remainingMs = null;
+      state.timerVisible = true;
     }
     scheduleTimerAdvance(slug);
   } else if (msg.type === 'timerPause'){
@@ -527,6 +532,10 @@ function handleTimerAction(state, slug, msg){
       else if (wasPaused){ t.status = 'paused'; t.remainingMs = currentPhaseDurationMs(t); t.phaseEndsAt = null; }
       else { t.status = 'running'; t.phaseEndsAt = Date.now() + currentPhaseDurationMs(t); scheduleTimerAdvance(slug); }
     }
+  } else if (msg.type === 'timerShow'){
+    state.timerVisible = true;
+  } else if (msg.type === 'timerHide'){
+    state.timerVisible = false;
   }
 }
 
@@ -951,7 +960,7 @@ app.post('/admin/action', async (req, res) => {
       if (state.current >= state.fights.length){ state.current = Math.max(0, state.fights.length-1); }
     }
   }
-  if (/^timer(SetConfig|Start|Pause|Reset|Skip)$/.test(msg.type)){
+  if (/^timer(SetConfig|Start|Pause|Reset|Skip|Show|Hide)$/.test(msg.type)){
     handleTimerAction(state, slug, msg);
   }
   // persist and ensure the full state is broadcast after save

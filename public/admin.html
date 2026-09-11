@@ -200,7 +200,7 @@
     .fightButtons{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.3rem;align-items:stretch;margin-top:.45rem}
     .fightButtons .corner-btn{width:100%;min-width:0;border-radius:14px;padding:.6rem .85rem;display:flex;align-items:center;justify-content:center;text-align:center;min-height:56px;font-weight:800;font-size:.95rem;letter-spacing:.01em;box-shadow:0 12px 26px -16px rgba(0,0,0,0.45);transition:transform .18s ease,box-shadow .22s ease,border .22s ease}
     .fightButtons .corner-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px -16px rgba(0,0,0,0.5)}
-    .corner-btn .corner-name{font-size:1.05rem;font-weight:900;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .corner-btn .corner-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.92);box-shadow:0 0 0 2px rgba(255,255,255,0.25)}
     .corner-btn.corner-red{background:linear-gradient(135deg,#8b111b 0%,#c3181f 55%,#f65330 100%);box-shadow:0 18px 36px -14px rgba(237,67,64,0.6);border:1px solid rgba(255,255,255,0.15)}
     .corner-btn.corner-blue{background:linear-gradient(135deg,#0b2d68 0%,#0f4290 45%,#1a6cce 100%);box-shadow:0 18px 36px -14px rgba(27,100,198,0.55);border:1px solid rgba(255,255,255,0.12)}
     .result-btn{background:#fff;color:#0f172a;border:1px solid var(--card-border);border-radius:14px;font-weight:800;box-shadow:0 10px 24px -16px rgba(15,23,42,0.35);letter-spacing:.05em;padding:.45rem .75rem;min-height:56px}
@@ -455,35 +455,22 @@
   </div>
 
   <div class="card" aria-labelledby="timerControls">
-      <h3 id="timerControls">Ringklocka (Round Timer)</h3>
+      <h3 id="timerControls">Break Timer (Viewer Popup)</h3>
       <div class="card-actions">
-        <button id="toggleTimer" type="button" class="toggle-btn" aria-pressed="false" aria-label="Hide round timer" title="Hide round timer">Hide</button>
+        <button id="toggleTimer" type="button" class="toggle-btn" aria-pressed="false" aria-label="Hide break timer controls" title="Hide break timer controls">Hide</button>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end;margin:.6rem 0">
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Rounds
-          <input id="timerRounds" type="number" min="1" max="20" value="5" style="width:70px">
+        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Minutes
+          <input id="breakMinutes" type="number" min="1" max="90" value="3" style="width:90px">
         </label>
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Round (sec)
-          <input id="timerRoundSeconds" type="number" min="10" max="1800" value="180" style="width:90px">
-        </label>
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Rest (sec)
-          <input id="timerRestSeconds" type="number" min="0" max="900" value="60" style="width:90px">
-        </label>
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Warning (sec)
-          <input id="timerWarningSeconds" type="number" min="0" max="60" value="10" style="width:90px">
-        </label>
-        <button id="timerSaveConfig" class="btn-small" type="button" title="Apply settings (also resets to Round 1)">Save Settings</button>
+        <button id="breakStart" class="btn-small" type="button" title="Start break countdown popup on viewer">Start Countdown</button>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.7rem">
-        <button id="timerStart" class="btn-small" type="button">Start / Resume</button>
-        <button id="timerPause" class="btn-small" type="button">Pause</button>
-        <button id="timerSkip" class="btn-small" type="button">Skip phase</button>
-        <button id="timerResetBtn" class="btn-small" type="button" style="background:#ef4444">Reset</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem;flex-wrap:wrap">
-        <button id="timerUploadBtn" class="btn-small" type="button" title="Import round settings your friend sent you as a .json file">Load settings from JSON</button>
-        <input id="timerFileInput" type="file" accept="application/json,.json" style="display:none">
-        <span id="timerUploadName" class="muted" style="font-size:.8rem"></span>
+        <button id="breakPause" class="btn-small" type="button">Pause</button>
+        <button id="breakResume" class="btn-small" type="button">Resume</button>
+        <button id="breakReset" class="btn-small" type="button" style="background:#ef4444">Reset</button>
+        <button id="breakShow" class="btn-small" type="button">Show Popup</button>
+        <button id="breakHide" class="btn-small" type="button">Hide Popup</button>
       </div>
       <div id="timerStatus" style="font-family:'Bebas Neue',Arial,sans-serif;font-size:1.7rem;letter-spacing:1px;color:#0f172a">Idle</div>
   </div>
@@ -726,7 +713,7 @@
       const collapsed = card.classList.toggle('collapsed');
       btn.setAttribute('aria-pressed', collapsed? 'true':'false');
       btn.textContent = collapsed? 'Show' : 'Hide';
-      btn.title = collapsed? 'Show round timer':'Hide round timer';
+      btn.title = collapsed? 'Show break timer controls':'Hide break timer controls';
       btn.setAttribute('aria-label', btn.title);
     });
   })();
@@ -924,15 +911,17 @@
       actionsWrap.appendChild(remove);
       div.appendChild(actionsWrap);
       const btns = document.createElement('div'); btns.className = 'fightButtons';
-      const redName = escapeHtml(f.a || 'Red corner');
-      const blueName = escapeHtml(f.b || 'Blue corner');
       const aBtn = document.createElement('button');
       aBtn.className='corner-btn corner-red';
-      aBtn.innerHTML = `<span class="corner-name">${redName}</span>`;
+      aBtn.innerHTML = '<span class="corner-dot" aria-hidden="true"></span>';
+      aBtn.setAttribute('aria-label', 'Set red corner winner');
+      aBtn.title = 'Set red corner winner';
       aBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'a'}); });
       const bBtn = document.createElement('button');
       bBtn.className='corner-btn corner-blue';
-      bBtn.innerHTML = `<span class="corner-name">${blueName}</span>`;
+      bBtn.innerHTML = '<span class="corner-dot" aria-hidden="true"></span>';
+      bBtn.setAttribute('aria-label', 'Set blue corner winner');
+      bBtn.title = 'Set blue corner winner';
       bBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'b'}); });
       const dBtn = document.createElement('button'); dBtn.textContent = 'Draw'; dBtn.className='smallBtn result-btn draw-btn'; dBtn.addEventListener('click', (e)=>{ e.stopPropagation(); sendAction({type:'setWinner', index:i, side:'draw'}); });
       const clr = document.createElement('button'); clr.textContent='Clear'; clr.className='smallBtn result-btn clear-btn'; clr.addEventListener('click', (e)=>{ e.stopPropagation(); delete localWinMethods[i]; sendAction({type:'clearWinner', index:i}); sendAction({type:'setWinMethod', index:i, method:''}); });
@@ -1044,79 +1033,26 @@
     }catch(e){ showFeedback('Network error: '+e.message, false); return null; }
   }
 
-  // --- Round timer (ringklocka) ---
+  // --- Break timer (viewer popup countdown) ---
   function updateTimerUIFromState(timer){
-    const roundsEl = document.getElementById('timerRounds');
-    const roundSecEl = document.getElementById('timerRoundSeconds');
-    const restSecEl = document.getElementById('timerRestSeconds');
-    const warnSecEl = document.getElementById('timerWarningSeconds');
+    const minutesEl = document.getElementById('breakMinutes');
     window.__timerState = timer || null;
-    if (!timer || !timer.config) return;
+    if (!timer || !timer.config || !minutesEl) return;
     const active = document.activeElement;
-    const editing = [roundsEl, roundSecEl, restSecEl, warnSecEl].includes(active);
-    if (editing) return; // don't clobber values the user is actively typing
-    if (roundsEl) roundsEl.value = timer.config.rounds;
-    if (roundSecEl) roundSecEl.value = timer.config.roundSeconds;
-    if (restSecEl) restSecEl.value = timer.config.restSeconds;
-    if (warnSecEl) warnSecEl.value = timer.config.warningSeconds;
+    if (active === minutesEl) return;
+    const mins = Math.max(1, Math.round((Number(timer.config.roundSeconds) || 180) / 60));
+    minutesEl.value = String(mins);
   }
 
   (function initTimerControls(){
-    const saveBtn = document.getElementById('timerSaveConfig');
-    const startBtn = document.getElementById('timerStart');
-    const pauseBtn = document.getElementById('timerPause');
-    const skipBtn = document.getElementById('timerSkip');
-    const resetBtn = document.getElementById('timerResetBtn');
-    const uploadBtn = document.getElementById('timerUploadBtn');
-    const fileInput = document.getElementById('timerFileInput');
-    const nameEl = document.getElementById('timerUploadName');
+    const minutesEl = document.getElementById('breakMinutes');
+    const startBtn = document.getElementById('breakStart');
+    const pauseBtn = document.getElementById('breakPause');
+    const resumeBtn = document.getElementById('breakResume');
+    const resetBtn = document.getElementById('breakReset');
+    const showBtn = document.getElementById('breakShow');
+    const hideBtn = document.getElementById('breakHide');
     const statusEl2 = document.getElementById('timerStatus');
-
-    function readConfigFromInputs(){
-      return {
-        rounds: Number(document.getElementById('timerRounds').value),
-        roundSeconds: Number(document.getElementById('timerRoundSeconds').value),
-        restSeconds: Number(document.getElementById('timerRestSeconds').value),
-        warningSeconds: Number(document.getElementById('timerWarningSeconds').value)
-      };
-    }
-
-    if (saveBtn) saveBtn.addEventListener('click', ()=>{
-      sendAction({ type:'timerSetConfig', config: readConfigFromInputs() });
-    });
-    if (startBtn) startBtn.addEventListener('click', ()=> sendAction({ type:'timerStart' }));
-    if (pauseBtn) pauseBtn.addEventListener('click', ()=> sendAction({ type:'timerPause' }));
-    if (skipBtn) skipBtn.addEventListener('click', ()=> sendAction({ type:'timerSkip' }));
-    if (resetBtn) resetBtn.addEventListener('click', ()=> sendAction({ type:'timerReset' }));
-
-    // Load settings your friend sent over as a JSON file, e.g.:
-    // { "rounds": 5, "roundSeconds": 180, "restSeconds": 60, "warningSeconds": 10 }
-    if (uploadBtn && fileInput) uploadBtn.addEventListener('click', ()=> fileInput.click());
-    if (fileInput) fileInput.addEventListener('change', async ()=>{
-      const f = fileInput.files && fileInput.files[0];
-      if (!f) return;
-      if (nameEl) nameEl.textContent = f.name;
-      try{
-        const text = await f.text();
-        const json = JSON.parse(text);
-        const cfg = {
-          rounds: Number(json.rounds),
-          roundSeconds: Number(json.roundSeconds),
-          restSeconds: Number(json.restSeconds),
-          warningSeconds: Number(json.warningSeconds)
-        };
-        if (Number.isFinite(cfg.rounds)) document.getElementById('timerRounds').value = cfg.rounds;
-        if (Number.isFinite(cfg.roundSeconds)) document.getElementById('timerRoundSeconds').value = cfg.roundSeconds;
-        if (Number.isFinite(cfg.restSeconds)) document.getElementById('timerRestSeconds').value = cfg.restSeconds;
-        if (Number.isFinite(cfg.warningSeconds)) document.getElementById('timerWarningSeconds').value = cfg.warningSeconds;
-        sendAction({ type:'timerSetConfig', config: cfg });
-        showFeedback('Timer settings loaded from '+f.name, true);
-      }catch(e){
-        showFeedback('Could not read JSON file: '+e.message, false);
-      }finally{
-        try{ fileInput.value = ''; }catch(_){ }
-      }
-    });
 
     function formatClockAdmin(ms){
       const total = Math.max(0, Math.ceil(ms/1000));
@@ -1125,18 +1061,41 @@
       return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
     }
 
+    if (startBtn) startBtn.addEventListener('click', async ()=>{
+      const mins = Number(minutesEl && minutesEl.value);
+      if (!Number.isFinite(mins) || mins <= 0){
+        showFeedback('Enter valid minutes (1-90)', false);
+        return;
+      }
+      const seconds = Math.min(5400, Math.max(60, Math.round(mins * 60)));
+      // Configure as a single-phase countdown and start immediately.
+      await sendAction({ type:'timerSetConfig', config:{ rounds:1, roundSeconds:seconds, restSeconds:0, warningSeconds:0 } });
+      await sendAction({ type:'timerStart' });
+      await sendAction({ type:'timerShow' });
+    });
+
+    if (pauseBtn) pauseBtn.addEventListener('click', ()=> sendAction({ type:'timerPause' }));
+    if (resumeBtn) resumeBtn.addEventListener('click', ()=> sendAction({ type:'timerStart' }));
+    if (resetBtn) resetBtn.addEventListener('click', ()=> sendAction({ type:'timerReset' }));
+    if (showBtn) showBtn.addEventListener('click', ()=> sendAction({ type:'timerShow' }));
+    if (hideBtn) hideBtn.addEventListener('click', ()=> sendAction({ type:'timerHide' }));
+
     setInterval(()=>{
       if (!statusEl2) return;
       const t = window.__timerState;
-      if (!t || t.status === 'idle'){ statusEl2.textContent = 'Idle'; return; }
+      const isVisible = !!(state && state.timerVisible);
+      if (!t || t.status === 'idle'){
+        statusEl2.textContent = 'Idle';
+        return;
+      }
       let remainingMs;
       if (t.status === 'running' && typeof t.phaseEndsAt === 'number') remainingMs = t.phaseEndsAt - Date.now();
       else if (t.status === 'paused' && typeof t.remainingMs === 'number') remainingMs = t.remainingMs;
       else remainingMs = 0;
       remainingMs = Math.max(0, remainingMs);
-      const phaseLabel = t.status === 'finished' ? 'KLART' : (t.phase === 'round' ? ('RUND '+t.currentRound+'/'+t.config.rounds) : 'VILA');
-      const pausedTag = t.status === 'paused' ? ' (paused)' : '';
-      statusEl2.textContent = phaseLabel + '  ' + formatClockAdmin(remainingMs) + pausedTag;
+      const life = t.status === 'finished' ? 'DONE' : (t.status === 'paused' ? 'PAUSED' : 'RUNNING');
+      const vis = isVisible ? 'VISIBLE' : 'HIDDEN';
+      statusEl2.textContent = life + '  ' + formatClockAdmin(remainingMs) + '  (' + vis + ')';
     }, 250);
   })();
 
