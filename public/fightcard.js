@@ -93,18 +93,21 @@ function renderList(){
     }
     if (f && f.method) { try{ console.debug('[viewer] method present for card', i, f.method); }catch(_){}} 
     const methodHtml = (f && f.method) ? methodLabel(f.method) : '';
+    const metaParts = [f.klass, f.weight].filter(Boolean);
     el.innerHTML = `
       <div class="match">
-        ${f.klass ? `<div class="fight-klass">${f.klass}</div>` : ''}
-  <div class="weight-label">${f.weight}</div>
+        <div class="live-badge">LIVE</div>
+        ${metaParts.length ? `<div class="fight-meta-line">${metaParts.join('<span class="meta-sep">&middot;</span>')}</div>` : ''}
   <div class="fight-row">
           <div class="fighter-box ${aClass}" data-side="a">
             <div class="fighter-name">${f.a}</div>
+            <div class="corner-chip corner-chip-red">Red Corner</div>
             <div class="fighter-meta">${(f.aGym || fighterAffils[f.a] || '')}</div>
           </div>
           <div class="vs-col"><span class="vs-label">vs</span></div>
           <div class="fighter-box ${bClass}" data-side="b">
             <div class="fighter-name">${f.b}</div>
+            <div class="corner-chip corner-chip-blue">Blue Corner</div>
             <div class="fighter-meta">${(f.bGym || fighterAffils[f.b] || '')}</div>
           </div>
         </div>
@@ -192,6 +195,117 @@ function updateNow(){
     if (label) label.style.display = showNow ? '' : 'none';
   }
 }
+
+// --- Round timer (ringklocka) ---
+// window.timerState is populated by ws-client.js / the initial /state fetch below.
+// Rendering just reads phaseEndsAt/remainingMs and ticks locally; the server owns
+// the actual phase transitions so all screens agree even if one client's clock drifts.
+let _timerInterval = null;
+let _lastTimerKey = null;
+let _warnedForKey = null;
+
+function formatClock(ms){
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function playBell(double){
+  try{
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    function ding(delay){
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + 0.9);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.95);
+    }
+    ding(0);
+    if (double) ding(0.35);
+    setTimeout(()=>{ try{ ctx.close(); }catch(_){ } }, 1500);
+  }catch(_){ /* audio not available; ignore */ }
+}
+
+function playWarningBeep(){
+  try{
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 1200;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.3);
+    setTimeout(()=>{ try{ ctx.close(); }catch(_){ } }, 500);
+  }catch(_){ /* ignore */ }
+}
+
+function renderTimer(){
+  const wrap = document.getElementById('ringTimer');
+  const phaseEl = document.getElementById('ringTimerPhase');
+  const clockEl = document.getElementById('ringTimerClock');
+  if (!wrap || !phaseEl || !clockEl) return;
+  const t0 = window.timerState;
+  if (!t0 || t0.status === 'idle'){
+    wrap.style.display = 'none';
+    if (_timerInterval){ clearInterval(_timerInterval); _timerInterval = null; }
+    _lastTimerKey = null; _warnedForKey = null;
+    return;
+  }
+  wrap.style.display = '';
+
+  function tick(){
+    const t = window.timerState;
+    if (!t) return;
+    let remainingMs;
+    if (t.status === 'running' && typeof t.phaseEndsAt === 'number'){
+      remainingMs = t.phaseEndsAt - Date.now();
+    } else if (t.status === 'paused' && typeof t.remainingMs === 'number'){
+      remainingMs = t.remainingMs;
+    } else if (t.status === 'finished'){
+      remainingMs = 0;
+    } else {
+      remainingMs = (t.phase === 'round' ? t.config.roundSeconds : t.config.restSeconds) * 1000;
+    }
+    remainingMs = Math.max(0, remainingMs);
+
+    const key = t.phase + '-' + t.currentRound + '-' + t.status;
+    if (_lastTimerKey !== null && key !== _lastTimerKey && (t.status === 'running' || t.status === 'finished')){
+      playBell(t.phase === 'round');
+      _warnedForKey = null;
+    }
+    _lastTimerKey = key;
+
+    const totalSeconds = Math.ceil(remainingMs / 1000);
+    const warnSecs = (t.config && t.config.warningSeconds) || 0;
+    const inWarning = t.status === 'running' && t.phase === 'round' && warnSecs > 0 && totalSeconds <= warnSecs && totalSeconds > 0;
+    if (inWarning && _warnedForKey !== key){ playWarningBeep(); _warnedForKey = key; }
+
+    phaseEl.textContent = t.status === 'finished' ? 'KLART' : (t.phase === 'round' ? ('RUND ' + t.currentRound + '/' + t.config.rounds) : 'VILA');
+    clockEl.textContent = formatClock(remainingMs);
+    wrap.classList.toggle('ring-timer-warning', inWarning);
+    wrap.classList.toggle('ring-timer-rest', t.phase === 'rest');
+    wrap.classList.toggle('ring-timer-paused', t.status === 'paused');
+    wrap.classList.toggle('ring-timer-finished', t.status === 'finished');
+  }
+
+  tick();
+  if (_timerInterval) clearInterval(_timerInterval);
+  _timerInterval = setInterval(tick, 250);
+}
+window.renderTimer = renderTimer;
 
 document.addEventListener('DOMContentLoaded', ()=>{
   const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -356,6 +470,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         try{ document.body.classList.remove('boot'); }catch(_){ }
         // apply social from initial fetch
         try{ if (j.social && typeof j.social === 'object'){ window.social = j.social; if (typeof renderSocial === 'function') renderSocial(); } }catch(e){}
+        try{ if (j.timer && typeof j.timer === 'object'){ window.timerState = j.timer; renderTimer(); } }catch(e){}
       }}
     }catch(e){ /* ignore */ }
   })();
@@ -420,7 +535,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       attempts++;
       try{
         const r = await fetch(stateEndpoint());
-        if (r.ok){ const j = await r.json(); if (Array.isArray(j.fights) && j.fights.length){
+        if (r.ok){ const j = await r.json();
+          if (j.timer && typeof j.timer === 'object'){ window.timerState = j.timer; renderTimer(); }
+          if (Array.isArray(j.fights) && j.fights.length){
           fights.length = 0; j.fights.forEach(f=> fights.push(f));
           if (typeof j.current === 'number') current = j.current;
           if (typeof j.fightsVisible === 'boolean') window.fightsVisible = j.fightsVisible;

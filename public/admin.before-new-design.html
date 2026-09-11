@@ -323,9 +323,8 @@
       <input id="tokenInput" placeholder="admin token" aria-label="Admin token">
       <button id="connectBtn" title="Connect WebSocket">Connect</button>
     </div>
-    <div class="pill muted" aria-live="polite">Status: <span id="status">disconnected</span></div>
+    <div class="pill muted">Status: <span id="status">disconnected</span></div>
   </header>
-  <div id="feedback" class="feedback" aria-live="polite" style="padding:0 1.4rem"></div>
   <!-- Removed auto-connect hint per request -->
 
   <main class="admin-shell">
@@ -339,7 +338,7 @@
         <div class="field" style="max-width:720px">
           <div class="label">Event name (headline)</div>
           <div class="row" style="align-items:center">
-            <input id="eventName" placeholder="Event name" aria-label="Event name" style="flex:1">
+            <input id="eventName" placeholder="Event name" style="flex:1">
             <div style="display:flex;flex-direction:column;align-items:center;margin-left:.6rem">
               <div class="label" style="font-size:.92em;margin-bottom:.1rem">Title color</div>
               <div class="color-picker" title="Title color">
@@ -394,7 +393,7 @@
           <div class="field" style="flex:1;min-width:280px;gap:.15rem">
             <div class="label">Logo Image</div>
             <div class="file-row modern-file-row">
-              <input id="eventImage" type="file" accept="image/*" title="Attach an image to show instead of text" aria-label="Attach event logo image" style="display:none">
+              <input id="eventImage" type="file" accept="image/*" title="Attach an image to show instead of text" style="display:none">
               <button id="attachImageBtn" type="button" class="attach-btn" title="Attach image">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-8.48 8.48a5.5 5.5 0 0 1-7.78 0 5.5 5.5 0 0 1 0-7.78l7.07-7.07a3.75 3.75 0 0 1 5.3 5.3L10 17.5a1.75 1.75 0 0 1-2.47 0 1.75 1.75 0 0 1 0-2.47l6.36-6.36"/></svg>
                 Attach image
@@ -403,7 +402,7 @@
               <button id="clearImageBtn" type="button" class="attach-clear" title="Remove selected image">✕</button>
               <div class="img-size-control" title="Image max height">
                 <label class="label" for="eventImageSize">Size</label>
-                <input id="eventImageSize" type="range" min="60" max="240" value="150" step="2" aria-label="Logo image size">
+                <input id="eventImageSize" type="range" min="60" max="240" value="150" step="2">
                 <span id="eventImageSizeDisplay" class="size-display" aria-live="polite"></span>
               </div>
             </div>
@@ -414,13 +413,13 @@
         
         <div class="field" style="margin-top:.4rem;max-width:720px">
           <div class="label">Info box (appears under title)</div>
-          <textarea id="eventInfo" rows="4" placeholder="Exempel: Matchstart 13:00" aria-label="Event info" style="resize:vertical"></textarea>
+          <textarea id="eventInfo" rows="4" placeholder="Exempel: Matchstart 13:00" style="resize:vertical"></textarea>
           <div class="muted" style="font-size:.75rem">Use line breaks to separate lines. Leave empty to hide.</div>
         </div>
         <div class="field" style="margin-top:.6rem;max-width:720px">
           <div class="label">Foot note image (appears at bottom of fight card)</div>
           <div class="file-row">
-            <input id="eventFootnote" type="file" accept="image/*" title="Attach a footnote image (e.g. logo)" aria-label="Attach footnote image" style="display:none">
+            <input id="eventFootnote" type="file" accept="image/*" title="Attach a footnote image (e.g. logo)" style="display:none">
             <button id="attachFootnoteBtn" type="button" class="attach-btn" title="Attach footnote image">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-8.48 8.48a5.5 5.5 0 0 1-7.78 0 5.5 5.5 0 0 1 0-7.78l7.07-7.07a3.75 3.75 0 0 1 5.3 5.3L10 17.5a1.75 1.75 0 0 1-2.47 0 1.75 1.75 0 0 1 0-2.47l6.36-6.36"/></svg>
               Attach footnote
@@ -454,40 +453,6 @@
       </div>
   </div>
 
-  <div class="card" aria-labelledby="timerControls">
-      <h3 id="timerControls">Ringklocka (Round Timer)</h3>
-      <div class="card-actions">
-        <button id="toggleTimer" type="button" class="toggle-btn" aria-pressed="false" aria-label="Hide round timer" title="Hide round timer">Hide</button>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end;margin:.6rem 0">
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Rounds
-          <input id="timerRounds" type="number" min="1" max="20" value="5" style="width:70px">
-        </label>
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Round (sec)
-          <input id="timerRoundSeconds" type="number" min="10" max="1800" value="180" style="width:90px">
-        </label>
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Rest (sec)
-          <input id="timerRestSeconds" type="number" min="0" max="900" value="60" style="width:90px">
-        </label>
-        <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.8rem">Warning (sec)
-          <input id="timerWarningSeconds" type="number" min="0" max="60" value="10" style="width:90px">
-        </label>
-        <button id="timerSaveConfig" class="btn-small" type="button" title="Apply settings (also resets to Round 1)">Save Settings</button>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.7rem">
-        <button id="timerStart" class="btn-small" type="button">Start / Resume</button>
-        <button id="timerPause" class="btn-small" type="button">Pause</button>
-        <button id="timerSkip" class="btn-small" type="button">Skip phase</button>
-        <button id="timerResetBtn" class="btn-small" type="button" style="background:#ef4444">Reset</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem;flex-wrap:wrap">
-        <button id="timerUploadBtn" class="btn-small" type="button" title="Import round settings your friend sent you as a .json file">Load settings from JSON</button>
-        <input id="timerFileInput" type="file" accept="application/json,.json" style="display:none">
-        <span id="timerUploadName" class="muted" style="font-size:.8rem"></span>
-      </div>
-      <div id="timerStatus" style="font-family:'Bebas Neue',Arial,sans-serif;font-size:1.7rem;letter-spacing:1px;color:#0f172a">Idle</div>
-  </div>
-
       <!-- New dedicated Social Links panel -->
       <div class="card" aria-labelledby="socialControls">
         <h3 id="socialControls">Social Links</h3>
@@ -501,7 +466,7 @@
             <span style="display:inline-flex;align-items:center" title="Website">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2c2.5 3.5 2.5 16.5 0 20"></path></svg>
             </span>
-            <input id="socialWebsiteValue" placeholder="https://www.example.com" aria-label="Website link" style="flex:1" />
+            <input id="socialWebsiteValue" placeholder="https://www.example.com" style="flex:1" />
           </label>
           <!-- Facebook -->
           <div class="label" style="margin-top:.15rem">Facebook</div>
@@ -509,7 +474,7 @@
             <span title="Facebook">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.16 1.8.16v2h-1c-1 0-1.3.62-1.3 1.25V12h2.3l-.37 3h-1.93v7A10 10 0 0 0 22 12"></path></svg>
             </span>
-            <input id="socialFacebookValue" placeholder="facebook page URL" aria-label="Facebook link" style="flex:1" />
+            <input id="socialFacebookValue" placeholder="facebook page URL" style="flex:1" />
           </label>
           <!-- Instagram -->
           <div class="label" style="margin-top:.15rem">Instagram</div>
@@ -517,7 +482,7 @@
             <span title="Instagram">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
             </span>
-            <input id="socialInstagramValue" placeholder="@username" aria-label="Instagram handle or link" style="flex:1" />
+            <input id="socialInstagramValue" placeholder="@username" style="flex:1" />
           </label>
           <!-- Additional -->
           <div class="label" style="margin-top:.15rem">Additional</div>
@@ -525,7 +490,7 @@
             <span title="Extra">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l4 7h-8l4-7z"></path><circle cx="12" cy="14" r="4"></circle><path d="M12 18v4"></path></svg>
             </span>
-            <input id="socialAdditionalValue" placeholder="extra info or link" aria-label="Additional social info" style="flex:1" />
+            <input id="socialAdditionalValue" placeholder="extra info or link" style="flex:1" />
           </label>
           <div class="row" style="margin-top:.4rem"><button id="saveSocial" style="align-self:flex-start">Save Social</button></div>
         </div>
@@ -541,21 +506,21 @@
       <form id="fightForm" style="display:flex;flex-direction:column;gap:.75rem">
         <div style="display:flex;flex-direction:column;gap:.35rem">
           <label class="muted">Division / Klass</label>
-          <input name="klass" placeholder="e.g. Junior C" aria-label="Division or class" autocomplete="off">
+          <input name="klass" placeholder="e.g. Junior C" autocomplete="off">
         </div>
         <div style="display:flex;flex-direction:column;gap:.35rem">
           <label class="muted">Weight class</label>
-          <input name="weight" placeholder="e.g. 67 kg" aria-label="Weight class" autocomplete="off">
+          <input name="weight" placeholder="e.g. 67 kg" autocomplete="off">
         </div>
         <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
           <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter A</legend>
-          <input name="a" placeholder="Name" aria-label="Fighter A name" required autocomplete="off">
-          <input name="aGym" placeholder="Gym / Club" aria-label="Fighter A gym or club" autocomplete="off">
+          <input name="a" placeholder="Name" required autocomplete="off">
+          <input name="aGym" placeholder="Gym / Club" autocomplete="off">
         </fieldset>
         <fieldset style="border:1px solid #222;border-radius:10px;padding:.7rem;display:flex;flex-direction:column;gap:.55rem">
           <legend style="padding:0 .4rem;font-size:.8rem;color:var(--muted)">Fighter B</legend>
-          <input name="b" placeholder="Name" aria-label="Fighter B name" required autocomplete="off">
-          <input name="bGym" placeholder="Gym / Club" aria-label="Fighter B gym or club" autocomplete="off">
+          <input name="b" placeholder="Name" required autocomplete="off">
+          <input name="bGym" placeholder="Gym / Club" autocomplete="off">
         </fieldset>
         <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.4rem">
           <button type="button" id="cancelFight" class="btn-neutral" onclick="closeFightModal()">Cancel</button>
@@ -570,7 +535,7 @@
       <button type="button" class="info-modal-close" aria-label="Close info">&times;</button>
       <div class="info-modal-inner">
         <div id="infoModalMessage" class="info-modal-error" hidden>Unable to load the info image. Please ensure descriptionENG.png exists under /assets.</div>
-        <img id="infoModalImage" src="assets/descriptionENG.png" alt="Admin workflow overview" loading="lazy" decoding="async">
+        <img id="infoModalImage" src="/assets/descriptionENG.png" alt="Admin workflow overview" loading="lazy" decoding="async">
       </div>
     </div>
   </div>
@@ -642,7 +607,7 @@
     return Math.max(1, Math.min(15, v));
   }
 
-  const defaultToken = urlToken || '';
+  const defaultToken = urlToken || (activeSlug ? (activeSlug.toLowerCase() + '123') : (window.DEFAULT_ADMIN_TOKEN || 'letmein'));
   tokenInput.value = defaultToken;
 
   let ws = null;
@@ -717,19 +682,6 @@
       btn.setAttribute('aria-label', btn.title);
     });
   })();
-  // Round timer per-card collapse
-  (function initTimerCollapse(){
-    const btn = document.getElementById('toggleTimer');
-    if(!btn) return;
-    const card = btn.closest('.card');
-    btn.addEventListener('click', ()=>{
-      const collapsed = card.classList.toggle('collapsed');
-      btn.setAttribute('aria-pressed', collapsed? 'true':'false');
-      btn.textContent = collapsed? 'Show' : 'Hide';
-      btn.title = collapsed? 'Show round timer':'Hide round timer';
-      btn.setAttribute('aria-label', btn.title);
-    });
-  })();
   // Social Links panel no per-card collapse (toggle removed)
 
   function connect(){
@@ -763,7 +715,6 @@
     if (totalDisplay) totalDisplay.textContent = (Array.isArray(state.fights)? state.fights.length : '-');
     showFeedback('State updated', true);
     renderFightList();
-    updateTimerUIFromState(state.timer);
     // event fields
     try{
       const nameInput = document.getElementById('eventName');
@@ -785,9 +736,11 @@
       if (state.eventColor) document.getElementById('eventColor').value = state.eventColor;
       if (typeof state.eventSize === 'number') {
         const sizeNum = document.getElementById('eventSizeNumber');
+        const header = document.getElementById('previewHeader');
         const rem = (state.eventSize/10);
         const uiVal = remToSizeInt(rem);
         if (sizeNum) sizeNum.value = String(uiVal);
+        if (header) header.style.fontSize = rem.toFixed(2)+'rem';
       }
       if (typeof state.eventImageSize === 'number'){
         const s2 = document.getElementById('eventImageSize');
@@ -855,6 +808,45 @@
       }
     }catch(e){ console.warn('[admin] failed to reflect social panel', e.message); }
 
+    // Preview pane population
+    try{
+      const headerEl = document.getElementById('previewHeader');
+      const infoEl = document.getElementById('previewInfo');
+      const fightsWrap = document.getElementById('previewFights');
+      const emptyEl = document.getElementById('previewEmpty');
+      // previewMeta removed (no badge display)
+      function badge(t){ const s=document.createElement('span'); s.textContent=t; return s; }
+      if(headerEl){
+        headerEl.textContent = state.eventName || 'Event Title';
+        const fontStacks = {
+          bebas: "'Bebas Neue','Montserrat',sans-serif",
+          anton: "'Anton','Montserrat',sans-serif",
+          oswald: "'Oswald','Montserrat',sans-serif",
+          montserrat: "'Montserrat',sans-serif",
+          poppins: "'Poppins','Montserrat',sans-serif",
+          playfair: "'Playfair Display','Georgia',serif",
+          impact: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+        };
+        headerEl.style.fontFamily = fontStacks[state.eventFont] || "'Montserrat',sans-serif";
+        if(state.eventColor){ headerEl.style.color = state.eventColor; }
+      }
+      if(infoEl){ infoEl.textContent = state.eventInfo || ''; infoEl.style.display = state.eventInfo? 'block':'none'; }
+      // meta badges removed
+      if(fightsWrap && emptyEl){
+        fightsWrap.innerHTML='';
+        if(state.fights && state.fights.length){
+          emptyEl.style.display='none';
+          state.fights.forEach((f,i)=>{
+            const item=document.createElement('div');
+            item.className='preview-fight'+(state.current===i? ' current':'');
+            item.innerHTML = `<span>#${i+1} ${escapeHtml(f.a)} vs ${escapeHtml(f.b)}</span><span>${escapeHtml(f.klass||'')}</span>`;
+            fightsWrap.appendChild(item);
+          });
+        } else {
+          emptyEl.style.display='block';
+        }
+      }
+    }catch(e){ console.warn('[admin] preview pane update failed', e.message); }
   }
 
   function renderFightList(){
@@ -1013,8 +1005,8 @@
   async function sendAction(payload){
     let token = tokenInput.value.trim();
     if(!token){
-      showFeedback('Missing token - enter admin token first', false);
-      return null;
+      console.warn('[admin] Missing token; using default token fallback');
+      token = activeSlug ? (activeSlug.toLowerCase() + '123') : (window.DEFAULT_ADMIN_TOKEN || 'letmein');
     }
     if (!activeSlug){
       showFeedback('Missing slug in URL', false);
@@ -1043,102 +1035,6 @@
       }
     }catch(e){ showFeedback('Network error: '+e.message, false); return null; }
   }
-
-  // --- Round timer (ringklocka) ---
-  function updateTimerUIFromState(timer){
-    const roundsEl = document.getElementById('timerRounds');
-    const roundSecEl = document.getElementById('timerRoundSeconds');
-    const restSecEl = document.getElementById('timerRestSeconds');
-    const warnSecEl = document.getElementById('timerWarningSeconds');
-    window.__timerState = timer || null;
-    if (!timer || !timer.config) return;
-    const active = document.activeElement;
-    const editing = [roundsEl, roundSecEl, restSecEl, warnSecEl].includes(active);
-    if (editing) return; // don't clobber values the user is actively typing
-    if (roundsEl) roundsEl.value = timer.config.rounds;
-    if (roundSecEl) roundSecEl.value = timer.config.roundSeconds;
-    if (restSecEl) restSecEl.value = timer.config.restSeconds;
-    if (warnSecEl) warnSecEl.value = timer.config.warningSeconds;
-  }
-
-  (function initTimerControls(){
-    const saveBtn = document.getElementById('timerSaveConfig');
-    const startBtn = document.getElementById('timerStart');
-    const pauseBtn = document.getElementById('timerPause');
-    const skipBtn = document.getElementById('timerSkip');
-    const resetBtn = document.getElementById('timerResetBtn');
-    const uploadBtn = document.getElementById('timerUploadBtn');
-    const fileInput = document.getElementById('timerFileInput');
-    const nameEl = document.getElementById('timerUploadName');
-    const statusEl2 = document.getElementById('timerStatus');
-
-    function readConfigFromInputs(){
-      return {
-        rounds: Number(document.getElementById('timerRounds').value),
-        roundSeconds: Number(document.getElementById('timerRoundSeconds').value),
-        restSeconds: Number(document.getElementById('timerRestSeconds').value),
-        warningSeconds: Number(document.getElementById('timerWarningSeconds').value)
-      };
-    }
-
-    if (saveBtn) saveBtn.addEventListener('click', ()=>{
-      sendAction({ type:'timerSetConfig', config: readConfigFromInputs() });
-    });
-    if (startBtn) startBtn.addEventListener('click', ()=> sendAction({ type:'timerStart' }));
-    if (pauseBtn) pauseBtn.addEventListener('click', ()=> sendAction({ type:'timerPause' }));
-    if (skipBtn) skipBtn.addEventListener('click', ()=> sendAction({ type:'timerSkip' }));
-    if (resetBtn) resetBtn.addEventListener('click', ()=> sendAction({ type:'timerReset' }));
-
-    // Load settings your friend sent over as a JSON file, e.g.:
-    // { "rounds": 5, "roundSeconds": 180, "restSeconds": 60, "warningSeconds": 10 }
-    if (uploadBtn && fileInput) uploadBtn.addEventListener('click', ()=> fileInput.click());
-    if (fileInput) fileInput.addEventListener('change', async ()=>{
-      const f = fileInput.files && fileInput.files[0];
-      if (!f) return;
-      if (nameEl) nameEl.textContent = f.name;
-      try{
-        const text = await f.text();
-        const json = JSON.parse(text);
-        const cfg = {
-          rounds: Number(json.rounds),
-          roundSeconds: Number(json.roundSeconds),
-          restSeconds: Number(json.restSeconds),
-          warningSeconds: Number(json.warningSeconds)
-        };
-        if (Number.isFinite(cfg.rounds)) document.getElementById('timerRounds').value = cfg.rounds;
-        if (Number.isFinite(cfg.roundSeconds)) document.getElementById('timerRoundSeconds').value = cfg.roundSeconds;
-        if (Number.isFinite(cfg.restSeconds)) document.getElementById('timerRestSeconds').value = cfg.restSeconds;
-        if (Number.isFinite(cfg.warningSeconds)) document.getElementById('timerWarningSeconds').value = cfg.warningSeconds;
-        sendAction({ type:'timerSetConfig', config: cfg });
-        showFeedback('Timer settings loaded from '+f.name, true);
-      }catch(e){
-        showFeedback('Could not read JSON file: '+e.message, false);
-      }finally{
-        try{ fileInput.value = ''; }catch(_){ }
-      }
-    });
-
-    function formatClockAdmin(ms){
-      const total = Math.max(0, Math.ceil(ms/1000));
-      const m = Math.floor(total/60);
-      const s = total%60;
-      return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-    }
-
-    setInterval(()=>{
-      if (!statusEl2) return;
-      const t = window.__timerState;
-      if (!t || t.status === 'idle'){ statusEl2.textContent = 'Idle'; return; }
-      let remainingMs;
-      if (t.status === 'running' && typeof t.phaseEndsAt === 'number') remainingMs = t.phaseEndsAt - Date.now();
-      else if (t.status === 'paused' && typeof t.remainingMs === 'number') remainingMs = t.remainingMs;
-      else remainingMs = 0;
-      remainingMs = Math.max(0, remainingMs);
-      const phaseLabel = t.status === 'finished' ? 'KLART' : (t.phase === 'round' ? ('RUND '+t.currentRound+'/'+t.config.rounds) : 'VILA');
-      const pausedTag = t.status === 'paused' ? ' (paused)' : '';
-      statusEl2.textContent = phaseLabel + '  ' + formatClockAdmin(remainingMs) + pausedTag;
-    }, 250);
-  })();
 
   document.getElementById('connectBtn').addEventListener('click', ()=> connect());
 
@@ -1418,7 +1314,8 @@
       }
     });
 
-  // Keep connection explicit: operator clicks Connect.
+  // auto-connect if token provided in URL
+  if(tokenInput.value) connect();
 
   // Build color palette swatches
   // Swatch palette removed; circular color inputs styled via CSS
@@ -1427,6 +1324,7 @@
   (function initHeadlineSize(){
     const num = document.getElementById('eventSizeNumber');
     if(!num) return;
+    const header = document.getElementById('previewHeader');
     const btn = document.getElementById('sizeDropdownBtn');
     const menu = document.getElementById('sizeDropdownMenu');
     const pill = btn ? btn.closest('.size-pill') : null;
@@ -1447,6 +1345,7 @@
       const v = normalize(num.value);
       num.value = v; // integer shown
       const rem = sizeIntToRem(v);
+      if (header) header.style.fontSize = rem.toFixed(2)+'rem';
       return rem;
     }
     num.addEventListener('input', apply);

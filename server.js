@@ -32,6 +32,9 @@ function ensureCardState(rec){
   if (!rec.state || typeof rec.state !== 'object'){
     rec.state = defaultState();
   }
+  if (!rec.state.timer || typeof rec.state.timer !== 'object'){
+    rec.state.timer = defaultTimer();
+  }
   return rec.state;
 }
 
@@ -45,7 +48,9 @@ function getStateContext(slug){
 }
 
 function generateSlug(len = 8){
-  const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  // Lowercase-only: viewer/ws clients normalize slugs to lowercase before
+  // looking them up, so a mixed-case slug here would be unreachable.
+  const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
   const bytes = crypto.randomBytes(len);
   let out = '';
   for (let i=0;i<len;i++) out += alphabet[bytes[i] % alphabet.length];
@@ -67,16 +72,42 @@ function slugifyClubName(name){
 
 const RESERVED_SLUGS = new Set(['admin','register','reg','card','start','state','health','whoami','cards','c','styles.css','fightcard.js','ws-client.js']);
 
+function defaultTimer(){
+  return {
+    config: { rounds: 5, roundSeconds: 180, restSeconds: 60, warningSeconds: 10 },
+    status: 'idle', // 'idle' | 'running' | 'paused' | 'finished'
+    phase: 'round', // 'round' | 'rest'
+    currentRound: 0,
+    phaseEndsAt: null, // epoch ms while running
+    remainingMs: null // ms left, set while paused
+  };
+}
+
+function sanitizeTimerConfig(cfg){
+  const c = cfg && typeof cfg === 'object' ? cfg : {};
+  const clampInt = (v, min, max, fallback) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n))) : fallback;
+  };
+  return {
+    rounds: clampInt(c.rounds, 1, 20, 5),
+    roundSeconds: clampInt(c.roundSeconds, 10, 1800, 180),
+    restSeconds: clampInt(c.restSeconds, 0, 900, 60),
+    warningSeconds: clampInt(c.warningSeconds, 0, 60, 10)
+  };
+}
+
 function defaultState(){
-  return { current: 0, fights: [], standby: false, infoVisible: true };
+  return { current: 0, fights: [], standby: false, infoVisible: true, timer: defaultTimer() };
 }
 
 function getActiveCard(slug){
   if (!slug) return null;
-  const rec = cards.get(slug);
+  const key = String(slug).toLowerCase();
+  const rec = cards.get(key);
   if (!rec) return null;
   if (new Date(rec.expiresAt) < new Date()){
-    cards.delete(slug);
+    cards.delete(key);
     return null;
   }
   return rec;
@@ -112,9 +143,12 @@ function createCard({ club, wantClubSlug }, ttlHours = 48){
   } else {
     do { slug = generateSlug(8); } while(getActiveCard(slug));
   }
+  // Normalize once here: viewer/ws clients always look up slugs lowercased,
+  // so storage must use the same casing or the lookup silently misses.
+  slug = slug.toLowerCase();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + Math.max(1, ttlHours) * 3600 * 1000);
-  const adminToken = `${slug.toLowerCase()}123`;
+  const adminToken = `${slug}123`;
   const rec = { club: club || {}, createdAt: now.toISOString(), expiresAt: expiresAt.toISOString(), state: defaultState(), adminToken };
   cards.set(slug, rec);
   return { slug, record: rec };
@@ -326,6 +360,7 @@ const state = {
 };
 // allow a standby flag to pause the now-strip on clients
 state.standby = false;
+state.timer = defaultTimer();
 // infoVisible controls whether the event info block is shown
 state.infoVisible = true;
 
@@ -398,6 +433,101 @@ async function saveCardState(slug){
     broadcast({ type: 'state', state: snapshot, broadcastId: bid }, slug);
     console.log(`[state:${slug}] broadcast id=${bid}`);
   }catch(e){ console.warn(`[state:${slug}] broadcast failed`, e && e.message ? e.message : e); }
+}
+
+// --- Round timer (ringklocka) ---
+// Server-authoritative so every connected screen (admin + viewers) shows the
+// exact same countdown regardless of when they connected; clients just render
+// phaseEndsAt/remainingMs locally rather than trusting their own clock to run a timer.
+const cardTimerHandles = new Map(); // slug -> Timeout
+
+function clearTimerHandle(slug){
+  const h = cardTimerHandles.get(slug);
+  if (h){ clearTimeout(h); cardTimerHandles.delete(slug); }
+}
+
+function scheduleTimerAdvance(slug){
+  clearTimerHandle(slug);
+  const rec = getActiveCard(slug);
+  if (!rec) return;
+  const t = ensureCardState(rec).timer;
+  if (!t || t.status !== 'running' || typeof t.phaseEndsAt !== 'number') return;
+  const delay = Math.max(0, t.phaseEndsAt - Date.now());
+  const handle = setTimeout(() => advanceTimerPhase(slug), delay);
+  cardTimerHandles.set(slug, handle);
+}
+
+function currentPhaseDurationMs(t){
+  return (t.phase === 'round' ? t.config.roundSeconds : t.config.restSeconds) * 1000;
+}
+
+// Moves phase/currentRound/status forward one step. Does not touch phaseEndsAt/remainingMs
+// so it can be reused by both the natural timeout expiry and the manual "skip" action.
+function advancePhasePointer(t){
+  const cfg = t.config;
+  if (t.phase === 'round'){
+    if (t.currentRound >= cfg.rounds){ t.status = 'finished'; t.phase = 'round'; return; }
+    if (cfg.restSeconds > 0){ t.phase = 'rest'; return; }
+    t.currentRound += 1; t.phase = 'round'; // no rest configured: straight into next round
+    return;
+  }
+  // phase === 'rest'
+  t.currentRound += 1;
+  if (t.currentRound > cfg.rounds){ t.status = 'finished'; t.phase = 'round'; return; }
+  t.phase = 'round';
+}
+
+async function advanceTimerPhase(slug){
+  const rec = getActiveCard(slug);
+  if (!rec) return;
+  const state = ensureCardState(rec);
+  const t = state.timer;
+  if (!t || t.status !== 'running') return;
+  advancePhasePointer(t);
+  if (t.status === 'finished'){ t.phaseEndsAt = null; t.remainingMs = null; }
+  else { t.phaseEndsAt = Date.now() + currentPhaseDurationMs(t); }
+  await saveCardState(slug);
+  scheduleTimerAdvance(slug);
+}
+
+function handleTimerAction(state, slug, msg){
+  if (!state.timer) state.timer = defaultTimer();
+  const t = state.timer;
+  if (msg.type === 'timerSetConfig'){
+    const cfg = sanitizeTimerConfig(msg.config);
+    Object.assign(t, defaultTimer());
+    t.config = cfg;
+    clearTimerHandle(slug);
+  } else if (msg.type === 'timerStart'){
+    if (t.status === 'idle' || t.status === 'finished'){
+      t.currentRound = 1; t.phase = 'round'; t.status = 'running';
+      t.phaseEndsAt = Date.now() + t.config.roundSeconds * 1000; t.remainingMs = null;
+    } else if (t.status === 'paused'){
+      const remaining = Number.isFinite(t.remainingMs) ? t.remainingMs : currentPhaseDurationMs(t);
+      t.status = 'running'; t.phaseEndsAt = Date.now() + remaining; t.remainingMs = null;
+    }
+    scheduleTimerAdvance(slug);
+  } else if (msg.type === 'timerPause'){
+    if (t.status === 'running'){
+      t.remainingMs = Math.max(0, (t.phaseEndsAt || Date.now()) - Date.now());
+      t.status = 'paused'; t.phaseEndsAt = null;
+      clearTimerHandle(slug);
+    }
+  } else if (msg.type === 'timerReset'){
+    const cfg = t.config;
+    Object.assign(t, defaultTimer());
+    t.config = cfg;
+    clearTimerHandle(slug);
+  } else if (msg.type === 'timerSkip'){
+    if (t.status === 'running' || t.status === 'paused'){
+      const wasPaused = t.status === 'paused';
+      advancePhasePointer(t);
+      clearTimerHandle(slug);
+      if (t.status === 'finished'){ t.phaseEndsAt = null; t.remainingMs = null; }
+      else if (wasPaused){ t.status = 'paused'; t.remainingMs = currentPhaseDurationMs(t); t.phaseEndsAt = null; }
+      else { t.status = 'running'; t.phaseEndsAt = Date.now() + currentPhaseDurationMs(t); scheduleTimerAdvance(slug); }
+    }
+  }
 }
 
 // If you want admin changes to update the GitHub Pages source, set these environment vars on the server:
@@ -533,7 +663,7 @@ app.get('/reg', (req, res) => {
 app.use(express.static(PUBLIC_DIR));
 
 function serveViewerForSlug(slug, res){
-  const rec = cards.get(slug);
+  const rec = cards.get((slug||'').toLowerCase());
   if (!rec) return false;
   if (new Date(rec.expiresAt) < new Date()){
     res.status(410).send('Link expired');
@@ -554,7 +684,7 @@ app.get('/c/:slug', (req, res) => {
 });
 app.get('/admin/:slug', (req, res) => {
   const { slug } = req.params;
-  const rec = cards.get(slug);
+  const rec = cards.get((slug||'').toLowerCase());
   if (!rec) return res.status(404).send('Not found');
   if (new Date(rec.expiresAt) < new Date()) return res.status(410).send('Link expired');
   res.set('Cache-Control','no-store');
@@ -820,6 +950,9 @@ app.post('/admin/action', async (req, res) => {
       state.fights.splice(idx,1);
       if (state.current >= state.fights.length){ state.current = Math.max(0, state.fights.length-1); }
     }
+  }
+  if (/^timer(SetConfig|Start|Pause|Reset|Skip)$/.test(msg.type)){
+    handleTimerAction(state, slug, msg);
   }
   // persist and ensure the full state is broadcast after save
   await saveCardState(slug);

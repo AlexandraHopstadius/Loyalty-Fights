@@ -165,7 +165,7 @@ body.boot *{ transition:none !important }
 @media(max-width:420px){
   #logoImage{max-width:420px}
 }
-.cards{display:grid;gap:.8rem;padding:1rem;background:transparent;border-radius:8px;align-content:start;align-items:start}
+.cards{display:grid;gap:1rem;padding:1rem;background:transparent;border-radius:8px;align-content:start;align-items:start}
 /* When list is empty, center the placeholder nicely */
 .cards.is-empty{min-height:60vh;place-content:center}
 /* Stronger vertical centering for fightList when empty */
@@ -294,8 +294,15 @@ body.updating .fight-main{opacity:0}
 .fighter-box.draw{box-shadow:0 6px 16px rgba(0,0,0,0.18)}
 .vs-draw{font-size:0.75rem;color:#000;margin-top:4px;font-weight:700;text-transform:lowercase}
 .vs-col{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;gap:4px}
-.vs-label{font-weight:700;color:var(--muted);font-size:0.95rem;margin-bottom:2px}
+.vs-label{
+  font-weight:900;color:#fff;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;
+  width:2.15rem;height:2.15rem;border-radius:999px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(140deg,#3a3f4b,#20232b);border:2px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 10px rgba(0,0,0,0.25);
+}
 .weight-label{margin-top:10px;text-align:center;color:var(--muted);font-weight:600}
+.fight-meta-line{text-align:center;color:var(--muted);font-size:.85rem;font-weight:600;margin-bottom:4px;letter-spacing:.01em}
+.fight-meta-line .meta-sep{opacity:.5;margin:0 .4rem}
 .win-method{
   display:block;
   width:fit-content;
@@ -332,6 +339,18 @@ body.updating .fight-main{opacity:0}
 /* red frame for the live 'Nu' strip and the active fight card */
 .now-strip.red-frame{border:2px solid #ef233c; box-shadow:0 6px 14px rgba(0,0,0,0.22); border-radius:18px; background-clip:padding-box}
 .fight-card.live{border:4px solid #ef233c; box-shadow:0 18px 36px rgba(0,0,0,0.26)}
+
+/* Round timer (ringklocka) */
+.ring-timer{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.55rem 1.1rem .7rem;margin:0 auto .5rem;max-width:280px;border-radius:16px;background:linear-gradient(140deg, rgba(20,26,36,0.72), rgba(10,14,20,0.72));border:2px solid rgba(255,255,255,0.08);box-shadow:0 6px 14px rgba(0,0,0,0.22)}
+.ring-timer-phase{font-family:'Bebas Neue', Arial, sans-serif;font-size:1rem;letter-spacing:1.6px;color:#c3c8d2;font-weight:700}
+.ring-timer-clock{font-family:'Bebas Neue', Arial, sans-serif;font-size:2.6rem;line-height:1;letter-spacing:1px;color:#fff;font-variant-numeric:tabular-nums}
+.ring-timer.ring-timer-rest{border-color:rgba(120,180,255,0.35)}
+.ring-timer.ring-timer-rest .ring-timer-clock{color:#9fc7ff}
+.ring-timer.ring-timer-paused{opacity:.75}
+.ring-timer.ring-timer-warning{border-color:#ef233c;animation:ring-timer-pulse 1s ease-in-out infinite}
+.ring-timer.ring-timer-warning .ring-timer-clock{color:#ff6a6a}
+.ring-timer.ring-timer-finished .ring-timer-clock{color:#f0c419}
+@keyframes ring-timer-pulse{0%,100%{box-shadow:0 6px 14px rgba(0,0,0,0.22)}50%{box-shadow:0 6px 22px rgba(239,35,60,0.55)}}
 .fight-card.live .weight-label{color:var(--accent)}
 /* First live fight gets a slightly larger presence */
 /* Any live/red-framed fight pops out slightly */
@@ -346,7 +365,20 @@ body.updating .fight-main{opacity:0}
 
 /* explicit red-frame modifier for targeting specific fights */
 .fight-card.red-frame{border:4px solid #ef233c; box-shadow:0 20px 46px rgba(0,0,0,0.26); border-radius:12px; background-clip:padding-box}
-.fight-card.red-frame .fighter-name{color:#ef233c}
+
+/* LIVE badge: communicates "this fight is on now" without overriding the
+   fighter names, so red/blue corner identity stays legible during a live fight */
+.live-badge{display:none}
+.fight-card.live .live-badge, .fight-card.red-frame .live-badge{
+  display:inline-flex;align-self:center;align-items:center;gap:.32rem;
+  margin:-.15rem 0 .2rem;padding:.16rem .7rem;border-radius:999px;
+  background:#ef233c;color:#fff;font-family:'Bebas Neue',Arial,sans-serif;
+  font-size:.78rem;letter-spacing:.24em;font-weight:700;
+  box-shadow:0 4px 10px rgba(239,35,60,0.45);
+  animation:live-badge-pulse 1.6s ease-in-out infinite;
+}
+.live-badge::before{content:'';width:.4rem;height:.4rem;border-radius:999px;background:#fff;display:inline-block}
+@keyframes live-badge-pulse{0%,100%{box-shadow:0 4px 10px rgba(239,35,60,0.45)}50%{box-shadow:0 4px 18px rgba(239,35,60,0.85)}}
 .controls button{flex:1;padding:.6rem;border-radius:8px;border:1px solid #eee;background:white}
 .small{padding:.35rem .6rem;font-size:.9rem}
 

@@ -1,987 +1,1031 @@
 <!doctype html>
-<html lang="sv">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Klubbregistrering / Club Registration</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Create your fightcard</title>
   <link rel="icon" href="assets/logo_design.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <!-- Version stamp: v-register-match-landing-1 -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root{
-      /* Dark arena gradient palette (matching landing) */
-      --bg-grad-start:#0d1629;
-      --bg-grad-end:#1b2e45;
-      --grain:rgba(255,255,255,0.03);
-      --card:#f9fafb; /* white card */
-      --card-border:#dce3ec;
-      --text:#0f172a;
-      --muted:#5f6e80;
-      /* CTA reds (same as landing) */
-      --accent-red:#ff3131;
-      --accent-red-glow:rgba(255,49,49,0.45);
-      --accent-red-mid:#ff4232;
-      --accent-red-hot:#ff5d3a;
-      --accent-red-edge:#ff7845;
-      /* Language pills */
-      --lang-bg:#111418;
-      --lang-bg-hover:#1d242c;
-      --lang-active-outline:#ef233c;
+    :root {
+      --red: #e8271a;
+      --red-bright: #ff3b2b;
+      --red-glow: rgba(232,39,26,0.35);
+      --navy: #050c18;
+      --navy-mid: #0b1627;
+      --navy-light: #111f35;
+      --steel: #1c2d45;
+      --muted: #6b7e96;
+      --text-dim: #a8bace;
+      --text: #e8f0f8;
+      --white: #ffffff;
+      --card-bg: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.08);
     }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html{min-height:100vh;background:#03060e}
-    body{margin:0;background:#03060e;font-family:'Montserrat','Poppins','Bebas Neue',Arial,sans-serif;color:var(--text)}
-    .arena-bg{
-      min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:1.6rem 1.6rem 6rem;position:relative;z-index:0;
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { height: 100%; scroll-behavior: smooth; }
+
+    body {
+      min-height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Background ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background:
-        radial-gradient(1200px 800px at 20% 12%, rgba(19,34,53,0.45) 0%, rgba(19,34,53,0.12) 44%, rgba(10,15,31,0) 64%),
-        radial-gradient(1100px 760px at 82% 88%, rgba(12,20,36,0.50) 0%, rgba(10,15,31,0.22) 56%, rgba(10,15,31,0) 72%),
-        linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
-    }
-    /* Gritty noise + vignette */
-    .arena-bg::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:160px 160px;background-repeat:repeat;mix-blend-mode:overlay;opacity:.10;filter:contrast(118%);z-index:-1}
-    .arena-bg::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.28) 100%);z-index:-1}
-
-    /* Logo top-left */
-    .site-logo{position:absolute;top:18px;left:24px;width:140px;max-width:30vw;height:auto;z-index:40;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.38));transition:transform .3s ease,filter .3s ease}
-    .site-logo:hover{transform:scale(1.05);filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5))}
-    @media (max-width:640px){.site-logo{width:110px;left:16px;top:16px}}
-
-    /* White content card */
-    .card{background:var(--card);border:1px solid var(--card-border);border-radius:18px;box-shadow:0 18px 40px -10px rgba(0,0,0,0.35),0 6px 18px rgba(0,0,0,0.20);width:min(960px,95vw);padding:1.4rem 1.6rem;position:relative}
-    header{padding:.2rem 0 1rem}
-    .hero{display:flex;flex-direction:column;gap:1.4rem;padding-bottom:1rem}
-    .hero-list-row{display:flex;align-items:flex-start}
-    .hero-copy{display:flex;flex-direction:column;gap:.6rem}
-    h1{margin:0 0 .4rem;font-weight:800;font-size:clamp(2.4rem,7vw,3.4rem);letter-spacing:0;text-transform:uppercase;font-family:'Bebas Neue','Montserrat',sans-serif;color:#08111c}
-    .hero-list{list-style:none;margin:.4rem 0 1.2rem;padding:0;display:flex;flex-direction:column;gap:.85rem;counter-reset:hero-step;width:100%}
-    .hero-list li{position:relative;padding-left:2.35rem;font-size:1.01rem;font-weight:800;letter-spacing:-.01rem;color:#0f172a;line-height:1.22}
-    .hero-list li::before{content:counter(hero-step);counter-increment:hero-step;position:absolute;left:0;top:-.18rem;width:24px;height:24px;border-radius:.75rem;border:1.5px solid var(--accent-red);background:#fff;display:flex;align-items:center;justify-content:center;font-size:.82rem;color:var(--accent-red);box-shadow:0 4px 10px rgba(0,0,0,0.08)}
-    .cta{appearance:none;border:0;padding:1rem 2.6rem;border-radius:999px;font-size:clamp(1.05rem,3vw,1.15rem);font-weight:800;letter-spacing:.04rem;text-transform:none;color:#fff;cursor:pointer;background:linear-gradient(120deg,#ff3a2f 0%,#ff4a33 55%,#ff4a33 100%);box-shadow:0 10px 32px -12px rgba(255,70,70,0.65);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
-    .cta:hover{transform:translateY(-2px);box-shadow:0 16px 36px -14px rgba(255,70,70,0.65);filter:brightness(1.03)}
-    .cta:active{transform:translateY(1px)}
-    .hero-side{display:flex;flex-direction:column;gap:1.1rem;align-items:flex-start}
-    .info-btn{appearance:none;border:2px solid #0c2750;border-radius:18px;padding:.95rem 1.9rem;font-size:1rem;font-weight:800;color:#0f2f63;background:linear-gradient(140deg,#f6f8fb,#edf1f7);box-shadow:0 10px 26px -14px rgba(7,22,48,.65);cursor:pointer;align-self:flex-start;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
-    .hero-info{margin-top:.4rem}
-    .info-btn:hover{transform:translateY(-1px);box-shadow:0 14px 32px -14px rgba(7,22,48,.7);background:#fff}
-    .info-btn:active{transform:translateY(1px)}
-    @media (min-width:720px){
-      .hero{flex-direction:row;justify-content:space-between;align-items:center}
-      .hero-copy{flex:2}
-      .hero-side{flex:1;align-items:flex-start}
+        radial-gradient(ellipse 80% 60% at 15% 10%, rgba(232,39,26,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 85%, rgba(11,22,39,0.9) 0%, transparent 60%),
+        linear-gradient(160deg, #050c18 0%, #0b1627 45%, #0d1e34 100%);
     }
 
-    /* Language pills styled like landing */
-    .panel-top{display:flex;justify-content:flex-end;margin-bottom:1.25rem}
-    .lang-switch{display:flex;flex-wrap:wrap;gap:.55rem}
-    .lang-switch button{background:var(--lang-bg);color:#e5e9ef;border:1px solid rgba(255,255,255,0.08);padding:.55rem 1.05rem;border-radius:999px;cursor:pointer;font-weight:600;font-size:.9rem;letter-spacing:.4px;font-family:'Montserrat',sans-serif;display:inline-flex;align-items:center;gap:.4rem;transition:background .25s ease,box-shadow .25s ease,color .25s ease}
-    .lang-switch button:hover{background:var(--lang-bg-hover)}
-    .lang-switch button.active{box-shadow:0 0 0 2px var(--lang-active-outline),0 6px 16px -4px rgba(239,35,60,0.4)}
-    .contact-line{margin:1.4rem 0 0;text-align:center;font-weight:700;font-size:.9rem;color:#0f172a}
-    .contact-line a{color:var(--accent-red);text-decoration:none}
-    .contact-line a:hover{opacity:.85}
-
-    /* Form layout in a clean, bright style */
-    form{padding:.6rem 0 0;display:flex;flex-direction:column;gap:1.25rem}
-    .box-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.0rem}
-    .cta-lower{display:flex;justify-content:center;padding:.4rem 0 0}
-    .field-box{position:relative;background:#fff;border:1px solid var(--card-border);border-radius:14px;padding:.9rem .95rem;display:flex;flex-direction:column;gap:.6rem;min-height:132px;box-shadow:0 4px 14px -10px rgba(0,0,0,.12)}
-    .field-box:hover{border-color:#cfd8e3}
-    .field-box label{font-weight:700;font-size:.78rem;letter-spacing:.5px;text-transform:uppercase;color:#4b5563}
-    input[type="text"],input[type="email"],input[type="url"],input[type="file"]{padding:.7rem .85rem;font-size:1rem;border-radius:10px;border:1px solid #ccd6e2;background:#ffffff;color:var(--text);box-shadow:0 1px 1px rgba(0,0,0,.04) inset}
-    input:focus{outline:2px solid #ef233c;outline-offset:2px}
-
-      .form-alert{display:none;margin:0 0 .8rem;padding:.85rem 1rem;border-radius:14px;background:#fee2e2;color:#991b1b;font-weight:700;font-size:.9rem;line-height:1.3}
-      .form-alert.is-visible{display:block}
-      .success-recall-btn{display:none;margin:-.2rem 0 1rem;padding:.2rem 0;border:none;background:none;font-weight:800;font-size:.9rem;color:var(--accent-red);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-      .success-recall-btn.is-visible{display:inline-flex}
-
-      /* Demo modal (copied from create.html for consistent styling) */
-      .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1000}
-      .modal-backdrop[aria-hidden="false"]{display:flex}
-      .modal-content{border-radius:12px;box-shadow:0 22px 60px rgba(0,0,0,0.55),0 6px 24px -8px rgba(0,0,0,0.5);max-width:min(96vw,1000px);width:100%;max-height:90vh;position:relative;overflow:hidden;
-        background:
-          radial-gradient(900px 600px at 18% 14%, rgba(19,34,53,0.55) 0%, rgba(19,34,53,0.18) 44%, rgba(10,15,31,0) 70%),
-          radial-gradient(1000px 640px at 82% 86%, rgba(12,20,36,0.55) 0%, rgba(10,15,31,0.25) 56%, rgba(10,15,31,0) 78%),
-          linear-gradient(135deg, var(--bg-grad-start) 0%, #162a44 38%, #1f3b57 70%, var(--bg-grad-end) 100%);
-        backdrop-filter:blur(4px)}
-      .modal-content::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:160px 160px;mix-blend-mode:overlay;opacity:.12;filter:contrast(120%)}
-      .modal-inner{max-height:90vh;overflow:auto;padding:0}
-      .modal-inner img,.modal-inner object{display:block;width:100%;height:auto}
-      .modal-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:none;border-radius:999px;background:rgba(0,0,0,0.65);color:#fff;font-size:22px;line-height:1;cursor:pointer}
-      .modal-close:hover{background:rgba(0,0,0,0.8)}
-      .success-modal .modal-content{background:linear-gradient(145deg,#0c2750,#0f3668);color:#f5f7ff}
-      .success-modal .modal-inner{padding:0}
-      .success-modal-body{padding:2rem 2.2rem;display:flex;flex-direction:column;gap:1.5rem}
-      .success-modal-header h2{margin:0;font-size:1.8rem;font-weight:800;letter-spacing:.05rem;text-transform:uppercase;color:#f8fbff}
-      .success-modal-header p{margin:0;color:#d9e6ff;font-weight:600;font-size:.95rem}
-      .success-steps{display:flex;flex-direction:column;gap:1.2rem}
-      .success-step{display:flex;gap:.9rem;align-items:flex-start}
-      .success-step-number{width:42px;height:42px;border-radius:14px;background:#f5f7ff;color:#0f3668;font-weight:800;font-size:1.1rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 8px 18px -10px rgba(255,255,255,0.5)}
-      .success-step-text{display:flex;flex-direction:column;gap:.25rem}
-      .success-step-text .step-title{font-size:1rem;text-transform:uppercase;letter-spacing:.05rem;font-weight:800;color:#f8fbff}
-      .success-step-text p{margin:0;font-size:.92rem;color:#d9e6ff;font-weight:600;line-height:1.35}
-      .success-step-text a{color:#8bd4ff;font-weight:700;text-decoration:underline;text-underline-offset:3px}
-      .success-step-text a:hover{color:#d7f0ff}
-      .success-modal-actions{display:flex;flex-direction:column;gap:.6rem}
-      @media (min-width:520px){.success-modal-actions{flex-direction:row}}
-      .success-modal-actions button{background:rgba(255,255,255,0.14);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:20px;padding:.75rem 1.4rem;font-weight:700;font-size:.95rem;cursor:pointer;display:inline-flex;justify-content:center;gap:.4rem;transition:background .25s ease,transform .15s ease,box-shadow .25s ease}
-      .success-modal-actions button:hover{background:rgba(255,255,255,0.28);transform:translateY(-1px);box-shadow:0 10px 24px -12px rgba(255,255,255,0.65)}
-      .success-modal-actions button:disabled{opacity:.6;cursor:wait;transform:none;box-shadow:none}
-    .qr-modal .modal-inner{padding:1.6rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
-    .qr-frame{width:420px;height:420px;max-width:90vw;max-height:80vh;background:url('assets/qr_code.png') center/contain no-repeat;display:flex;align-items:flex-start;justify-content:center;padding:3rem;position:relative;margin-top:3rem}
-    #qrCodeImg{width:100%;height:100%;max-width:220px;max-height:220px;object-fit:contain;border-radius:18px;background:#fff;padding:.6rem;margin-top:7.5rem}
-    #qrHint{margin:0;color:#cfd8ee;font-size:.88rem;font-weight:600;text-align:center}
-    #qrDownloadBtn{border:none;border-radius:999px;padding:.55rem 1.35rem;font-weight:700;font-size:.9rem;background:#fff;color:#0f3668;box-shadow:0 10px 24px -12px rgba(15,54,104,0.8);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
-    #qrDownloadBtn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 16px 30px -12px rgba(15,54,104,0.85)}
-    #qrDownloadBtn:disabled{opacity:.6;cursor:wait;box-shadow:none;transform:none}
-    /* Logo drop zone inside white card */
-    /* Redesigned logo drop area */
-    .logo-zone{position:relative;background:linear-gradient(135deg,#f9fbfd 0%,#eef3f8 55%,#e6edf5 100%);border:2px dashed #c2d1e1;border-radius:16px;min-height:200px;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.2rem .9rem;gap:.85rem;cursor:pointer;transition:border-color .25s ease, background .35s ease, box-shadow .35s ease}
-    .logo-zone:hover{border-color:#b2c2d4;box-shadow:0 10px 28px -8px rgba(0,0,0,.18)}
-    .logo-zone.drag{border-color:#ef233c;background:linear-gradient(135deg,#f4f7fa,#e9f0f7);box-shadow:0 0 0 4px rgba(239,35,60,.15)}
-    .logo-zone input{display:none}
-    .logo-empty-icon{width:58px;height:58px;display:block;opacity:.85;filter:drop-shadow(0 3px 6px rgba(0,0,0,.15))}
-    .logo-prompt{margin:0;font-weight:700;font-size:.9rem;letter-spacing:.4px;color:#0f172a;text-align:center}
-    .logo-prompt .action{display:inline-block;margin-left:.35rem;padding:.4rem .85rem;border-radius:999px;background:#ef233c;color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.5px;text-decoration:none;box-shadow:0 6px 18px -6px rgba(239,35,60,.5);transition:filter .25s ease, box-shadow .25s ease}
-    .logo-prompt .action:hover{filter:brightness(1.06);box-shadow:0 8px 22px -6px rgba(239,35,60,.55)}
-    .logo-hint{color:#6b7280;font-size:.7rem;margin:0;font-weight:600;letter-spacing:.3px}
-    .logo-preview{max-width:160px;max-height:110px;border-radius:12px;box-shadow:0 6px 18px -8px rgba(0,0,0,.28);display:none;background:#fff;object-fit:contain;padding:.4rem;border:1px solid #d4dde7}
-    .logo-info{display:none;flex-direction:column;align-items:center;gap:.35rem;font-size:.7rem;color:#475569;font-weight:600}
-    .logo-remove{display:none;position:absolute;top:10px;right:10px;background:#fff;border:1px solid #d3dde9;border-radius:8px;padding:.35rem .55rem;font-size:.65rem;font-weight:700;color:#0f172a;cursor:pointer;line-height:1;display:flex;align-items:center;gap:.35rem;box-shadow:0 4px 14px -6px rgba(0,0,0,.18);transition:background .25s ease,filter .25s ease}
-    .logo-remove svg{width:14px;height:14px;stroke:#dc2626;stroke-width:2;fill:none}
-    .logo-remove:hover{filter:brightness(.95)}
-    .logo-zone.has-file{border-style:solid;border-color:#d1dae5}
-    .logo-zone.has-file:hover{box-shadow:0 12px 30px -10px rgba(0,0,0,.22)}
-
-    @media (max-width:768px){
-      .arena-bg{flex-direction:column;align-items:center;justify-content:flex-start}
-      .site-logo{position:static;display:block;margin:0 auto 1.2rem;left:auto;top:auto}
+    /* Noise grain overlay */
+    .bg-layer::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.035'/></svg>");
+      background-size: 200px 200px;
+      mix-blend-mode: overlay;
     }
 
-    @media (max-width:640px){
-      .arena-bg{padding:calc(env(safe-area-inset-top,0px) + 1.4rem) 1.1rem calc(3.2rem + env(safe-area-inset-bottom,0px));flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh}
-      .card{padding:1rem 1.1rem;border-radius:16px;margin-top:0}
-      .site-logo{width:135px;max-width:60vw;margin:0 auto 1.4rem}
-      h1{font-size:clamp(2rem,8vw,2.6rem);text-align:center;margin-bottom:.6rem}
-      .hero{align-items:flex-start}
-      .hero-copy{align-items:center;text-align:center}
-      .hero-list-row{width:100%}
-      .hero-list{align-items:flex-start;gap:.75rem;width:100%}
-      .hero-list li{font-size:.98rem;text-align:left;padding-left:2.1rem}
-      .hero-list li::before{width:20px;height:20px;border-radius:.6rem;font-size:.75rem;top:-.12rem}
-      .info-btn{width:100%;text-align:center;justify-content:center}
-      .panel-top{justify-content:center;margin-top:.6rem}
-      .lang-switch{width:100%;justify-content:center;gap:.4rem}
-      .lang-switch button{flex:1 1 33%;min-width:0;text-align:center}
+    /* Diagonal accent line */
+    .bg-layer::before {
+      content: '';
+      position: absolute;
+      top: -10%; left: -5%;
+      width: 55%; height: 130%;
+      background: linear-gradient(160deg, rgba(232,39,26,0.04) 0%, transparent 55%);
+      border-right: 1px solid rgba(232,39,26,0.06);
+      transform: skewX(-8deg);
     }
 
-    @media (max-width:520px){
-      .arena-bg{padding:1rem .8rem 4rem}
-      .card{padding:.85rem 1rem}
-      .site-logo{width:118px;margin-bottom:1.1rem}
-      .lang-switch{justify-content:center;width:100%}
-      .lang-switch button{flex:1 1 calc(33% - .4rem);justify-content:center}
-      .box-group{grid-template-columns:1fr}
-      .cta-lower{width:100%}
-      .cta{width:100%;text-align:center}
-      .modal-content{max-width:95vw}
+    /* ── Layout ── */
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
     }
 
-    @media (max-width:420px){
-      .arena-bg{padding:.6rem .6rem 3.5rem}
-      h1{font-size:1.85rem;margin-bottom:.5rem}
-      .hero-list li{font-size:.95rem}
-      input[type="text"],input[type="email"],input[type="url"],input[type="file"]{font-size:.95rem}
-      .cta{font-size:1rem;padding:.9rem 1.4rem}
-      .qr-frame{width:100%;height:auto;max-width:320px;padding:2.5rem 1.5rem;margin-top:2.5rem}
-      #qrCodeImg{max-width:180px;margin-top:4.5rem}
+    /* ── Nav ── */
+    nav {
+      padding: 1.5rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(5,12,24,0.7);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: .7rem;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      height: 32px; width: auto;
+      filter: brightness(1.1);
+    }
+
+    .nav-logo-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 500;
+      letter-spacing: .3px;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--white); }
+
+    .nav-cta {
+      background: var(--red);
+      color: var(--white) !important;
+      padding: .55rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600 !important;
+      transition: background .2s, box-shadow .2s !important;
+    }
+
+    .nav-cta:hover {
+      background: var(--red-bright) !important;
+      box-shadow: 0 0 20px var(--red-glow);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2.5rem 5rem;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--red-bright);
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px; height: 2px;
+      background: var(--red-bright);
+      border-radius: 2px;
+    }
+
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(3.2rem, 7vw, 5.6rem);
+      line-height: .92;
+      letter-spacing: -1px;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1.6rem;
+    }
+
+    .hero-title em {
+      font-style: normal;
+      color: var(--red-bright);
+      display: block;
+    }
+
+    .hero-desc {
+      font-size: 1.08rem;
+      line-height: 1.65;
+      color: var(--text-dim);
+      max-width: 480px;
+      margin-bottom: 2.4rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* Primary CTA */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      padding: 1rem 2rem;
+      background: var(--red);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform .18s ease, box-shadow .25s ease, background .2s;
+      box-shadow: 0 4px 24px var(--red-glow);
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(120deg, rgba(255,255,255,.15) 0%, transparent 50%);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--red-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(232,39,26,.5);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-primary svg {
+      width: 18px; height: 18px;
+      transition: transform .2s;
+    }
+
+    .btn-primary:hover svg { transform: translateX(3px); }
+
+    /* Ghost CTA */
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .95rem 1.6rem;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: .95rem;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .2s, border-color .2s, background .2s;
+    }
+
+    .btn-ghost:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* ── Hero visual ── */
+    .hero-visual {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Glowing orb behind card */
+    .hero-visual::before {
+      content: '';
+      position: absolute;
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(232,39,26,0.18) 0%, transparent 70%);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .mock-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+      animation: floatCard 6s ease-in-out infinite;
+    }
+
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .mock-event-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--white);
+      text-align: center;
+      margin-bottom: .35rem;
+    }
+
+    .mock-event-sub {
+      text-align: center;
+      font-size: .78rem;
+      color: var(--red-bright);
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1.4rem;
+      padding-bottom: 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .mock-fight {
+      display: flex;
+      align-items: stretch;
+      gap: .5rem;
+      margin-bottom: .65rem;
+    }
+
+    .mock-fighter {
+      flex: 1;
+      padding: .7rem .6rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .mock-fighter.red-corner {
+      background: linear-gradient(135deg, rgba(139,20,20,0.5), rgba(200,30,30,0.3));
+      border: 1px solid rgba(200,30,30,0.3);
+    }
+
+    .mock-fighter.blue-corner {
+      background: linear-gradient(135deg, rgba(15,45,105,0.5), rgba(25,70,160,0.3));
+      border: 1px solid rgba(25,70,160,0.3);
+    }
+
+    .mock-fighter-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .mock-fighter-gym {
+      font-size: .68rem;
+      color: var(--text-dim);
+      margin-top: .2rem;
+    }
+
+    .mock-vs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+      padding: 0 .2rem;
+    }
+
+    .mock-live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(232,39,26,0.15);
+      border: 1px solid rgba(232,39,26,0.4);
+      color: var(--red-bright);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: .3rem .8rem;
+      border-radius: 999px;
+      margin: 1rem auto 0;
+      width: fit-content;
+    }
+
+    .mock-live-dot {
+      width: 6px; height: 6px;
+      background: var(--red-bright);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.7); }
+    }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      padding: 1.8rem 2.5rem;
+    }
+
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+    }
+
+    .stat-number {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .stat-number span { color: var(--red-bright); }
+
+    .stat-label {
+      font-size: .8rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: .5px;
+    }
+
+    /* ── Features ── */
+    .features {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2.5rem;
+    }
+
+    .section-label {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--red-bright);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 20px; height: 2px;
+      background: var(--red-bright);
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--white);
+      line-height: .95;
+      letter-spacing: -.5px;
+      margin-bottom: 4rem;
+      max-width: 560px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s, transform .2s, box-shadow .25s;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--red) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(232,39,26,0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: rgba(232,39,26,0.1);
+      border: 1px solid rgba(232,39,26,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.2rem;
+      color: var(--red-bright);
+    }
+
+    .feature-icon svg { width: 22px; height: 22px; }
+
+    .feature-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--white);
+      margin-bottom: .6rem;
+    }
+
+    .feature-desc {
+      font-size: .9rem;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+
+    /* ── Language selector ── */
+    .lang-bar {
+      display: flex;
+      justify-content: center;
+      gap: .6rem;
+      padding: 1rem;
+    }
+
+    .lang-btn {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-dim);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: .5rem 1.1rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all .2s;
+      letter-spacing: .3px;
+    }
+
+    .lang-btn:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .lang-btn.active {
+      color: var(--white);
+      border-color: var(--red-bright);
+      background: rgba(232,39,26,0.12);
+      box-shadow: 0 0 12px rgba(232,39,26,0.2);
+    }
+
+    /* ── CTA bottom ── */
+    .cta-section {
+      max-width: 1200px;
+      margin: 0 auto 6rem;
+      padding: 0 2.5rem;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, rgba(232,39,26,0.08) 0%, rgba(232,39,26,0.02) 60%, transparent 100%);
+      border: 1px solid rgba(232,39,26,0.2);
+      border-radius: 24px;
+      padding: 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(232,39,26,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-box-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--white);
+      letter-spacing: -.5px;
+      line-height: .95;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .cta-box-desc {
+      font-size: 1rem;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    /* ── Demo modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-backdrop[aria-hidden="false"] { display: flex; }
+
+    .modal-content {
+      background: var(--navy-mid);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      max-width: min(96vw, 1000px);
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 40px 100px rgba(0,0,0,.7);
+    }
+
+    .modal-inner { overflow: auto; max-height: 90vh; }
+    .modal-inner img { display: block; width: 100%; height: auto; }
+
+    .modal-close {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 50%;
+      background: rgba(0,0,0,.6);
+      color: var(--white);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+      z-index: 5;
+    }
+
+    .modal-close:hover { background: rgba(232,39,26,.5); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-text {
+      font-size: .82rem;
+      color: var(--muted);
+    }
+
+    .footer-contact a {
+      color: var(--red-bright);
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 600;
+    }
+
+    .footer-contact a:hover { text-decoration: underline; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up {
+      opacity: 0;
+      animation: fadeUp .7s ease forwards;
+    }
+
+    .fade-up:nth-child(1) { animation-delay: .1s; }
+    .fade-up:nth-child(2) { animation-delay: .22s; }
+    .fade-up:nth-child(3) { animation-delay: .34s; }
+    .fade-up:nth-child(4) { animation-delay: .46s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        padding: 4rem 1.5rem 3rem;
+        text-align: center;
+      }
+
+      .hero-desc { margin: 0 auto 2rem; }
+      .hero-actions { justify-content: center; }
+      .hero-eyebrow { justify-content: center; }
+
+      .hero-visual { order: -1; }
+      .mock-card { max-width: 340px; }
+
+      .features-grid { grid-template-columns: 1fr; }
+
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+
+      .stats-inner { justify-content: center; gap: 1.5rem; }
+
+      .cta-box { padding: 2.5rem 1.5rem; }
+
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 640px) {
+      .features { padding: 4rem 1.5rem; }
+      .cta-section { margin-bottom: 4rem; }
+      .hero-title { font-size: 3rem; }
+      .lang-bar { flex-wrap: wrap; justify-content: center; }
     }
   </style>
 </head>
 <body>
-  <div class="arena-bg">
-    <img src="assets/logo_design.svg" alt="Fightcard logo" class="site-logo" />
-    <main class="card" aria-live="polite" role="region" aria-label="Club registration">
-    <div class="panel-top">
-      <div class="lang-switch" aria-label="Språk / Language">
-        <button type="button" data-lang="sv">Svenska</button>
-        <button type="button" data-lang="en">English</button>
-      </div>
-    </div>
-    <header class="hero">
-      <div class="hero-copy">
-        <h1 id="heroTitle">Create your fightcard here!</h1>
-        <div class="hero-list-row">
-          <ul class="hero-list">
-            <li id="heroBullet1">Enter your email address and club name.</li>
-            <li id="heroBullet2">We send your fightcard + admin links (and PDF) in seconds.</li>
-            <li id="heroBullet3">Open the link and start building your fightcard!</li>
-          </ul>
-        </div>
-        <button type="button" class="info-btn hero-info" id="heroInfoBtn" data-target="/#how-it-works">How does it work?</button>
-      </div>
-    </header>
 
-    <form id="clubForm" novalidate>
-      <div class="form-alert" id="successMsg" role="status" aria-live="polite"></div>
-      <button type="button" class="success-recall-btn" id="successRecallBtn" hidden></button>
-      <div class="box-group">
-        <div class="field-box" id="boxEmail">
-          <label id="lblEmail">E‑postadress</label>
-          <input type="email" name="email" placeholder="name@club.com" autocomplete="email" required />
-        </div>
-        <div class="field-box" id="boxClub">
-          <label id="lblClub">Klubbnamn</label>
-          <input type="text" name="club" placeholder="Enter the name of your gym/club here" required />
-        </div>
-      </div>
-      <div class="cta-lower">
-        <button type="submit" class="cta" id="heroCta">Save &amp; continue</button>
-      </div>
-    </form>
+<div class="bg-layer"></div>
 
-    <p class="contact-line">Contact: <a href="mailto:info@fightcard.eu">info@fightcard.eu</a></p>
+<div class="page">
 
-  </main>
+  <!-- Nav -->
+  <nav>
+    <a href="/" class="nav-logo">
+      <img src="assets/logo_design.svg" alt="Fightcard logo" onerror="this.style.display='none'">
+      <span class="nav-logo-text">Fightcard</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="index.html" target="_blank" rel="noopener">Demo</a></li>
+      <li><a href="mailto:info@fightcard.eu">Contact</a></li>
+      <li><a href="/register" class="nav-cta">Get started</a></li>
+    </ul>
+  </nav>
 
-  <!-- Demo SVG Modal -->
-  <div id="demoModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Demo">
-    <div class="modal-content">
-      <button type="button" class="modal-close" aria-label="Close demo">&times;</button>
-      <div class="modal-inner">
-        <img id="demoSvg" src="assets/demo.svg" alt="Demo fight card" />
-      </div>
-    </div>
+  <!-- Language bar -->
+  <div class="lang-bar" aria-label="Language selector">
+    <button class="lang-btn" data-lang="en">English</button>
+    <button class="lang-btn" data-lang="sv">Svenska</button>
+    <button class="lang-btn" data-lang="th">ไทย</button>
   </div>
 
-  <!-- QR Modal -->
-  <div id="qrModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-label="QR code viewer">
-    <div class="modal-content qr-modal">
-      <button type="button" class="modal-close" aria-label="Close QR">&times;</button>
-      <div class="modal-inner">
-        <div class="qr-frame">
-          <img id="qrCodeImg" alt="QR code" />
-        </div>
-        <button type="button" id="qrDownloadBtn" disabled>Download QR</button>
-        <p id="qrHint">Skanna koden för att öppna fightcard.</p>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="hero-eyebrow fade-up">Professional fight cards</div>
+      <h1 class="hero-title fade-up">
+        Build.<br>
+        <em>Share.</em>
+        Go live.
+      </h1>
+      <p class="hero-desc fade-up" id="hero-desc">
+        Create stunning fight cards for your Muay Thai events in seconds.
+        Update results live and share instantly with your audience and clubs.
+      </p>
+      <div class="hero-actions fade-up">
+        <button class="btn-primary" id="go">
+          Create your fightcard
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="btn-ghost" id="demoBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          View demo
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Success Modal -->
-  <div id="successModal" class="modal-backdrop success-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Registration links ready">
-    <div class="modal-content">
-      <button type="button" class="modal-close" aria-label="Close success">&times;</button>
-      <div class="modal-inner">
-        <div id="successModalBody" class="success-modal-body"></div>
-      </div>
-    </div>
-  </div>
+    <!-- Animated mock fight card -->
+    <div class="hero-visual">
+      <div class="mock-card">
+        <div class="mock-event-title">Thai Gala Night</div>
+        <div class="mock-event-sub">Stockholm · Main Card</div>
 
-  </div>
-
-  <script>
-    (function(){
-      const dict = {
-        sv:{ heroTitle:'SKAPA DITT FIGHTCARD HÄR!', bullet1:'Fyll i klubbens e‑postadress och namn.', bullet2:'Inom några sekunder skickar vi en PDF med länkar till fightcard och admin.', bullet3:'Öppna länken och börja bygga fightcardet direkt!', cta:'Beställ här!', info:'Klicka här för att se hur det funkar!', email:'E‑postadress', emailPlaceholder:'namn@klubb.se', club:'Klubbnamn', clubPlaceholder:'Skriv in namnet på din klubb eller gym här', ok:'Tack! Sparat lokalt – fortsätt.', linkPrefix:'Länkar klara!', viewLink:'visa fightcard', adminLink:'öppna admin', linkFail:'Kunde inte skapa länk (servern måste vara igång på http://localhost:3000).', slugTaken:'Det klubbnamnet är redan reserverat i 48 timmar. Välj ett annat namn eller försök igen senare.', qrLink:'visa QR-kod', qrAlt:'QR-kod för fightcard', qrHint:'Skanna koden för att öppna fightcard.', qrDownload:'Ladda ner QR', pdfLink:'Ladda ner PDF', pdfGenerating:'Skapar...', pdfTitle:'Fightcard-länkar', pdfToken:'Adminlösenord (token)', pdfViewer:'Fightcard-länk', pdfAdmin:'Admin-länk', pdfQr:'QR-kod', pdfIntro:'Spara sidan – den innehåller all info du behöver.', pdfViewerHint:'Dela med publik och fighters. Uppdateras automatiskt.', pdfAdminHint:'För arrangörerna. Logga in för att lägga till matcher.', pdfTokenHint:'Behövs när du öppnar adminlänken.', pdfQrHint:'Skanna för att öppna publiklänken direkt.', pdfClubLabel:'Klubb', pdfSlugLabel:'Kort-ID', instructionsLink:'Ladda ner guide (PDF)', instructionsPdf:'assets/docs/instructions_sv.pdf', missingEmail:'Fyll i en e‑postadress för att fortsätta.', missingClub:'Fyll i klubbnamn för att fortsätta.', successEmailHeading:'E‑post på väg', successEmailBody:'Vi skickade just instruktionerna och en PDF. Håll utkik efter ämnet "Fightcard-länkar".', successBuildHeading:'Börja bygga direkt i webben', successBuildViewer:'Publiklänk (dela direkt)', successBuildAdmin:'Adminlänk (redigera & uppdatera)', successPdfHeading:'Spara PDF:en', successPdfBody:'PDF:en innehåller QR-koden, token och länkar. Ladda ner här eller via mejlet.', successReopen:'Öppna instruktionerna igen' },
-        en:{ heroTitle:'CREATE YOUR FIGHTCARD HERE!', bullet1:'Enter your email address and club name.', bullet2:'Within seconds we send you a PDF with both fightcard and admin links.', bullet3:'Open the link and start building your fightcard!', cta:'Order here!', info:'Click here to see how it works!', email:'Email address', emailPlaceholder:'name@club.com', club:'Club name', clubPlaceholder:'Enter the name of your gym/club here', ok:'Saved locally – continue.', linkPrefix:'Links ready!', viewLink:'view fightcard', adminLink:'open admin', linkFail:'Could not create link (server must be running at http://localhost:3000).', slugTaken:'That club name is already reserved for another event. Please try a different name or check back in 48 hours.', qrLink:'view QR code', qrAlt:'QR code for fightcard', qrHint:'Scan this code to open the fightcard.', qrDownload:'Download QR', pdfLink:'Download PDF', pdfGenerating:'Generating...', pdfTitle:'Fightcard links', pdfToken:'Admin Password (Token)', pdfViewer:'Fightcard link', pdfAdmin:'Admin link', pdfQr:'QR code', pdfIntro:'Keep this sheet handy – everything you need lives here.', pdfViewerHint:'Share with coaches and the audience. Always shows the latest card.', pdfAdminHint:'For organizers only. Use it to add fights and results.', pdfTokenHint:'Required whenever you open the admin link.', pdfQrHint:'Scan to open the public link instantly.', pdfClubLabel:'Club', pdfSlugLabel:'Card ID', instructionsLink:'Download instructions (PDF)', instructionsPdf:'assets/docs/instructions_en.pdf', missingEmail:'Please enter an email address before continuing.', missingClub:'Please enter your club name before continuing.', successEmailHeading:'Email sent', successEmailBody:'We just sent the instructions and PDF recap. Look for the subject "Fightcard links".', successBuildHeading:'Start building in your browser', successBuildViewer:'Audience link (share ready)', successBuildAdmin:'Admin link (edit & update)', successPdfHeading:'Keep the PDF handy', successPdfBody:'The PDF stores your QR code, token, and quick links. Download it here or from the email.', successReopen:'Show instructions again' }
-      };
-      const qs = new URLSearchParams(location.search);
-      let lang = (qs.get('lang')||navigator.language||'sv').toLowerCase();
-      if (lang.startsWith('en')) lang='en'; else lang='sv';
-      try{ const stored = localStorage.getItem('lf_lang'); if(stored) lang = stored; }catch(e){}
-
-      const qrModal = document.getElementById('qrModal');
-      const qrImg = document.getElementById('qrCodeImg');
-      const qrHintEl = document.getElementById('qrHint');
-      const qrDownloadBtn = document.getElementById('qrDownloadBtn');
-      const qrCloseBtn = qrModal ? qrModal.querySelector('.modal-close') : null;
-      if (qrDownloadBtn){
-        qrDownloadBtn.dataset.href = '';
-        qrDownloadBtn.disabled = true;
-      }
-      const PDF_TOKEN_FALLBACK = 'letmein';
-      const DEFAULT_FILE_BASENAME = 'fightcard-links';
-      let lastViewerUrl = '';
-      let lastAdminUrl = '';
-      let lastSlug = '';
-      let lastClubName = '';
-      let lastAdminToken = PDF_TOKEN_FALLBACK;
-      let cachedQrDataUrl = '';
-      let cachedQrSource = '';
-      let hasSuccessLinks = false;
-      let jsPdfLoader = null;
-
-      function showInlineError(message){
-        if (!successMsgEl || !message) return;
-        successMsgEl.textContent = message;
-        successMsgEl.classList.add('is-visible');
-      }
-
-      function hideInlineAlert(){
-        if (!successMsgEl) return;
-        successMsgEl.classList.remove('is-visible');
-        successMsgEl.textContent = '';
-      }
-
-      function updateSuccessRecallButton(strings){
-        if (!successRecallBtn) return;
-        successRecallBtn.textContent = (strings && strings.successReopen) || 'Show instructions again';
-        if (hasSuccessLinks){
-          successRecallBtn.hidden = false;
-          successRecallBtn.classList.add('is-visible');
-        }else{
-          successRecallBtn.hidden = true;
-          successRecallBtn.classList.remove('is-visible');
-        }
-      }
-
-      function apply(l){
-        const d = dict[l] || dict.sv; lang = l;
-        const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-        setText('heroTitle', d.heroTitle);
-        setText('heroBullet1', d.bullet1);
-        setText('heroBullet2', d.bullet2);
-        setText('heroBullet3', d.bullet3);
-        setText('lblEmail', d.email);
-        setText('lblClub', d.club);
-        setText('heroCta', d.cta);
-        setText('heroInfoBtn', d.info);
-        refreshSuccessMessage(d);
-        updateSuccessRecallButton(d);
-        if (successModal) successModal.setAttribute('aria-label', d.linkPrefix || 'Links ready!');
-        if (emailInput) emailInput.placeholder = d.emailPlaceholder || 'name@club.com';
-        if (clubInput) clubInput.placeholder = d.clubPlaceholder || 'Enter the name of your gym/club here';
-        if (qrHintEl) qrHintEl.textContent = d.qrHint;
-        if (qrImg) qrImg.alt = d.qrAlt;
-        if (qrDownloadBtn) qrDownloadBtn.textContent = d.qrDownload || 'Download QR';
-        document.querySelectorAll('.lang-switch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===l));
-        document.documentElement.lang = l;
-        try{ localStorage.setItem('lf_lang', l); }catch(e){}
-
-        const demoImgEl = document.getElementById('demoSvg');
-        if (demoImgEl){
-          const nextSrc = (l === 'sv') ? 'assets/demo_swe.svg' : 'assets/demo.svg';
-          if (demoImgEl.getAttribute('src') !== nextSrc){
-            demoImgEl.setAttribute('src', nextSrc);
-          }
-          if (l === 'sv'){ demoImgEl.setAttribute('alt','Exempel på svenskt fightcard demo'); }
-          else { demoImgEl.setAttribute('alt','Demo fight card example'); }
-        }
-      }
-
-      async function openQrModal(){
-        if (!qrModal || !qrImg || !lastViewerUrl) return;
-        try{
-          closeSuccessModal();
-          if (qrDownloadBtn){
-            qrDownloadBtn.disabled = true;
-            qrDownloadBtn.dataset.href = '';
-          }
-          qrImg.src = '';
-          qrModal.setAttribute('aria-hidden','false');
-          document.body.style.overflow = 'hidden';
-          const dataUrl = await getQrDataUrl(lastViewerUrl);
-          qrImg.src = dataUrl;
-          if (qrDownloadBtn){
-            qrDownloadBtn.disabled = false;
-            qrDownloadBtn.dataset.href = dataUrl;
-          }
-        }catch(err){
-          console.warn('Failed to show QR modal', err);
-          closeQrModal();
-        }
-      }
-
-      function closeQrModal(){
-        if (!qrModal) return;
-        qrModal.setAttribute('aria-hidden','true');
-        document.body.style.overflow = '';
-        if (qrImg) qrImg.src = '';
-        if (qrDownloadBtn){
-          qrDownloadBtn.disabled = true;
-          qrDownloadBtn.dataset.href = '';
-        }
-      }
-
-      function wireQrLink(container){
-        if (!container) return;
-        const trigger = container.querySelector('.qr-link');
-        if (trigger){
-          trigger.addEventListener('click', (ev)=>{
-            ev.preventDefault();
-            if (!lastViewerUrl) return;
-            openQrModal();
-          });
-        }
-      }
-
-      function wireQrDownload(){
-        if (!qrDownloadBtn) return;
-        qrDownloadBtn.addEventListener('click', (ev)=>{
-          ev.preventDefault();
-          const href = qrDownloadBtn.dataset.href;
-          if (!href) return;
-          const nameBase = sanitizeFilename((lastSlug || lastClubName || DEFAULT_FILE_BASENAME) + '-qr') || DEFAULT_FILE_BASENAME;
-          const tmp = document.createElement('a');
-          tmp.href = href;
-          tmp.download = `${nameBase}.png`;
-          document.body.appendChild(tmp);
-          tmp.click();
-          document.body.removeChild(tmp);
-        });
-      }
-
-      function wirePdfLink(container, strings){
-        if (!container) return;
-        const trigger = container.querySelector('.pdf-link');
-        if (!trigger) return;
-        trigger.addEventListener('click', async (ev)=>{
-          ev.preventDefault();
-          if (!lastViewerUrl || !lastAdminUrl) return;
-          const fallback = strings && strings.pdfGenerating ? strings.pdfGenerating : 'Generating...';
-          const original = trigger.textContent;
-          trigger.disabled = true;
-          trigger.textContent = fallback;
-          try{
-            await downloadPdf(strings || dict.sv);
-          }catch(err){
-            console.warn('PDF export failed', err);
-          }finally{
-            trigger.disabled = false;
-            trigger.textContent = original;
-          }
-        });
-      }
-
-      function wireInstructionsLink(container){
-        if (!container) return;
-        const trigger = container.querySelector('.instructions-link');
-        if (!trigger) return;
-        trigger.addEventListener('click', (ev)=>{
-          ev.preventDefault();
-          const href = trigger.dataset.href;
-          if (!href) return;
-          window.open(href, '_blank', 'noopener');
-        });
-      }
-
-      function renderSuccessMessage(strings, options){
-        if (!successModal || !successModalBody || !lastViewerUrl || !lastAdminUrl) return;
-        const opts = options || {};
-        const qrBtnLabel = strings.qrLink || 'View QR code';
-        const pdfBtnLabel = strings.pdfLink || 'Download PDF';
-        const instructionsBtnLabel = strings.instructionsLink || 'Download instructions';
-        const instructionsHref = escapeAttr(strings.instructionsPdf || '');
-        const viewerHref = escapeAttr(lastViewerUrl);
-        const adminHref = escapeAttr(lastAdminUrl);
-        const viewerLabel = escapeHtml(strings.viewLink || 'view fightcard');
-        const adminLabel = escapeHtml(strings.adminLink || 'open admin');
-        const modalTitle = escapeHtml(strings.linkPrefix || 'Links ready!');
-        const emailHeading = escapeHtml(strings.successEmailHeading || 'Email sent');
-        const emailBody = escapeHtml(strings.successEmailBody || 'Check your inbox for the instructions.');
-        const buildHeading = escapeHtml(strings.successBuildHeading || 'Start building');
-        const buildViewerPrefix = escapeHtml(strings.successBuildViewer || 'Fightcard link');
-        const buildAdminPrefix = escapeHtml(strings.successBuildAdmin || 'Admin link');
-        const pdfHeading = escapeHtml(strings.successPdfHeading || strings.pdfLink || 'Download PDF');
-        const pdfBody = escapeHtml(strings.successPdfBody || 'Keep the PDF handy for QR + token.');
-        const emailLine = `
-          <div class="success-step">
-            <span class="success-step-number" aria-hidden="true">1</span>
-            <span class="success-step-text">
-              <span class="step-title">${emailHeading}</span>
-              <p>${emailBody}</p>
-            </span>
-          </div>`;
-        const buildLine = `
-          <div class="success-step">
-            <span class="success-step-number" aria-hidden="true">2</span>
-            <span class="success-step-text">
-              <span class="step-title">${buildHeading}</span>
-              <p>${buildViewerPrefix}: <a href="${viewerHref}" target="_blank" rel="noopener">${viewerLabel}</a></p>
-              <p>${buildAdminPrefix}: <a href="${adminHref}" target="_blank" rel="noopener">${adminLabel}</a></p>
-            </span>
-          </div>`;
-        const pdfLine = `
-          <div class="success-step">
-            <span class="success-step-number" aria-hidden="true">3</span>
-            <span class="success-step-text">
-              <span class="step-title">${pdfHeading}</span>
-              <p>${pdfBody}</p>
-            </span>
-          </div>`;
-        const instructionsButton = instructionsHref ? `<button type="button" class="instructions-link" data-href="${instructionsHref}">${instructionsBtnLabel}</button>` : '';
-        successModalBody.innerHTML = `
-          <div class="success-modal-header">
-            <h2>${modalTitle}</h2>
+        <div class="mock-fight">
+          <div class="mock-fighter red-corner">
+            <div class="mock-fighter-name">Axel T.</div>
+            <div class="mock-fighter-gym">Loyalty MT</div>
           </div>
-          <div class="success-steps">
-            ${emailLine}
-            ${buildLine}
-            ${pdfLine}
+          <div class="mock-vs">VS</div>
+          <div class="mock-fighter blue-corner">
+            <div class="mock-fighter-name">Leon L.</div>
+            <div class="mock-fighter-gym">Combat Acad.</div>
           </div>
-          <div class="success-modal-actions">
-            ${instructionsButton}
-            <button type="button" class="qr-link">${qrBtnLabel}</button>
-            <button type="button" class="pdf-link">${pdfBtnLabel}</button>
-          </div>`;
-        hasSuccessLinks = true;
-        updateSuccessRecallButton(strings);
-        if (opts.openModal !== false){
-          openSuccessModal();
-        }
-        wireQrLink(successModalBody);
-        wirePdfLink(successModalBody, strings);
-        wireInstructionsLink(successModalBody);
-      }
+        </div>
 
-      function refreshSuccessMessage(strings){
-        if (!lastViewerUrl || !lastAdminUrl || !hasSuccessLinks) return;
-        const shouldOpen = isSuccessModalOpen();
-        renderSuccessMessage(strings, { openModal: shouldOpen });
-      }
+        <div class="mock-fight">
+          <div class="mock-fighter red-corner">
+            <div class="mock-fighter-name">Tora G.</div>
+            <div class="mock-fighter-gym">Loyalty MT</div>
+          </div>
+          <div class="mock-vs">VS</div>
+          <div class="mock-fighter blue-corner">
+            <div class="mock-fighter-name">Samina B.</div>
+            <div class="mock-fighter-gym">Southside MT</div>
+          </div>
+        </div>
 
-      async function downloadPdf(strings){
-        const jsPDF = await ensureJsPdf();
-        if (!jsPDF) throw new Error('PDF library unavailable');
-        const doc = new jsPDF();
-        const clubLabel = (strings && strings.pdfClubLabel) || 'Club';
-        const slugLabel = (strings && strings.pdfSlugLabel) || 'Card ID';
-        const tokenLabel = (strings && strings.pdfToken) || 'Admin Password (Token)';
-        const viewerLabel = (strings && strings.pdfViewer) || 'Fightcard link';
-        const adminLabel = (strings && strings.pdfAdmin) || 'Admin link';
-        const qrLabel = (strings && strings.pdfQr) || 'QR code';
-        const introCopy = (strings && strings.pdfIntro) || 'Keep this sheet handy – everything you need lives here.';
-        const viewerHint = (strings && strings.pdfViewerHint) || 'Share with coaches and the audience. Always shows the latest card.';
-        const adminHint = (strings && strings.pdfAdminHint) || 'For organizers only. Use it to add fights and results.';
-        const tokenHint = (strings && strings.pdfTokenHint) || 'Required whenever you open the admin link.';
-        const qrHint = (strings && strings.pdfQrHint) || 'Scan to open the public link instantly.';
-        const tokenValue = (lastAdminToken || PDF_TOKEN_FALLBACK).toString();
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const marginX = 16;
-        const contentWidth = pageWidth - marginX * 2;
-        let cursorY = 20;
-        const logoMeta = await getLogoImage();
-        if (logoMeta){
-          const ratio = logoMeta.height && logoMeta.width ? (logoMeta.height / logoMeta.width) : 1;
-          let logoWidth = Math.min(pageWidth * 0.5, 90);
-          let logoHeight = logoWidth * ratio;
-          const maxHeight = 48;
-          if (logoHeight > maxHeight){
-            logoHeight = maxHeight;
-            logoWidth = logoHeight / (ratio || 1);
-          }
-          const logoX = (pageWidth - logoWidth) / 2;
-          doc.addImage(logoMeta.dataUrl, 'PNG', logoX, cursorY - 10, logoWidth, logoHeight);
-          cursorY += logoHeight + 4;
-        }
-        if (lastClubName){
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(18);
-          doc.text(lastClubName, pageWidth / 2, cursorY, { align:'center' });
-          cursorY += 12;
-        }
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(11);
-        doc.text(`${clubLabel}: ${lastClubName || '—'}`, marginX, cursorY);
-        cursorY += 6;
-        doc.text(`${slugLabel}: ${lastSlug || '—'}`, marginX, cursorY);
-        cursorY += 6;
-        doc.text(`${tokenLabel}: ${tokenValue}`, marginX, cursorY);
-        cursorY += 6;
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(10);
-        const tokenHintLines = doc.splitTextToSize(tokenHint, contentWidth);
-        doc.text(tokenHintLines, marginX, cursorY);
-        cursorY += tokenHintLines.length * 5 + 8;
+        <div class="mock-fight">
+          <div class="mock-fighter red-corner">
+            <div class="mock-fighter-name">Vilmer A.</div>
+            <div class="mock-fighter-gym">Loyalty MT</div>
+          </div>
+          <div class="mock-vs">VS</div>
+          <div class="mock-fighter blue-corner">
+            <div class="mock-fighter-name">Gustav F.</div>
+            <div class="mock-fighter-gym">Combat Acad.</div>
+          </div>
+        </div>
 
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(12);
-        const introLines = doc.splitTextToSize(introCopy, contentWidth);
-        doc.text(introLines, pageWidth / 2, cursorY, { align:'center' });
-        cursorY += introLines.length * 6 + 12;
+        <div class="mock-live-badge">
+          <span class="mock-live-dot"></span>
+          Live now
+        </div>
+      </div>
+    </div>
+  </section>
 
-        const drawBlock = (label, value, hint) => {
-          if (!value) return;
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(12);
-          doc.text(label, marginX, cursorY);
-          cursorY += 6;
-          doc.setFont('helvetica','normal');
-          doc.setFontSize(12);
-          const lines = doc.splitTextToSize(value, contentWidth);
-          doc.text(lines, marginX, cursorY);
-          cursorY += lines.length * 6;
-          if (hint){
-            doc.setFontSize(10);
-            doc.setTextColor(90,90,90);
-            const hintLines = doc.splitTextToSize(hint, contentWidth);
-            doc.text(hintLines, marginX, cursorY);
-            cursorY += hintLines.length * 5;
-            doc.setTextColor(0,0,0);
-          }
-          cursorY += 8;
-        };
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <span class="stat-number">48<span>h</span></span>
+        <span class="stat-label">Card active duration</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number"><span>∞</span></span>
+        <span class="stat-label">Fights per card</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Languages supported</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number"><span>~</span>30<span>s</span></span>
+        <span class="stat-label">To go live</span>
+      </div>
+    </div>
+  </div>
 
-        drawBlock(viewerLabel, lastViewerUrl, viewerHint);
-        drawBlock(adminLabel, lastAdminUrl, adminHint);
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="section-label">Why Fightcard</div>
+    <h2 class="section-title">Everything you need to run fight night</h2>
 
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(12);
-        doc.text(qrLabel, marginX, cursorY);
-        cursorY += 6;
-        if (qrHint){
-          doc.setFont('helvetica','normal');
-          doc.setFontSize(10);
-          const qrHintLines = doc.splitTextToSize(qrHint, contentWidth);
-          doc.text(qrHintLines, marginX, cursorY);
-          cursorY += qrHintLines.length * 5 + 6;
-        }
-        const qrData = await getQrDataUrl(lastViewerUrl);
-        if (qrData){
-          const qrSize = Math.min(100, contentWidth * 0.55);
-          const qrX = (pageWidth - qrSize) / 2;
-          doc.addImage(qrData, 'PNG', qrX, cursorY, qrSize, qrSize);
-          cursorY += qrSize + 6;
-        }
-        const safeName = sanitizeFilename(lastSlug || lastClubName || DEFAULT_FILE_BASENAME) || DEFAULT_FILE_BASENAME;
-        doc.save(`${safeName}.pdf`);
-      }
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        </div>
+        <h3 class="feature-title">Instant fight cards</h3>
+        <p class="feature-desc">Enter your email and club name and you get a live fight card and admin link in seconds. No setup required.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3 class="feature-title">Live updates</h3>
+        <p class="feature-desc">Update winners, methods, and current fight in real time. Your audience sees changes the moment you make them.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <h3 class="feature-title">Share anywhere</h3>
+        <p class="feature-desc">Share your fight card link or QR code with coaches, fighters, and spectators. Works on any device, no app needed.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h3 class="feature-title">Full admin control</h3>
+        <p class="feature-desc">Manage fights, set winners, reorder matches, customise colours and logos — all from a clean admin panel.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3 class="feature-title">Social links</h3>
+        <p class="feature-desc">Add your website, Instagram and Facebook so fans can follow your club directly from the fight card.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <h3 class="feature-title">Fully customisable</h3>
+        <p class="feature-desc">Choose your headline font, colors, and logo. Make the fight card look like your event, not a generic template.</p>
+      </div>
+    </div>
+  </section>
 
-      function sanitizeFilename(input){
-        const base = (input || DEFAULT_FILE_BASENAME).toString().toLowerCase();
-        const cleaned = base.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        return cleaned || DEFAULT_FILE_BASENAME;
-      }
+  <!-- Bottom CTA -->
+  <section class="cta-section">
+    <div class="cta-box">
+      <h2 class="cta-box-title" id="cta-title">Ready to go live?</h2>
+      <p class="cta-box-desc" id="cta-desc">Create your free fight card in under 30 seconds.</p>
+      <button class="btn-primary" id="go2">
+        Create your fightcard
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </section>
 
-      function ensureJsPdf(){
-        if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
-        if (!jsPdfLoader){
-          jsPdfLoader = new Promise((resolve, reject)=>{
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
-            script.async = true;
-            script.onload = () => resolve(window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : null);
-            script.onerror = () => reject(new Error('Failed to load PDF generator'));
-            document.head.appendChild(script);
-          });
-        }
-        return jsPdfLoader;
-      }
+  <!-- Footer -->
+  <footer>
+    <span class="footer-text">© <span id="year"></span> Fightcard · Professional fight cards for combat sports events</span>
+    <div class="footer-contact">
+      <a href="mailto:info@fightcard.eu">info@fightcard.eu</a>
+    </div>
+  </footer>
 
-      async function getQrDataUrl(url){
-        if (!url) return '';
-        if (cachedQrDataUrl && cachedQrSource === url) return cachedQrDataUrl;
-        const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=' + encodeURIComponent(url);
-        const resp = await fetch(qrUrl);
-        if (!resp.ok) throw new Error('QR fetch failed');
-        const blob = await resp.blob();
-        const dataUrl = await blobToDataUrl(blob);
-        cachedQrDataUrl = dataUrl;
-        cachedQrSource = url;
-        return dataUrl;
-      }
+</div>
 
-      let logoDataCache = null;
-      async function getLogoImage(){
-        if (logoDataCache) return logoDataCache;
-        try{
-          const resp = await fetch('assets/logo_design.png');
-          if (!resp.ok) return null;
-          const blob = await resp.blob();
-          const dataUrl = await blobToDataUrl(blob);
-          const size = await getImageSize(dataUrl);
-          logoDataCache = { dataUrl, width: size.width, height: size.height };
-          return logoDataCache;
-        }catch(err){
-          console.warn('Logo load failed', err);
-          return null;
-        }
-      }
+<!-- Demo Modal -->
+<div id="demoModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Demo">
+  <div class="modal-content">
+    <button type="button" class="modal-close" aria-label="Close demo">&times;</button>
+    <div class="modal-inner">
+      <img id="demoSvg" src="assets/demo.svg" alt="Demo fight card">
+    </div>
+  </div>
+</div>
 
-      function blobToDataUrl(blob){
-        return new Promise((resolve, reject)=>{
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => reject(reader.error || new Error('Failed to read blob'));
-          reader.readAsDataURL(blob);
-        });
-      }
+<script>
+(function(){
+  const t = {
+    en: {
+      desc: 'Create stunning fight cards for your Muay Thai events in seconds. Update results live and share instantly with your audience and clubs.',
+      cta: 'Create your fightcard',
+      ctaTitle: 'Ready to go live?',
+      ctaDesc: 'Create your free fight card in under 30 seconds.',
+      demo: 'View demo',
+      demoSrc: 'assets/demo.svg'
+    },
+    sv: {
+      desc: 'Skapa snygga fight cards för dina kampsportsevent direkt. Uppdatera resultat live och dela med publik och klubbar.',
+      cta: 'Skapa ditt fightcard',
+      ctaTitle: 'Redo att gå live?',
+      ctaDesc: 'Skapa ditt gratis fightcard på under 30 sekunder.',
+      demo: 'Visa demo',
+      demoSrc: 'assets/demo_swe.svg'
+    },
+    th: {
+      desc: 'สร้างไฟต์การ์ดสวยงามสำหรับงานกีฬาต่อสู้ของคุณได้ทันที อัปเดตผลสดและแชร์ให้ผู้ชมและสโมสร',
+      cta: 'สร้างไฟต์การ์ดที่นี่',
+      ctaTitle: 'พร้อมไปสดหรือยัง?',
+      ctaDesc: 'สร้างไฟต์การ์ดฟรีภายใน 30 วินาที',
+      demo: 'ดูตัวอย่าง',
+      demoSrc: 'assets/demo_thai.svg'
+    }
+  };
 
-      function getImageSize(src){
-        return new Promise((resolve, reject)=>{
-          const img = new Image();
-          img.onload = () => resolve({ width: img.naturalWidth || 1, height: img.naturalHeight || 1 });
-          img.onerror = () => reject(new Error('Failed to load image'));
-          img.src = src;
-        });
-      }
+  let lang = 'en';
+  try {
+    const saved = localStorage.getItem('lf_lang');
+    const nav = (navigator.language || 'en').toLowerCase();
+    lang = saved || (nav.startsWith('sv') ? 'sv' : nav.startsWith('th') ? 'th' : 'en');
+  } catch(e) {}
 
-      function escapeHtml(str){
-        return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      }
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('lang')) lang = qs.get('lang').toLowerCase();
 
-      function escapeAttr(str){
-        return escapeHtml(str).replace(/"/g,'&quot;');
-      }
+  function apply(l) {
+    const d = t[l] || t.en;
+    lang = l;
+    document.getElementById('hero-desc').textContent = d.desc;
+    document.getElementById('go').childNodes[0].textContent = d.cta + ' ';
+    document.getElementById('go2').childNodes[0].textContent = d.cta + ' ';
+    document.getElementById('cta-title').textContent = d.ctaTitle;
+    document.getElementById('cta-desc').textContent = d.ctaDesc;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+    document.getElementById('demoSvg').src = d.demoSrc;
+    document.documentElement.lang = l;
+    try { localStorage.setItem('lf_lang', l); } catch(e) {}
+  }
 
-      const emailInput = document.querySelector('input[name="email"]');
-      const clubInput = document.querySelector('input[name="club"]');
-      const successMsgEl = document.getElementById('successMsg');
-      const successRecallBtn = document.getElementById('successRecallBtn');
-      const successModal = document.getElementById('successModal');
-      const successModalBody = document.getElementById('successModalBody');
-      const successModalClose = successModal ? successModal.querySelector('.modal-close') : null;
-      const form = document.getElementById('clubForm');
-      document.querySelectorAll('.lang-switch button').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.lang)));
+  document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => apply(b.dataset.lang)));
 
-      const demoModal = document.getElementById('demoModal');
-      const modalCloseBtn = demoModal ? demoModal.querySelector('.modal-close') : null;
-      function openDemoModal(){
-        if (!demoModal) return;
-        demoModal.setAttribute('aria-hidden','false');
-        document.body.style.overflow = 'hidden';
-      }
-      function closeDemoModal(){
-        if (!demoModal) return;
-        demoModal.setAttribute('aria-hidden','true');
-        document.body.style.overflow = '';
-      }
+  document.getElementById('go').addEventListener('click', () => location.href = '/register');
+  document.getElementById('go2').addEventListener('click', () => location.href = '/register');
 
-      function isSuccessModalOpen(){
-        return !!(successModal && successModal.getAttribute('aria-hidden') === 'false');
-      }
+  // Demo modal
+  const modal = document.getElementById('demoModal');
+  const closeBtn = modal.querySelector('.modal-close');
+  function open() { modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+  function close() { modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+  document.getElementById('demoBtn').addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 
-      function openSuccessModal(){
-        if (!successModal) return;
-        if (successModal.getAttribute('aria-hidden') === 'false') return;
-        successModal.setAttribute('aria-hidden','false');
-        document.body.style.overflow = 'hidden';
-      }
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-      function closeSuccessModal(){
-        if (!successModal) return;
-        if (successModal.getAttribute('aria-hidden') === 'true') return;
-        successModal.setAttribute('aria-hidden','true');
-        document.body.style.overflow = '';
-      }
-
-      const heroInfoBtn = document.getElementById('heroInfoBtn');
-      if (heroInfoBtn){
-        heroInfoBtn.addEventListener('click', (ev)=>{
-          ev.preventDefault();
-          openDemoModal();
-        });
-      }
-      if (modalCloseBtn){
-        modalCloseBtn.addEventListener('click', closeDemoModal);
-      }
-      if (successModalClose){
-        successModalClose.addEventListener('click', closeSuccessModal);
-      }
-      if (demoModal){
-        demoModal.addEventListener('click', (ev)=>{ if (ev.target === demoModal) closeDemoModal(); });
-      }
-      if (successModal){
-        successModal.addEventListener('click', (ev)=>{ if (ev.target === successModal) closeSuccessModal(); });
-      }
-      if (qrCloseBtn) qrCloseBtn.addEventListener('click', closeQrModal);
-      if (qrModal){
-        qrModal.addEventListener('click', (ev)=>{ if (ev.target === qrModal) closeQrModal(); });
-      }
-      if (successRecallBtn){
-        successRecallBtn.addEventListener('click', (ev)=>{
-          ev.preventDefault();
-          if (!lastViewerUrl || !lastAdminUrl) return;
-          const strings = dict[lang] || dict.sv;
-          renderSuccessMessage(strings);
-        });
-      }
-      window.addEventListener('keydown', (ev)=>{
-        if (ev.key === 'Escape'){
-          if (demoModal && demoModal.getAttribute('aria-hidden') === 'false') closeDemoModal();
-          if (qrModal && qrModal.getAttribute('aria-hidden') === 'false') closeQrModal();
-          if (successModal && successModal.getAttribute('aria-hidden') === 'false') closeSuccessModal();
-        }
-      });
-      wireQrDownload();
-
-      // Use same-origin API so fightcard.eu (or any host) serves both UI and data
-      const API_BASE = '';
-      const ORIGIN = (window.location && window.location.origin && window.location.origin !== 'null')
-        ? window.location.origin.replace(/\/$/, '')
-        : '';
-      function toAbsoluteUrl(path){
-        if (!path) return ORIGIN;
-        if (/^https?:/i.test(path)) return path;
-        const normalized = path.startsWith('/') ? path : '/' + path;
-        return ORIGIN ? (ORIGIN + normalized) : normalized;
-      }
-      const zone = document.getElementById('logoZone');
-      const input = document.getElementById('logoInput');
-      const preview = document.getElementById('logoPreview');
-      const removeBtn = document.getElementById('removeLogo');
-      const emptyIcon = document.querySelector('.logo-empty-icon');
-      const info = document.getElementById('logoInfo');
-      if (zone && input && preview && removeBtn){
-        function setLogo(file){
-          if (!file) return;
-          const url = URL.createObjectURL(file);
-          preview.src = url; preview.style.display='block';
-          removeBtn.style.display='flex';
-          zone.classList.add('has-file');
-          zone.classList.remove('drag');
-          if (emptyIcon) emptyIcon.style.display='none';
-          if (info){
-            info.style.display='flex';
-            info.innerHTML = `<span>${file.name}</span><span>${(file.size/1024).toFixed(1)} KB</span>`;
-          }
-          try{ localStorage.setItem('lf_logo_name', file.name); }catch(e){}
-        }
-        function bindPickLink(){
-          const link = document.getElementById('logoPickLink');
-          if(link){ link.addEventListener('click', (ev)=>{ ev.preventDefault(); input.click(); }); }
-        }
-        zone.addEventListener('click', (ev)=>{ if(ev.target.id==='logoPickLink' || ev.target.closest('.action')) return; input.click(); });
-        zone.addEventListener('keydown', (e)=>{ if (e.key==='Enter' || e.key===' ') { e.preventDefault(); input.click(); } });
-        input.addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if (f) setLogo(f); });
-        ;['dragenter','dragover'].forEach(ev=> zone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); zone.classList.add('drag'); }));
-        ;['dragleave','drop'].forEach(ev=> zone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); if(ev==='drop'){ const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f){ input.files = e.dataTransfer.files; setLogo(f); } } zone.classList.remove('drag'); }));
-        removeBtn.addEventListener('click', (ev)=>{
-          ev.stopPropagation();
-          preview.src=''; preview.style.display='none'; input.value=''; removeBtn.style.display='none';
-          if (info){ info.style.display='none'; info.innerHTML=''; }
-          if (emptyIcon) emptyIcon.style.display='block';
-          zone.classList.remove('has-file');
-          try{ localStorage.removeItem('lf_logo_name'); localStorage.removeItem('lf_logo_data'); }catch(e){}
-        });
-        try{
-          const prevData = localStorage.getItem('lf_logo_data');
-          if (prevData){
-            preview.src = prevData; preview.style.display='block'; removeBtn.style.display='flex';
-            zone.classList.add('has-file'); if (emptyIcon) emptyIcon.style.display='none';
-          }
-        }catch(e){}
-        document.addEventListener('click', (e)=>{ if(e.target && e.target.id==='logoPickLink'){ e.preventDefault(); input.click(); }});
-        bindPickLink();
-      }
-
-      form.addEventListener('submit', async (e)=>{
-        e.preventDefault();
-        const fd = new FormData(form);
-        const data = Object.fromEntries(fd.entries());
-        const strings = dict[lang] || dict.sv;
-        const emailValue = (data.email || '').trim();
-        const clubValue = (data.club || '').trim();
-        if (!emailValue){
-          showInlineError(strings.missingEmail || 'Please enter an email address.');
-          if (emailInput) emailInput.focus();
-          return;
-        }
-        if (!clubValue){
-          showInlineError(strings.missingClub || 'Please enter a club name.');
-          if (clubInput) clubInput.focus();
-          return;
-        }
-        data.email = emailValue;
-        data.club = clubValue;
-        if (data.logo instanceof File){
-          data.logoName = data.logo.name;
-          try{
-            const reader = new FileReader();
-            reader.onload = () => { try{ localStorage.setItem('lf_logo_data', reader.result); }catch(e){} };
-            reader.readAsDataURL(data.logo);
-          }catch(e){}
-          delete data.logo;
-        }
-        try{ localStorage.setItem('lf_club', JSON.stringify(data)); }catch(err){ console.warn('localStorage save failed', err); }
-        // Create unique card on the server (default TTL 48h)
-        if (!successMsgEl) return;
-        hideInlineAlert();
-        try{
-          const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true, locale: lang }) });
-          const bodyText = await resp.text();
-          let out = null;
-          try{ out = bodyText ? JSON.parse(bodyText) : null; }catch(_){ out = null; }
-          if (!resp.ok || !out || out.ok === false){
-            const code = out && out.code;
-            const msg = (code === 'slug_reserved') ? (strings.slugTaken || strings.linkFail) : (strings.linkFail || 'Could not create link.');
-            lastViewerUrl = '';
-            lastAdminUrl = '';
-            lastSlug = '';
-            lastClubName = data.club || '';
-            lastAdminToken = PDF_TOKEN_FALLBACK;
-            cachedQrDataUrl = '';
-            cachedQrSource = '';
-            hasSuccessLinks = false;
-            updateSuccessRecallButton(strings);
-            closeSuccessModal();
-            if (successMsgEl){
-              successMsgEl.textContent = msg;
-              successMsgEl.classList.add('is-visible');
-            }
-            return;
-          }
-          const viewer = toAbsoluteUrl(out.viewerUrl);
-          const admin = toAbsoluteUrl(out.adminUrl);
-          lastViewerUrl = viewer;
-          lastAdminUrl = admin;
-          const rawViewerPath = (out.viewerUrl || '').toString();
-          const pathParts = rawViewerPath.split('/').filter(Boolean);
-          lastSlug = pathParts.length ? pathParts[pathParts.length - 1] : rawViewerPath.replace(/^\/+/, '');
-          lastClubName = data.club || '';
-          lastAdminToken = out.adminToken || (lastSlug ? (lastSlug.toLowerCase() + '123') : PDF_TOKEN_FALLBACK);
-          cachedQrDataUrl = '';
-          cachedQrSource = '';
-          renderSuccessMessage(strings);
-          // Removed automatic redirect; user stays on this page and can choose links manually.
-        }catch(err){
-          console.warn(err);
-          const strings = dict[lang] || dict.sv;
-          lastViewerUrl = '';
-          lastAdminUrl = '';
-          lastSlug = '';
-          lastClubName = '';
-          lastAdminToken = PDF_TOKEN_FALLBACK;
-          cachedQrDataUrl = '';
-          cachedQrSource = '';
-          hasSuccessLinks = false;
-          updateSuccessRecallButton(strings);
-          closeSuccessModal();
-          if (successMsgEl){
-            successMsgEl.textContent = strings.linkFail;
-            successMsgEl.classList.add('is-visible');
-          }
-        }
-      });
-      const demoImg = document.getElementById('demoSvg');
-      function markMissingDemo(){
-        if (!demoImg) return;
-        const pane = document.createElement('div');
-        pane.style.padding = '2rem';
-        pane.style.color = '#fff';
-        pane.style.font = '600 1rem Montserrat, sans-serif';
-        pane.style.textAlign = 'center';
-        pane.textContent = 'Demo SVG not found or empty. Please provide demo.svg.';
-        demoImg.replaceWith(pane);
-      }
-      if (demoImg){
-        demoImg.addEventListener('error', markMissingDemo);
-        demoImg.addEventListener('load', ()=>{
-          if (demoImg.naturalWidth === 0 || demoImg.naturalHeight === 0){
-            markMissingDemo();
-          }
-        });
-      }
-
-      apply(lang);
-    })();
-  </script>
+  apply(lang);
+})();
+</script>
 </body>
 </html>

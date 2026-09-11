@@ -135,6 +135,10 @@
       if (payload.social && typeof payload.social === 'object'){
         try{ window.social = payload.social; }catch(e){}
       }
+      // round timer (ringklocka)
+      if (payload.timer && typeof payload.timer === 'object'){
+        try{ window.timerState = payload.timer; }catch(e){}
+      }
       // apply event title live color/font immediately if element present
       try{
   const t = document.getElementById('eventTitle');
@@ -213,6 +217,7 @@
       if (typeof renderList === 'function') try{ renderList(); }catch(e){}
       if (typeof updateNow === 'function') try{ updateNow(); }catch(e){}
       if (typeof window.renderSocial === 'function') try{ window.renderSocial(); }catch(e){}
+      if (typeof window.renderTimer === 'function') try{ window.renderTimer(); }catch(e){}
       clearBoot();
       endDomUpdate();
     }catch(e){ console.warn('ws-client: failed to apply state', e); }
