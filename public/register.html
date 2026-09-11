@@ -399,7 +399,7 @@
         // Create unique card on the server (default TTL 48h)
         const msg = document.getElementById('successMsg');
         try{
-          const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 48, club: data, useClubSlug: true }) });
+          const resp = await fetch(API_BASE + '/cards', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ttlHours: 168, club: data, useClubSlug: true }) });
           if(!resp.ok) throw new Error('Create failed: '+resp.status);
           const out = await resp.json();
           const viewer = toAbsoluteUrl(out.viewerUrl);

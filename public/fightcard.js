@@ -134,6 +134,124 @@ function setWinner(matchIndex, side){
   renderList();
 }
 
+function winnerText(f){
+  const w = (f && f.winner ? String(f.winner).toLowerCase() : '');
+  if (w === 'a') return 'Red corner won';
+  if (w === 'b') return 'Blue corner won';
+  if (w === 'draw') return 'Draw';
+  return 'Not decided';
+}
+
+function methodText(f){
+  const m = (f && f.method ? String(f.method).toLowerCase().trim() : '');
+  if (!m) return '';
+  const map = { anon:'Anonymous', dec:'Decision', ko:'KO', tko:'TKO', dq:'DQ', wo:'Walkover', nc:'No Contest', rtd:'RTD' };
+  return map[m] || m.toUpperCase();
+}
+
+async function maybeAddImagePdf(doc, dataUrl, x, y, maxW, maxH){
+  if (!dataUrl || typeof dataUrl !== 'string') return 0;
+  if (!/^data:image\//i.test(dataUrl)) return 0;
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        const ratio = Math.min(maxW / img.width, maxH / img.height);
+        const w = Math.max(1, img.width * ratio);
+        const h = Math.max(1, img.height * ratio);
+        const fmt = /image\/png/i.test(dataUrl) ? 'PNG' : 'JPEG';
+        doc.addImage(dataUrl, fmt, x, y, w, h);
+        resolve(h);
+      }catch(_){ resolve(0); }
+    };
+    img.onerror = ()=> resolve(0);
+    img.src = dataUrl;
+  });
+}
+
+async function downloadCardPdf(){
+  if (!window.jspdf || !window.jspdf.jsPDF) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'p', unit:'mm', format:'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 12;
+  let y = 12;
+
+  const eventTitleEl = document.getElementById('eventTitle');
+  const eventName = (eventTitleEl && eventTitleEl.textContent ? eventTitleEl.textContent : window.eventName || 'Fight Card').toString().trim() || 'Fight Card';
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text(eventName, margin, y);
+  y += 4;
+
+  const logoH = await maybeAddImagePdf(doc, window.eventImageSrc || '', pageW - 62, 10, 50, 22);
+  if (logoH > 0) y = Math.max(y, 10 + logoH);
+  y += 5;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.text('Generated: ' + new Date().toLocaleString(), margin, y);
+  y += 5;
+
+  if (typeof window.eventInfo === 'string' && window.eventInfo.trim()){
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(11);
+    doc.text('Event Info', margin, y);
+    y += 4;
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    const infoLines = doc.splitTextToSize(window.eventInfo.trim(), pageW - margin * 2);
+    doc.text(infoLines, margin, y);
+    y += infoLines.length * 4 + 3;
+  }
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  doc.text('Fights', margin, y);
+  y += 6;
+
+  for (let i = 0; i < fights.length; i++){
+    const f = fights[i] || {};
+    const line1 = `${i+1}. ${(f.a||'').toString()} vs ${(f.b||'').toString()}`;
+    const line2 = [f.klass || '', f.weight || ''].filter(Boolean).join('  |  ') || '-';
+    const mt = methodText(f);
+    const line3 = winnerText(f) + (mt ? ` (${mt})` : '');
+    const line4 = `Red gym: ${(f.aGym||'-').toString()}   Blue gym: ${(f.bGym||'-').toString()}`;
+
+    if (y + 18 > pageH - 24){ doc.addPage(); y = 14; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.text(line1, margin, y); y += 4;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.text(line2, margin, y); y += 4;
+    doc.text(line3, margin, y); y += 4;
+    doc.text(line4, margin, y); y += 5;
+  }
+
+  if (window.social && typeof window.social === 'object'){
+    const socialRows = [];
+    ['website','facebook','instagram','additional'].forEach((k)=>{
+      const item = window.social[k];
+      if (item && item.enabled && item.value) socialRows.push(k + ': ' + String(item.value));
+    });
+    if (socialRows.length){
+      if (y + 20 > pageH - 24){ doc.addPage(); y = 14; }
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('Social', margin, y); y += 5;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+      socialRows.forEach((r)=>{ doc.text(r, margin, y); y += 4; });
+      y += 2;
+    }
+  }
+
+  if (typeof window.eventFootnoteImage === 'string' && /^data:image\//i.test(window.eventFootnoteImage)){
+    const room = pageH - y - 14;
+    if (room > 12){
+      await maybeAddImagePdf(doc, window.eventFootnoteImage, margin, y, 55, Math.min(24, room));
+    }
+  }
+
+  const safeName = eventName.replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'') || 'fightcard';
+  doc.save(`${safeName}.pdf`);
+}
+
 // No demo winners by default — viewers should start with no winners.
 
 function updateNow(){
@@ -316,21 +434,36 @@ window.renderTimer = renderTimer;
 document.addEventListener('DOMContentLoaded', ()=>{
   const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
   renderList();
+  const dlBtn = document.getElementById('downloadCardPdfBtn');
+  if (dlBtn) dlBtn.addEventListener('click', ()=>{ downloadCardPdf().catch(()=>{}); });
   // Base gradient used for viewer background
   const BASE_GRADIENT = "linear-gradient(to bottom, #22394f 0%, #1a2d41 28%, #142433 55%, #0d1a26 78%, #09131d 100%)";
   const SOFT_BLACK_GRADIENT = "linear-gradient(to bottom, #0f1822 0%, #0d141d 50%, #0b1119 100%)";
-  function applyBgTint(hex){
-    // No overlay: gradient by default; soft gradient when black; solid for other colors
-    if (!hex || typeof hex !== 'string'){
+  function applyBgTint(value){
+    // Supports either solid hex (#112233) or gradient encoding: gradient|#112233|#445566
+    if (!value || typeof value !== 'string'){
       document.body.style.background = BASE_GRADIENT;
       return;
     }
-    const low = hex.toLowerCase();
+    const low = value.toLowerCase();
+    if (low.startsWith('gradient|')){
+      const parts = value.split('|');
+      const c1 = (parts[1] || '').trim();
+      const c2 = (parts[2] || '').trim();
+      const m1 = c1.match(/^#?([0-9a-f]{6})$/i);
+      const m2 = c2.match(/^#?([0-9a-f]{6})$/i);
+      if (m1 && m2){
+        document.body.style.background = `linear-gradient(160deg, #${m1[1]} 0%, #${m2[1]} 100%)`;
+        return;
+      }
+      document.body.style.background = BASE_GRADIENT;
+      return;
+    }
     if (low === '#000000' || low === '#000'){
       document.body.style.background = SOFT_BLACK_GRADIENT;
       return;
     }
-    const m = hex.match(/^#?([0-9a-f]{6})$/i);
+    const m = value.match(/^#?([0-9a-f]{6})$/i);
     if(!m){ document.body.style.background = BASE_GRADIENT; return; }
     const color = '#' + m[1];
     document.body.style.background = color;

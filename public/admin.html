@@ -185,6 +185,11 @@
     .sidebar{width:100%;max-height:calc(100dvh - 240px);overflow:auto}
     .fightItem{padding:.65rem;border-radius:14px;margin:.45rem 0;background:#ffffff;border:1px solid var(--card-border);cursor:pointer;display:flex;flex-direction:column;gap:.45rem;box-shadow:var(--shadow-sm);transition:background .25s ease,box-shadow .25s ease;position:relative}
     .fightItem:hover{background:#f5f9fc;box-shadow:0 10px 24px -10px rgba(0,0,0,0.18)}
+    .fight-corners-summary{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.35rem;font-size:.78rem;color:#334155;font-weight:700}
+    .fight-corner-label{display:inline-flex;align-items:center;gap:.35rem}
+    .fight-corner-dot{width:10px;height:10px;border-radius:999px;display:inline-block}
+    .fight-corner-dot.red{background:#d91616}
+    .fight-corner-dot.blue{background:#1668d9}
     .fightItem.current{
       background:#fff5f5;
       border:3px solid #ef233c; /* uniform thickness all around */
@@ -388,6 +393,18 @@
             <div class="color-picker" title="Background color" style="margin-top:.2rem">
               <input id="eventBgColor" type="color" value="#000000" aria-label="Background color">
             </div>
+            <label style="display:flex;align-items:center;gap:.4rem;margin-top:.45rem;font-size:.78rem;color:#334155;font-weight:700">
+              <input id="useBgGradient" type="checkbox"> Use gradient
+            </label>
+            <div id="bgGradientRow" style="display:none;margin-top:.35rem">
+              <input id="eventBgColor2" type="color" value="#1a2d41" aria-label="Background gradient second color" style="width:48px;height:48px;border:0;border-radius:50%;padding:0;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,0,0,0.35)">
+              <div id="bgGradientPresets" style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem">
+                <button type="button" class="btn-small" data-c1="#22394f" data-c2="#0d1a26">Ocean</button>
+                <button type="button" class="btn-small" data-c1="#6d1d2a" data-c2="#f26b38">Sunset</button>
+                <button type="button" class="btn-small" data-c1="#1b4332" data-c2="#2d6a4f">Forest</button>
+                <button type="button" class="btn-small" data-c1="#1f1c2c" data-c2="#3a506b">Night</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="row" style="margin-top:.4rem;align-items:flex-end">
@@ -450,6 +467,7 @@
         <!-- Fight items injected here -->
       </div>
       <div style="display:flex;justify-content:flex-end;margin-top:.95rem">
+        <button id="exportPdfBtn" class="btn-small" type="button" title="Download this card as PDF">Download PDF</button>
         <button id="saveCardBtn" class="btn-small" title="Save all changes">Save</button>
       </div>
   </div>
@@ -563,6 +581,7 @@
   </div>
 
 
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script>
   const fightFormState = { mode:'create', index:null };
   function openFightModal(prefill){
@@ -791,8 +810,15 @@
         if (infoEl) infoEl.value = state.eventInfo;
       }
       if (typeof state.eventBgColor === 'string' && state.eventBgColor){
+        const parsedBg = parseBgSetting(state.eventBgColor);
         const bg = document.getElementById('eventBgColor');
-        if (bg) bg.value = state.eventBgColor;
+        const bg2 = document.getElementById('eventBgColor2');
+        const useGradient = document.getElementById('useBgGradient');
+        const row = document.getElementById('bgGradientRow');
+        if (bg) bg.value = parsedBg.color1;
+        if (bg2) bg2.value = parsedBg.color2;
+        if (useGradient) useGradient.checked = parsedBg.useGradient;
+        if (row) row.style.display = parsedBg.useGradient ? '' : 'none';
       }
       // reflect existing event image in preview if present
       try{
@@ -891,6 +917,10 @@
       if (state && typeof state.current === 'number' && state.current === i){ div.classList.add('current'); }
       const title = document.createElement('div'); title.innerHTML = `<strong>#${i+1}</strong> ${escapeHtml(f.a)} vs ${escapeHtml(f.b)} <span class="muted">(${escapeHtml(f.klass||'')})</span>`;
       div.appendChild(title);
+      const corners = document.createElement('div');
+      corners.className = 'fight-corners-summary';
+      corners.innerHTML = `<span class="fight-corner-label"><span class="fight-corner-dot red"></span>Red: ${escapeHtml(f.a || '-')}</span><span class="fight-corner-label"><span class="fight-corner-dot blue"></span>Blue: ${escapeHtml(f.b || '-')}</span>`;
+      div.appendChild(corners);
       const actionsWrap = document.createElement('div');
       actionsWrap.className = 'fight-actions';
       const editBtn = document.createElement('button');
@@ -998,6 +1028,176 @@
   }
 
   function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+  function parseBgSetting(value){
+    const raw = (value || '').toString().trim();
+    const isHex = s => /^#?[0-9a-f]{6}$/i.test(s);
+    if (raw.toLowerCase().startsWith('gradient|')){
+      const parts = raw.split('|');
+      const c1 = parts[1] || '#22394f';
+      const c2 = parts[2] || '#0d1a26';
+      const n1 = isHex(c1) ? ('#' + c1.replace('#','')) : '#22394f';
+      const n2 = isHex(c2) ? ('#' + c2.replace('#','')) : '#0d1a26';
+      return { useGradient:true, color1:n1, color2:n2 };
+    }
+    const solid = isHex(raw) ? ('#' + raw.replace('#','')) : '#000000';
+    return { useGradient:false, color1:solid, color2:'#1a2d41' };
+  }
+
+  function buildBgSetting(){
+    const c1El = document.getElementById('eventBgColor');
+    const c2El = document.getElementById('eventBgColor2');
+    const useEl = document.getElementById('useBgGradient');
+    const c1 = (c1El && c1El.value ? c1El.value : '#000000').toString();
+    const c2 = (c2El && c2El.value ? c2El.value : '#1a2d41').toString();
+    const useGradient = !!(useEl && useEl.checked);
+    return useGradient ? `gradient|${c1}|${c2}` : c1;
+  }
+
+  function winnerText(f){
+    const w = (f && f.winner ? String(f.winner).toLowerCase() : '');
+    if (w === 'a') return 'Red corner won';
+    if (w === 'b') return 'Blue corner won';
+    if (w === 'draw') return 'Draw';
+    return 'Not decided';
+  }
+
+  function methodText(f){
+    const m = (f && f.method ? String(f.method).toLowerCase().trim() : '');
+    if (!m) return '';
+    const map = { anon:'Anonymous', dec:'Decision', ko:'KO', tko:'TKO', dq:'DQ', wo:'Walkover', nc:'No Contest', rtd:'RTD' };
+    return map[m] || m.toUpperCase();
+  }
+
+  async function maybeAddImage(doc, dataUrl, x, y, maxW, maxH){
+    if (!dataUrl || typeof dataUrl !== 'string') return 0;
+    if (!/^data:image\//i.test(dataUrl)) return 0;
+    return new Promise((resolve)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        try{
+          const ratio = Math.min(maxW / img.width, maxH / img.height);
+          const w = Math.max(1, img.width * ratio);
+          const h = Math.max(1, img.height * ratio);
+          const fmt = /image\/png/i.test(dataUrl) ? 'PNG' : 'JPEG';
+          doc.addImage(dataUrl, fmt, x, y, w, h);
+          resolve(h);
+        }catch(_){ resolve(0); }
+      };
+      img.onerror = ()=> resolve(0);
+      img.src = dataUrl;
+    });
+  }
+
+  async function exportCardPdf(){
+    if (!state || !Array.isArray(state.fights)){
+      showFeedback('No card data loaded yet', false);
+      return;
+    }
+    if (!window.jspdf || !window.jspdf.jsPDF){
+      showFeedback('PDF library not loaded', false);
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'p', unit:'mm', format:'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 12;
+    let y = 12;
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(18);
+    const title = (state.eventName || 'Fight Card').toString().trim() || 'Fight Card';
+    doc.text(title, margin, y);
+    y += 4;
+
+    const logoH = await maybeAddImage(doc, state.eventImage, pageW - 62, 10, 50, 22);
+    if (logoH > 0) y = Math.max(y, 10 + logoH);
+    y += 5;
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.text('Generated: ' + new Date().toLocaleString(), margin, y);
+    y += 5;
+    doc.text('Card slug: ' + (activeSlug || '-'), margin, y);
+    y += 7;
+
+    if (state.eventInfo){
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(11);
+      doc.text('Event Info', margin, y);
+      y += 4;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(10);
+      const infoLines = doc.splitTextToSize(String(state.eventInfo), pageW - margin * 2);
+      doc.text(infoLines, margin, y);
+      y += infoLines.length * 4 + 3;
+    }
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(12);
+    doc.text('Fights', margin, y);
+    y += 6;
+
+    for (let i = 0; i < state.fights.length; i++){
+      const f = state.fights[i] || {};
+      const method = methodText(f);
+      const line1 = `${i+1}. ${(f.a||'').toString()} vs ${(f.b||'').toString()}`;
+      const line2 = [f.klass || '', f.weight || ''].filter(Boolean).join('  |  ') || '-';
+      const line3 = winnerText(f) + (method ? ` (${method})` : '');
+      const line4 = `Red gym: ${(f.aGym||'-').toString()}   Blue gym: ${(f.bGym||'-').toString()}`;
+
+      const needed = 18;
+      if (y + needed > pageH - 24){
+        doc.addPage();
+        y = 14;
+      }
+
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10.5);
+      doc.text(line1, margin, y);
+      y += 4;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9.5);
+      doc.text(line2, margin, y);
+      y += 4;
+      doc.text(line3, margin, y);
+      y += 4;
+      doc.text(line4, margin, y);
+      y += 5;
+    }
+
+    const socialRows = [];
+    if (state.social && typeof state.social === 'object'){
+      ['website','facebook','instagram','additional'].forEach((k)=>{
+        const item = state.social[k];
+        if (item && item.enabled && item.value) socialRows.push(k + ': ' + String(item.value));
+      });
+    }
+    if (socialRows.length){
+      if (y + 20 > pageH - 24){ doc.addPage(); y = 14; }
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(11);
+      doc.text('Social', margin, y);
+      y += 5;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9.5);
+      socialRows.forEach((r)=>{ doc.text(r, margin, y); y += 4; });
+      y += 2;
+    }
+
+    if (state.eventFootnoteImage && /^data:image\//i.test(state.eventFootnoteImage)){
+      const room = pageH - y - 14;
+      if (room > 12){
+        const footH = await maybeAddImage(doc, state.eventFootnoteImage, margin, y, 55, Math.min(24, room));
+        if (footH > 0) y += footH + 2;
+      }
+    }
+
+    const safeTitle = title.replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'') || 'fightcard';
+    doc.save(`${safeTitle}_${activeSlug || 'card'}.pdf`);
+    showFeedback('PDF downloaded', true);
+  }
 
   async function sendAction(payload){
     let token = tokenInput.value.trim();
@@ -1196,6 +1396,7 @@
     const showF = document.getElementById('showFights');
     const pauseBtn = document.getElementById('pauseFights');
     const playBtn = document.getElementById('playFights');
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
     const saveCardBtn = document.getElementById('saveCardBtn');
     if (setW) setW.addEventListener('click', ()=>{ const index = getSelectedIndex(); const side = (document.getElementById('side')||{}).value || 'a'; sendAction({ type:'setWinner', index, side }); });
     if (setD) setD.addEventListener('click', ()=>{ const index = getSelectedIndex(); sendAction({ type:'setWinner', index, side:'draw' }); });
@@ -1208,6 +1409,7 @@
     if (showF) showF.addEventListener('click', ()=>{ sendAction({ type:'setFightsVisible', on:true }); });
     if (pauseBtn) pauseBtn.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:true }); });
     if (playBtn) playBtn.addEventListener('click', ()=>{ sendAction({ type:'setStandby', on:false }); });
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportCardPdf);
     if (saveCardBtn) saveCardBtn.addEventListener('click', async ()=>{
       const r = await sendAction({ type:'save' });
       if (r && r.ok) showFeedback('Card saved', true);
@@ -1231,7 +1433,7 @@
     }
     const imageSize = parseInt(document.getElementById('eventImageSize').value,10);
   const info = document.getElementById('eventInfo').value || '';
-  const bgColor = document.getElementById('eventBgColor').value || '';
+  const bgColor = buildBgSetting();
     const fileInput = document.getElementById('eventImage');
     const file = fileInput && fileInput.files && fileInput.files[0];
     const imageCleared = !!(fileInput && fileInput.dataset && fileInput.dataset.cleared === 'true');
@@ -1492,6 +1694,30 @@
         if (pv && pv.style.display !== 'none') pv.style.maxHeight = (v/10).toFixed(1)+'rem';
       }catch(e){}
     });
+  })();
+
+  (function initBgGradientControls(){
+    const useEl = document.getElementById('useBgGradient');
+    const row = document.getElementById('bgGradientRow');
+    const c1El = document.getElementById('eventBgColor');
+    const c2El = document.getElementById('eventBgColor2');
+    const presets = document.getElementById('bgGradientPresets');
+    if (!useEl || !row) return;
+    function sync(){ row.style.display = useEl.checked ? '' : 'none'; }
+    useEl.addEventListener('change', sync);
+    if (presets && c1El && c2El){
+      presets.querySelectorAll('button[data-c1][data-c2]').forEach((btn)=>{
+        btn.addEventListener('click', ()=>{
+          const c1 = btn.getAttribute('data-c1');
+          const c2 = btn.getAttribute('data-c2');
+          if (c1) c1El.value = c1;
+          if (c2) c2El.value = c2;
+          useEl.checked = true;
+          sync();
+        });
+      });
+    }
+    sync();
   })();
 
   // Modern attach button wiring: supports drag/drop, keyboard activation, preview image, filename and clear

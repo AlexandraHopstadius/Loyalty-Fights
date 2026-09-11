@@ -193,11 +193,20 @@
             // Apply base gradient or solid color (no overlay). If black, use softer gradient.
             const BASE_GRADIENT = "linear-gradient(to bottom, #22394f 0%, #1a2d41 28%, #142433 55%, #0d1a26 78%, #09131d 100%)";
             const SOFT_BLACK_GRADIENT = "linear-gradient(to bottom, #0f1822 0%, #0d141d 50%, #0b1119 100%)";
-            function applyBgTint(hex){
-              if(!hex){ document.body.style.background = BASE_GRADIENT; return; }
-              const low = hex.toLowerCase();
+            function applyBgTint(value){
+              if(!value){ document.body.style.background = BASE_GRADIENT; return; }
+              const low = value.toLowerCase();
+              if (low.startsWith('gradient|')){
+                const parts = value.split('|');
+                const c1 = (parts[1] || '').trim();
+                const c2 = (parts[2] || '').trim();
+                const m1 = c1.match(/^#?([0-9a-f]{6})$/i);
+                const m2 = c2.match(/^#?([0-9a-f]{6})$/i);
+                if (m1 && m2){ document.body.style.background = `linear-gradient(160deg, #${m1[1]} 0%, #${m2[1]} 100%)`; return; }
+                document.body.style.background = BASE_GRADIENT; return;
+              }
               if (low==='#000000' || low==='#000'){ document.body.style.background = SOFT_BLACK_GRADIENT; return; }
-              const m = hex.match(/^#?([0-9a-f]{6})$/i); if(!m){ document.body.style.background = BASE_GRADIENT; return; }
+              const m = value.match(/^#?([0-9a-f]{6})$/i); if(!m){ document.body.style.background = BASE_GRADIENT; return; }
               document.body.style.background = '#' + m[1];
             }
             if (typeof window.eventBgColor === 'string'){
@@ -328,7 +337,7 @@
                     infoEl.style.display='';
                   } else { infoEl.innerHTML=''; infoEl.style.display='none'; }
                 }
-                if (typeof window.eventBgColor === 'string' && window.eventBgColor && window.eventBgColor.toLowerCase() !== '#000000'){
+                if (typeof window.eventBgColor === 'string' && window.eventBgColor){
                   applyBgTint(window.eventBgColor);
                   try{ document.documentElement.style.setProperty('--bg', window.eventBgColor); }catch(_){ }
                   try{ storageSet('eventBgColor', window.eventBgColor); }catch(_){ }

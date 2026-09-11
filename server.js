@@ -116,7 +116,7 @@ function getActiveCard(slug){
   return rec;
 }
 
-function createCard({ club, wantClubSlug }, ttlHours = 48){
+function createCard({ club, wantClubSlug }, ttlHours = 168){
   let slugCandidate = null;
   if (wantClubSlug){
     const name = club && (club.club || club.name || club.clubName); // attempt multiple keys
@@ -728,7 +728,7 @@ app.use(express.json({ limit: '12mb' }));
 // Create a new card after registration/payment
 app.post('/cards', (req, res) => {
   try{
-    const ttl = Math.min(72, Math.max(24, Number(req.body && req.body.ttlHours || 48)));
+    const ttl = Math.min(336, Math.max(24, Number(req.body && req.body.ttlHours || 168)));
     const club = req.body && req.body.club ? req.body.club : {};
     const wantClubSlug = !!(req.body && req.body.useClubSlug);
     const locale = (req.body && typeof req.body.locale === 'string') ? req.body.locale : '';
@@ -861,7 +861,7 @@ app.post('/admin/action', async (req, res) => {
       try{ if (state.eventInfo && state.eventInfo.trim()) state.infoVisible = true; }catch(_){ }
     }
     if (msg.bgColor!=null){
-      state.eventBgColor = (msg.bgColor||'').toString().slice(0,20);
+      state.eventBgColor = (msg.bgColor||'').toString().slice(0,160);
     }
     if (msg.footnoteImage!=null){
       let fv = '';
@@ -1104,7 +1104,7 @@ wss.on('connection', (ws, req)=>{
             try{ if (state.eventInfo && state.eventInfo.trim()) state.infoVisible = true; }catch(_){ }
           }
           if (msg.payload.bgColor!=null){
-            state.eventBgColor = (msg.payload.bgColor||'').toString().slice(0,20);
+            state.eventBgColor = (msg.payload.bgColor||'').toString().slice(0,160);
           }
           if (msg.payload.footnoteImage!=null){
             let fv = '';

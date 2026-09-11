@@ -407,6 +407,34 @@ body.standby .now-strip{ display:none !important }
 .social-row a{color:#fff;text-decoration:none;font-weight:600}
 .social-row a:hover{text-decoration:underline}
 
+/* Bottom card download action */
+.card-download-wrap{display:flex;justify-content:center;margin:.25rem 0 .9rem}
+.card-download-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:999px;
+  padding:.5rem .95rem;
+  background:linear-gradient(165deg, rgba(13,26,40,0.92), rgba(23,48,72,0.92));
+  color:#ecf4ff;
+  font-family:'Montserrat', Arial, sans-serif;
+  font-size:.83rem;
+  font-weight:700;
+  letter-spacing:.02em;
+  cursor:pointer;
+  box-shadow:0 10px 22px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.12);
+  transition:transform .16s ease, box-shadow .2s ease, filter .2s ease;
+}
+.card-download-btn svg{width:16px;height:16px;opacity:.95}
+.card-download-btn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.05);
+  box-shadow:0 14px 28px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.card-download-btn:active{transform:translateY(0)}
+.card-download-btn:focus-visible{outline:2px solid rgba(143,197,255,0.8);outline-offset:2px}
+
 /* Mobile-first: small screens are default. Add media queries for larger screens */
 @media(min-width:720px){
   body{max-width:900px;margin:0 auto}

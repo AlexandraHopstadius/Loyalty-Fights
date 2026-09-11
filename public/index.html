@@ -35,9 +35,26 @@
       setHelpers();
       try {
         var bg = getItem('eventBgColor');
-        if (bg && /^#?[0-9a-fA-F]{6}$/.test(bg.replace('#',''))) {
+        if (bg) {
           document.addEventListener('DOMContentLoaded', function(){
-            if (document.body) document.body.style.background = bg.startsWith('#')? bg : ('#'+bg);
+            if (!document.body) return;
+            var low = String(bg).toLowerCase();
+            if (low.indexOf('gradient|') === 0){
+              var parts = String(bg).split('|');
+              var c1 = (parts[1] || '').trim();
+              var c2 = (parts[2] || '').trim();
+              var ok1 = /^#?[0-9a-fA-F]{6}$/.test(c1);
+              var ok2 = /^#?[0-9a-fA-F]{6}$/.test(c2);
+              if (ok1 && ok2){
+                var n1 = c1.charAt(0)==='#' ? c1 : ('#'+c1);
+                var n2 = c2.charAt(0)==='#' ? c2 : ('#'+c2);
+                document.body.style.background = 'linear-gradient(160deg, ' + n1 + ' 0%, ' + n2 + ' 100%)';
+                return;
+              }
+            }
+            if (/^#?[0-9a-fA-F]{6}$/.test(String(bg).replace('#',''))) {
+              document.body.style.background = String(bg).charAt(0)==='#' ? bg : ('#'+bg);
+            }
           });
         }
         var size = getItem('eventSize'); // tenths of rem
@@ -86,6 +103,16 @@
     <div style="text-align:center;margin-bottom:.6rem">
       <img id="footnoteImage" alt="Foot note" style="max-width:160px;width:28%;height:auto;display:none" />
     </div>
+    <div class="card-download-wrap">
+      <button id="downloadCardPdfBtn" type="button" class="card-download-btn" aria-label="Download card as PDF">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Download Card PDF</span>
+      </button>
+    </div>
     <div id="socialBar" class="social-bar" aria-live="polite"></div>
     </section>
     <footer class="site-footer"></footer>
@@ -97,6 +124,7 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <!-- SheetJS for .xlsx/.xls parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="fightcard.js?v=20251122"></script>
   <!-- Viewer WebSocket client: lightweight external file that listens for {type:'state'} broadcasts
        and applies them to the renderer (preserves compact HTML). -->
